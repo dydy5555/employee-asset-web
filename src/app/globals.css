@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.all-center {
+	@apply flex items-center justify-center;
+}
+
+.primary-gradient {
+	@apply bg-gradient-to-br from-violet-500 to-violet-400;
+}
+
+/* width */
+::-webkit-scrollbar {
+	width: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+	@apply bg-gray-100;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+	@apply bg-gray-300 hover:bg-gray-400;
+  }
+
+
+  ::-webkit-scrollbar {
+    @apply h-1 w-1;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    /* background: #f1f1f1;  */
+    @apply bg-gray-200 rounded-md;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-md hover:bg-gray-400;
+  }
