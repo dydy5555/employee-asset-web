@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 
-function Home() {
+function Home() { 
   redirect('app/employee-assets')
 }
 
