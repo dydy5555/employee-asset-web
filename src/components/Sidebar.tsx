@@ -11,7 +11,7 @@ import pic from "../../public/pic.jpg"
 function Sidebar() {
   const pathname = usePathname();
   return (
-    <div className="w-60 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
+    <div className="w-60 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
     <div className="w-full h-full bg-white border-r">
 
     <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2">
@@ -51,6 +51,17 @@ function Sidebar() {
           >
             <MonitorMobbile size={16}/>
             All Assets
+          </Link>
+        </div>
+        <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+          <Link
+            href={""}
+            className={`flex ${
+              pathname === "/app/teams" ? "text-primary" : ""
+            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+          >
+            <MonitorMobbile size={16}/>
+           Others 
           </Link>
         </div>
       </div>
