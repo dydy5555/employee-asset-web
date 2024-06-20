@@ -30,12 +30,23 @@ function Sidebar() {
           </div>
         </div>
 
-      <div className="flex flex-col gap-1 h-full">
+      <div className="flex flex-col gap-1 h-screen">
+      <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+          <Link
+            href="/app"
+            className={`flex ${
+              pathname === "/app" ? "text-primary" : ""
+            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+          >
+            <Buildings variant="Outline" size={16} />
+            Overview
+          </Link>
+        </div>
         <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
           <Link
-            href={""}
+            href="/app/employee-assets"
             className={`flex ${
-              pathname === "/app/company" ? "text-primary" : ""
+              pathname === "/app/employee-assets" ? "text-primary" : ""
             } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
           >
             <Buildings variant="Outline" size={16} />
