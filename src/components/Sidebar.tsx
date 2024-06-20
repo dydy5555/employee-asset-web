@@ -10,6 +10,7 @@ import pic from "../../public/pic.jpg"
 
 function Sidebar() {
   const pathname = usePathname();
+  
   return (
     <div className="w-60 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
     <div className="w-full h-full bg-white border-r">
@@ -57,7 +58,7 @@ function Sidebar() {
           <Link
             href={""}
             className={`flex ${
-              pathname === "/app/teams" ? "text-primary" : ""
+              pathname === "/app/assets" ? "text-primary" : ""
             } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
           >
             <MonitorMobbile size={16}/>
