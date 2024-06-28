@@ -6,7 +6,7 @@ export default function ConfirmDelete() {
 
   return (
     <>
-      <Button style={{all: 'unset'}} onPress={onOpen}>Open Modal</Button>
+      <Button style={{all: 'unset'}} onClick={onOpen}>Open Modal</Button>
       <Modal className="z-40 " isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false} isKeyboardDismissDisabled={true}>
         <ModalContent>
           {(onClose) => (

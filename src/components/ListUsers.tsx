@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { Avatar, Button, Input, user } from "@nextui-org/react";
 
-import Image from "next/image";
+import { Image } from "@nextui-org/react";
 import {
   Briefcase,
   Buildings2,
@@ -19,8 +19,10 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Select, SelectItem } from "@nextui-org/react";
-import {users} from "../data/users"
+import { users } from "../data/users";
+import { asset_user } from "../data/data";
 import ItemCards from "./ItemCards";
+import AssestByUserList from "./AssestByUserList";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -37,77 +39,95 @@ function ListUsers() {
   const [saveComCd, setSaveComCd] = useState<any>("");
   const [selectedDep, setSelectedDep] = useState(null);
   const [permission, setPermission] = useState<any>();
-  
+  const [items, setItems] = useState([]);
+
   useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      if (cachedData) {
-        setLUser(cachedData);
-      } else {
-        try {
-          const permissionData = await fetchSessionAndPermission();
-          setPermission(permissionData);
-          await companyList(permissionData);
-          const form: any = {
-            useInttId: "",
-            dvsn_NM: "",
-          };
-          let res = await fitlerUsers(form);
-          setLUser(res.data.payload);
-          setCachedData(res.data.payload);
-          setLoading(false);
-        } catch (error) {
-          console.error("Failed to fetch data:", error);
-        }
-      }
-    };
-    fetchData();
+    // setLoading(true);
+    // const fetchData = async () => {
+    //   if (cachedData) {
+    //     setLUser(cachedData);
+    //   } else {
+    //     try {
+    //       const permissionData = await fetchSessionAndPermission();
+    //       setPermission(permissionData);
+    //       await companyList(permissionData);
+    //       const form: any = {
+    //         useInttId: "",
+    //         dvsn_NM: "",
+    //       };
+    //       let res = await fitlerUsers(form);
+    //       setLUser(res.data.payload);
+    //       setCachedData(res.data.payload);
+    //       setLoading(false);
+    //     } catch (error) {
+    //       console.error("Failed to fetch data:", error);
+    //     }
+    //   }
+    // };
+    // fetchData();
   }, [cachedData]);
 
-  const fitlerUsers = async (form:any) => {
+  const fitlerUsers = async (form: any) => {
     return await filterAuthUser(form);
-  }
+  };
 
   const companyList = async (permissionData: any) => {
     try {
       const listCompanies = await listCompany();
-      if (permissionData.permission !== 'SUPER_ADMIN') {
-        const filteredCompanies = listCompanies.data.payload.filter((company: { com_cd: any; }) => company.com_cd === permissionData.user.use_INTT_ID);
+      if (permissionData.permission !== "SUPER_ADMIN") {
+        const filteredCompanies = listCompanies.data.payload.filter(
+          (company: { com_cd: any }) =>
+            company.com_cd === permissionData.user.use_INTT_ID
+        );
         setCompanyData(filteredCompanies);
-        setSaveComCd(filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null);
-        await listDepartment(filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null);
+        setSaveComCd(
+          filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
+        );
+        await listDepartment(
+          filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
+        );
       } else {
         setCompanyData(listCompanies.data.payload);
-        setSaveComCd(listCompanies.data.payload.length > 0 ? listCompanies.data.payload[0].com_cd : null); 
-        await listDepartment(listCompanies.data.payload.length > 0 ? listCompanies.data.payload[0].com_cd : null);
+        setSaveComCd(
+          listCompanies.data.payload.length > 0
+            ? listCompanies.data.payload[0].com_cd
+            : null
+        );
+        await listDepartment(
+          listCompanies.data.payload.length > 0
+            ? listCompanies.data.payload[0].com_cd
+            : null
+        );
       }
     } catch (error) {
-      console.error('Error fetching company list:', error);
+      console.error("Error fetching company list:", error);
     }
   };
 
-  const listDepartment = async (com_cd:any) => {
-    if(com_cd != ""){
+  const listDepartment = async (com_cd: any) => {
+    if (com_cd != "") {
       let listDep = await listDeparment(com_cd);
       const permissionData = await fetchSessionAndPermission();
-      if (permissionData?.permission !== 'SUPER_ADMIN') {
-        const filteredCompanies = listDep.data.payload.filter((dep: { name: any; }) => dep.name === permissionData?.user.dvsn_NM);
+      if (permissionData?.permission !== "SUPER_ADMIN") {
+        const filteredCompanies = listDep.data.payload.filter(
+          (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
+        );
         setDep(filteredCompanies);
-      }else{
+      } else {
         setDep(listDep.data.payload);
       }
     } else {
       setDep([]);
-    };
-    
-  }
+    }
+  };
 
-  const clickOnEachUser = (user : any) => {
-    console.log({user})
+  const clickOnEachUser = (user: any) => {
+    console.log({ user });
     setIsUserLock(false);
     setUserId(user?.userId);
     setClickUser(user);
-    console.log({clickUser})
+    setItems([])
+    setItems((prevItems) => [...prevItems, user]);
     // getLock(users?.userId)
     //   .then((res) => {
     //     if (res.status === 200) {
@@ -194,17 +214,17 @@ function ListUsers() {
   };
 
   const handleCom = async (value: any) => {
-    let key = value?.currentKey || '';
-    if(value.size <= 0){
+    let key = value?.currentKey || "";
+    if (value.size <= 0) {
       setSaveComCd("");
       await listDepartment("");
-    }else{
+    } else {
       setSaveComCd(key);
       await listDepartment(key);
     }
-    setSelectedDep(null); 
+    setSelectedDep(null);
     const form = {
-      useInttId: value.size <= 0 ? "" :key,
+      useInttId: value.size <= 0 ? "" : key,
       dvsn_NM: "",
     };
     let res = await fitlerUsers(form);
@@ -214,7 +234,7 @@ function ListUsers() {
   };
 
   const handleDep = async (value: any) => {
-    let key = value?.currentKey || '';
+    let key = value?.currentKey || "";
     setSelectedDep(key);
     const form: any = {
       useInttId: saveComCd,
@@ -225,48 +245,60 @@ function ListUsers() {
       setLUser(res.data.payload);
     }
   };
+  console.log({ clickUser });
+  console.log(items);
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex w-full gap-4">
         {/* Side 1 */}
         <div className="flex flex-col w-[25%]">
-        <div className="flex items-center gap-1">
-          <Select
-            variant="bordered"
-            className="w-1/2 max-w-xs mb-2"
-            defaultSelectedKeys={['UTLZ_590']}
-            onSelectionChange={handleCom}
-            aria-label="Company"
-            placeholder="Company"
-            style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}
-            startContent={<Buildings2 size="16" color="#596AF4" />}
-          >
-            {companyData.map((com:any) => (
-              <SelectItem key={com.com_cd}>{com.name}</SelectItem>
-            ))}
-          </Select>
+          <div className="flex items-center gap-1">
+            <Select
+              variant="bordered"
+              className="w-1/2 max-w-xs mb-2"
+              defaultSelectedKeys={["UTLZ_590"]}
+              onSelectionChange={handleCom}
+              aria-label="Company"
+              placeholder="Company"
+              style={{
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+              startContent={<Buildings2 size="16" color="#596AF4" />}
+            >
+              {companyData.map((com: any) => (
+                <SelectItem key={com.com_cd}>{com.name}</SelectItem>
+              ))}
+            </Select>
 
-          <Select
-            variant="bordered"
-            className="w-1/2 max-w-xs mb-2"
-            onSelectionChange={handleDep}
-            placeholder="Department"
-            aria-label="Department"
-            disabled={!saveComCd || saveComCd.size <= 0}
-            selectedKeys={selectedDep ? [selectedDep] : []}
-            style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis'}}
-            startContent={<Briefcase size="16" color="#596AF4" />}
-          >
-            {dep.length === 0 ? (
-              <SelectItem key="no-department" isReadOnly>
-                No Department
-              </SelectItem>
-            ) : (
-              dep.map((d:any) => <SelectItem key={d.name}>{d.name}</SelectItem>)
-            )}
-          </Select>
-        </div>
+            <Select
+              variant="bordered"
+              className="w-1/2 max-w-xs mb-2"
+              onSelectionChange={handleDep}
+              placeholder="Department"
+              aria-label="Department"
+              disabled={!saveComCd || saveComCd.size <= 0}
+              selectedKeys={selectedDep ? [selectedDep] : []}
+              style={{
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+              startContent={<Briefcase size="16" color="#596AF4" />}
+            >
+              {dep.length === 0 ? (
+                <SelectItem key="no-department" isReadOnly>
+                  No Department
+                </SelectItem>
+              ) : (
+                dep.map((d: any) => (
+                  <SelectItem key={d.name}>{d.name}</SelectItem>
+                ))
+              )}
+            </Select>
+          </div>
 
           {/* Search */}
           <Input
@@ -287,12 +319,12 @@ function ListUsers() {
           {/* User Map */}
           <div className="border w-[100%] max-h-[600px] custom-scroll rounded-lg overflow-auto h-full">
             <div className="p-2 h-full">
-              {users.length > 0 ? (
-                users?.map((user) => (
+              {asset_user.length > 0 ? (
+                asset_user?.map((user) => (
                   <div
-                    key={user.id}
+                    key={user.userId}
                     className={`cursor-pointer flex justify-between items-center p-2  ${
-                      activeUserId === user.id
+                      activeUserId === user.userId
                         ? "border-l-[6px] border-primary bg-gray-100 rounded-md"
                         : ""
                     }`}
@@ -313,7 +345,7 @@ function ListUsers() {
                       <div className="flex flex-col">
                         <span className="text-sm">{user.flnm}</span>
                         <span className="text-xs text-gray-400">
-                          {user.jbcl_NM}
+                          {user.username}
                         </span>
                       </div>
                     </div>
@@ -340,19 +372,17 @@ function ListUsers() {
             <>
               <div className="flex items-center justify-between">
                 <div className="gap-2 flex cursor-pointer group items-center px-4 py-3">
-                  <div className="h-10 outline  w-10 flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
+                  <div className="outline flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
                     <Image
-                      src={Avatar3}
-                      alt="User"
-                      width={36}
-                      height={36}
-                      className="w-9 h-9 rounded-full object-cover"
+                      src={clickUser.prfl_PHTG}
+                      alt={clickUser?.username}
+                      className="w-[45px] h-[45px] rounded-full object-cover"
                     />
                   </div>
                   <div>
                     <h1 className="text-sm font-bold text-gray-800">
                       <div className="flex items-center">
-                        {clickUser?.flnm}
+                        {clickUser?.username}
                         {isUserLock ? (
                           <Lock
                             className="ml-2"
@@ -371,12 +401,11 @@ function ListUsers() {
                       </div>
                     </h1>
                     <p className="text-xs text-gray-500 font-medium">
-                      {clickUser?.jbcl_NM}
+                      {clickUser?.userId}
                     </p>
                   </div>
                 </div>
 
-               
                 {isUserLock ? (
                   <button
                     onClick={() => handleUnlock(clickUser?.userId)}
@@ -390,8 +419,8 @@ function ListUsers() {
                 )}
               </div>
               <div className="p-5">
-                    <ItemCards />
-                </div>
+                <AssestByUserList clickUser={items} />
+              </div>
 
               {/* <hr className="mb-4" /> */}
             </>

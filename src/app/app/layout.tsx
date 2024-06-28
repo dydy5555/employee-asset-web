@@ -48,7 +48,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           <Sidebar />
         </div>
         <div className="hidden md:block">
-          <Header />
+          {/* <Header /> */}
           <div className="w-full p-10">{children}</div>
         </div>
       </div>

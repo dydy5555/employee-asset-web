@@ -1,39 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Input,
+  Autocomplete,
+  AutocompleteItem,
   Button,
-  DropdownTrigger,
   Dropdown,
-  DropdownMenu,
   DropdownItem,
-  Chip,
-  User,
-  Pagination,
-  Select,
-  SelectItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
 } from "@nextui-org/react";
-import { PlusIcon } from "../../public/icons/PlusIcon";
-import { columns, asset_user, statusOptions, items } from "../data/data";
-import { capitalize } from "../utils/util";
 import { SearchNormal1 } from "iconsax-react";
 import { ChevronDownIcon } from "../../public/icons/ChevronDownIcon";
-import { VerticalDotsIcon } from "../../public/icons/VerticalDotsIcon";
-import AddNewAsset from "./Modals/AddNewAsset";
-import ConfirmDelete from "./Modals/ConfirmDelete";
-import ItemDetail from "./Modals/ItemDetail";
 import CreateCategory from "./Modals/CreateCategory";
-
-const statusColorMap = {
-  active: "success",
-  paused: "danger",
-  vacation: "warning",
-};
+import AddNewAsset from "./Modals/AddNewAsset";
+import { columns, asset_user, statusOptions, items } from "../data/data";
+import { capitalize } from "../utils/util";
+import { createContext } from "vm";
 
 const category = [
   { key: "laptop", label: "Laptop" },
@@ -41,10 +30,11 @@ const category = [
   { key: "monitor", label: "Monitor" },
 ];
 
-
 const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
-export default function ItemCards() {
+export const DataContext = createContext();
+
+function AssestByUserList({clickUser}) {
   const [filterValue, setFilterValue] = React.useState("");
   const [visibleColumns, setVisibleColumns] = React.useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
@@ -53,60 +43,12 @@ export default function ItemCards() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const [page, setPage] = React.useState(1);
-  const [selectedCategory, setSelectedCategory] = useState(category[0].key);
 
-  const handleCategoryChange = (event) => {
-    console.log(event);
-    setSelectedCategory(event.anchorKey);
-  };
-
-  console.log(selectedCategory);
-  // const selectedAssets = data[0].assets[selectedCategory];
-  // console.log(selectedAssets);
-  // const assetKeys = selectedAssets ? Object.keys(selectedAssets) : [];
-
-  ///
   const hasSearchFilter = Boolean(filterValue);
 
-  const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...asset_user];
-
-    if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>{
-        user.username.includes(filterValue.toLowerCase())
-      }
-      );
-    }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
-      );
-    }
-
-    return filteredUsers;
-  }, [items, filterValue, statusFilter]);
-
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
-
-  const item = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
-
-  // const sortedItems = React.useMemo(() => {
-  //   return [...item].sort((a, b) => {
-  //     const first = a[sortDescriptor.column];
-  //     const second = b[sortDescriptor.column];
-  //     const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-  //     return sortDescriptor.direction === "descending" ? -cmp : cmp;
-  //   });
-  // }, [sortDescriptor, item]);
+  const [assetProperties, setAssetProperties] = useState([]);
+  const data = useContext(clickUser);
+ 
 
   const onRowsPerPageChange = React.useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
@@ -239,55 +181,95 @@ export default function ItemCards() {
     hasSearchFilter,
   ]);
 
-    const [openMod, setOpenMod] = useState(false);
-  const [itemsUser, setItemsUser] = useState([]);
-  const handleRowClick = (user) => {
-    setItemsUser(user);
-    setOpenMod(true);
-  };
-console.log(itemsUser)
-  return (
-    <>
-      <div>
-        {/* isHeaderSticky
-        bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "max-h-[792px]",
-        }}
-        sortDescriptor={sortDescriptor}
-        onSortChange={setSortDescriptor} */}
-        <Table topContent={topContent} topContentPlacement="outside">
-          <TableHeader>
-            {/* <TableColumn>NO</TableColumn> */}
-            <TableColumn>ID</TableColumn>
-            <TableColumn>EMPLOYEE</TableColumn>
-            <TableColumn>DEPARTMENT</TableColumn>
-            <TableColumn>COMPANY</TableColumn>
-            <TableColumn>ASSETS</TableColumn>
-          </TableHeader>
+  const subCategoryKeys = [
+    ...new Set(
+      assetProperties.flatMap((category) =>
+        category.subCategories.flatMap((subCategory) =>
+          Object.keys(subCategory)
+        )
+      )
+    ),
+  ];
 
-          <TableBody>
-            {asset_user.map((user) => (
-              <TableRow key={user.id} onClick={() => handleRowClick(user)}>
-                <TableCell>{user.userId}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.department}</TableCell>
-                <TableCell>{user.company}</TableCell>
-                <TableCell>
-                  {user.allAssets.map((asset) => (
-                        <>{`${asset.name}, `}</>
-                  ))}
-                </TableCell>
-              </TableRow>
+  useEffect(() => {
+    clickUser.map((items) => {
+      setAssetProperties(items.allAssets);
+    });
+  }, [assetProperties,subCategoryKeys]);
+
+
+  return (
+    <div className="w-full">
+      <div className="">
+        <div className="w-full text-center ">
+          <div className="flex capitalize text-[16px] rounded-lg w-full  bg-[#F4F4F5]  font-bold text-gray-800">
+            <div className=" w-full py-2 text-center">Category</div>
+            {subCategoryKeys.map((key) => (
+              <div key={key} className=" w-full py-2 text-center">
+                {key}
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+
+          <div>
+            {assetProperties.map((category) => (
+              <>
+                {category.subCategories.map((subCategory, index) => (
+                  <div className=" text-[16px] flex" key={index}>
+                    {index === 0 && (
+                      <div
+                        className="w-full py-2"
+                        rowSpan={category.subCategories.length}
+                      >
+                        {category.name}
+                      </div>
+                    )}
+                    {subCategoryKeys.map((key) => (
+                      <div className="w-full py-2" key={key}>
+                        {subCategory[key] || "-"}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </>
+            ))}
+          </div>
+        </div>
       </div>
-      <ItemDetail
-        setOpenMod={setOpenMod}
-        openMod={openMod}
-        itemsUser={itemsUser}
-      ></ItemDetail>
-    </>
+  
+      {/* <div className="flex flex-col gap-5 shadow-md p-5 rounded-lg mt-10">
+        {assetProperties.map((assets) => (
+          <>
+            {assets.subCategories.map((subCategory, index) => (
+              <div className="border-b-1 pb-5 text-center">
+                <div key={index} className="w-full">
+                  <div className="flex gap-5 flex-wrap font-medium text-primary py-2 capitalize">
+                    <p className="">Asset</p>
+                    {Object.entries(subCategory).map(([key, value]) => (
+                      <p className="" key={key}>
+                        {key}
+                      </p>
+                    ))}
+                  </div>
+
+                  <div className="w-full ">
+                    <div key={index} className="flex gap-5">
+                      <p className="">{subCategory.name}</p>
+                      {Object.entries(subCategory).map(([key, value]) => (
+                        <p className="" key={key}>
+                          {value}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
+        ))}
+      </div> */}
+    </div>
   );
 }
+
+export default AssestByUserList;

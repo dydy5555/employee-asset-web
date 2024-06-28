@@ -56,7 +56,7 @@ function Sidebar() {
         </div>
         <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
           <Link
-            href={""}
+            href={"/app/assets"}
             className={`flex ${
               pathname === "/app/assets" ? "text-primary" : ""
             } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
