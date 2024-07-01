@@ -41,7 +41,6 @@ const category = [
   { key: "monitor", label: "Monitor" },
 ];
 
-
 const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
 export default function ItemCards() {
@@ -60,7 +59,7 @@ export default function ItemCards() {
     setSelectedCategory(event.anchorKey);
   };
 
-  console.log(selectedCategory);
+  console.log(asset_user);
   // const selectedAssets = data[0].assets[selectedCategory];
   // console.log(selectedAssets);
   // const assetKeys = selectedAssets ? Object.keys(selectedAssets) : [];
@@ -72,10 +71,9 @@ export default function ItemCards() {
     let filteredUsers = [...asset_user];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>{
-        user.username.includes(filterValue.toLowerCase())
-      }
-      );
+      filteredUsers = filteredUsers.filter((user) => {
+        user.username.includes(filterValue.toLowerCase());
+      });
     }
     if (
       statusFilter !== "all" &&
@@ -165,7 +163,7 @@ export default function ItemCards() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
                   endContent={<ChevronDownIcon className="text-small" />}
@@ -188,7 +186,7 @@ export default function ItemCards() {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
             <CreateCategory />
             <AddNewAsset />
           </div>
@@ -239,16 +237,17 @@ export default function ItemCards() {
     hasSearchFilter,
   ]);
 
-    const [openMod, setOpenMod] = useState(false);
+  const [openMod, setOpenMod] = useState(false);
   const [itemsUser, setItemsUser] = useState([]);
   const handleRowClick = (user) => {
-    setItemsUser(user);
+    setItemsUser([])
+    setItemsUser((prev)=> [...prev, user]);
     setOpenMod(true);
   };
-console.log(itemsUser)
+  console.log(itemsUser);
   return (
     <>
-      <div>
+      <div className="h-[400px]">
         {/* isHeaderSticky
         bottomContentPlacement="outside"
         classNames={{
@@ -256,28 +255,44 @@ console.log(itemsUser)
         }}
         sortDescriptor={sortDescriptor}
         onSortChange={setSortDescriptor} */}
-        <Table topContent={topContent} topContentPlacement="outside">
+        <Table topContent={topContent} topContentPlacement="outside" isStriped isHeaderSticky className=" max-h-[850px] py-5">
           <TableHeader>
-            {/* <TableColumn>NO</TableColumn> */}
-            <TableColumn>ID</TableColumn>
+            <TableColumn>NO</TableColumn>
             <TableColumn>EMPLOYEE</TableColumn>
+            <TableColumn>TEAM</TableColumn>
             <TableColumn>DEPARTMENT</TableColumn>
             <TableColumn>COMPANY</TableColumn>
             <TableColumn>ASSETS</TableColumn>
+            <TableColumn>REMARK</TableColumn>
           </TableHeader>
 
-          <TableBody>
-            {asset_user.map((user) => (
-              <TableRow key={user.id} onClick={() => handleRowClick(user)}>
-                <TableCell>{user.userId}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.department}</TableCell>
-                <TableCell>{user.company}</TableCell>
-                <TableCell>
+          <TableBody >
+            {asset_user.map((user, index) => (
+              <TableRow
+                key={user.id}
+                onClick={() => handleRowClick(user)}
+                className="hover:cursor-pointer"
+              >
+                <TableCell className="py-2 pl-4">{index + 1}</TableCell>
+                <TableCell className="flex items-center py-2">
+                  <User 
+                    avatarProps={{ radius: "full", src: user.prfl_PHTG }}
+                    description={user.userId}
+                    name={user.username}
+                    
+                  >
+                    {user.username}
+                  </User>
+                </TableCell>
+                <TableCell className="py-2">{user.team}</TableCell>
+                <TableCell className="py-2">{user.department}</TableCell>
+                <TableCell className="py-2">{user.company}</TableCell>
+                <TableCell className="py-2">
                   {user.allAssets.map((asset) => (
-                        <>{`${asset.name}, `}</>
+                    <>{`${asset.name}, `}</>
                   ))}
                 </TableCell>
+                <TableCell className="py-2">{user.remark}</TableCell>
               </TableRow>
             ))}
           </TableBody>

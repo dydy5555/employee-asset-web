@@ -37,6 +37,7 @@ import { Heart } from "iconsax-react";
 export default function AddNewAsset() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isSelected, setIsSelected] = useState(false);
 
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
@@ -53,22 +54,30 @@ export default function AddNewAsset() {
     }
 
     const inputs = properties[selectedCategory].map((property, index) => (
-      <div key={index} className="w-full ">
-        <Input
-          placeholder={`Enter ${property}`}
-          className="w-full"
-          // Implement onChange handler to manage input state
-        />
+      <>
+      <div key={index} className="w-full grid grid-cols-4 gap-4 items-center">
+        <div className="col-span-1 flex justify-between">
+        <p className="capitalize ">{property}</p>
+        <p>:</p>
+        </div>
+        <div className="col-span-3">
+          <Input
+            radius="sm"
+            placeholder={`Enter ${property}`}
+            className="w-full"
+          />
+        </div>
       </div>
+      </>
     ));
-
+    setIsSelected(true)
     return inputs;
   };
 
   return (
     <>
       <Button onPress={onOpen} color="primary">
-        Add New
+        Add New Asset
       </Button>
       <Modal
         isOpen={isOpen}
@@ -81,13 +90,13 @@ export default function AddNewAsset() {
             <>
               <ModalHeader className="flex flex-col gap-1 mt-2">
                 <h1 className="text-center">Add New Asset</h1>
-                <div className="border border-[1px] border-gray-100 mt-2"></div>
+                <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
-              <ModalBody className="px-7">
-                <div className="flex gap-4 items-center">
+              <ModalBody className="px-8">
+                <div className="flex w-full">
                   <Select
                     label="Select a category"
-                    className="max-w-lg"
+                    className="max-w-lg w-full"
                     value={selectedCategory || ""}
                     onChange={handleCategoryChange}
                   >
@@ -98,12 +107,18 @@ export default function AddNewAsset() {
                     ))}
                   </Select>
                 </div>
-                <div className="flex flex-col gap-4 my-2">{renderInputFields()}</div>
-                <div className="border border-[1px] border-gray-100"></div>
+                <div className="flex flex-col gap-3 my-2 text-sm">
+                  {isSelected ? (
+                    <div className=" font-medium">Category properties</div> 
+                  ):(
+                    <></>
+                  )}
+                {renderInputFields()}</div>
+                {/* <div className="border border-[1px] border-gray-100"></div> */}
               </ModalBody>
 
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
                 <Button color="primary" onPress={onClose}>

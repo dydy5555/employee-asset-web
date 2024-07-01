@@ -23,6 +23,7 @@ import { users } from "../data/users";
 import { asset_user } from "../data/data";
 import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
+import AddNewAsset from "./Modals/AddNewAsset";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -323,7 +324,7 @@ function ListUsers() {
                 asset_user?.map((user) => (
                   <div
                     key={user.userId}
-                    className={`cursor-pointer flex justify-between items-center p-2  ${
+                    className={`cursor-pointer flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg ${
                       activeUserId === user.userId
                         ? "border-l-[6px] border-primary bg-gray-100 rounded-md"
                         : ""
@@ -332,20 +333,19 @@ function ListUsers() {
                       setActiveUserId(user?.id), clickOnEachUser(user);
                     }}
                   >
-                    <div className="flex gap-2 items-center">
-                      <Avatar
-                        alt={user.userId}
-                        className="flex-shrink-0"
-                        size="sm"
-                        src={
-                          user?.prfl_PHTG ||
-                          "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"
-                        }
-                      />
+                    <div className="flex gap-2 items-center ">
+                       <Image
+                      src={
+                        user?.prfl_PHTG ||
+                        "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"
+                      }
+                      alt={user?.userId}
+                      className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
+                    />
                       <div className="flex flex-col">
-                        <span className="text-sm">{user.flnm}</span>
+                        <span className="text-sm">{user.username}</span>
                         <span className="text-xs text-gray-400">
-                          {user.username}
+                          {user.userId}
                         </span>
                       </div>
                     </div>
@@ -367,7 +367,7 @@ function ListUsers() {
         </div>
         {/* Side 2 */}
 
-        <div className=" w-[75%] max-h-[695px] overflow-hidden rounded-lg border">
+        <div className=" w-[75%] max-h-[695px] overflow-hidden rounded-lg border p-5">
           {clickUser ? (
             <>
               <div className="flex items-center justify-between">
@@ -376,7 +376,7 @@ function ListUsers() {
                     <Image
                       src={clickUser.prfl_PHTG}
                       alt={clickUser?.username}
-                      className="w-[45px] h-[45px] rounded-full object-cover"
+                      className="w-[45px] h-[45px] rounded-full object-cover border-1 p-[2px] border-gray-400"
                     />
                   </div>
                   <div>
@@ -405,6 +405,9 @@ function ListUsers() {
                     </p>
                   </div>
                 </div>
+                <div className="px-4">
+                  <AddNewAsset />
+                </div>
 
                 {isUserLock ? (
                   <button
@@ -418,7 +421,7 @@ function ListUsers() {
                   ""
                 )}
               </div>
-              <div className="p-5">
+              <div className="p-5 w-full h-full">
                 <AssestByUserList clickUser={items} />
               </div>
 
