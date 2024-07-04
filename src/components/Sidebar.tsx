@@ -67,13 +67,13 @@ function Sidebar() {
         </div>
         <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
           <Link
-            href={""}
+            href={"/app/all-categories"}
             className={`flex ${
-              pathname === "/app/teams" ? "text-primary" : ""
+              pathname === "/app/all-categories" ? "text-primary" : ""
             } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
           >
             <MonitorMobbile size={16}/>
-           Others 
+           All Category 
           </Link>
         </div>
       </div>

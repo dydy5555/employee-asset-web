@@ -4,11 +4,12 @@ const imageDomains = process.env.NEXT_PUBLIC_IMAGE_DOMAINS.split(',');
 
 // export default nextConfig;
 const nextConfig = {
-    // env: {
-    //   API_URL: process.env.API_URL,
-    //   KEY: process.env.KEY,
-    //   NEXT_PUBLIC_IMAGE_DOMAINS: process.env.NEXT_PUBLIC_IMAGE_DOMAINS
-    // },
+    output: 'standalone',
+    env: {
+      apiUrl: process.env.API_URL,
+      // KEY: process.env.KEY,
+      NEXT_PUBLIC_IMAGE_DOMAINS: process.env.NEXT_PUBLIC_IMAGE_DOMAINS
+    },
     images: {
       domains: imageDomains,
       remotePatterns: [

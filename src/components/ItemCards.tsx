@@ -28,6 +28,7 @@ import AddNewAsset from "./Modals/AddNewAsset";
 import ConfirmDelete from "./Modals/ConfirmDelete";
 import ItemDetail from "./Modals/ItemDetail";
 import CreateCategory from "./Modals/CreateCategory";
+import { fetchAllEmployeeAssets } from "@/services/assets.service";
 
 const statusColorMap = {
   active: "success",
@@ -50,7 +51,8 @@ export default function ItemCards() {
   );
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
+  const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
+  const [allAssets, setAllAssets] = useState([]);
   const [page, setPage] = React.useState(1);
   const [selectedCategory, setSelectedCategory] = useState(category[0].key);
 
@@ -59,10 +61,6 @@ export default function ItemCards() {
     setSelectedCategory(event.anchorKey);
   };
 
-  console.log(asset_user);
-  // const selectedAssets = data[0].assets[selectedCategory];
-  // console.log(selectedAssets);
-  // const assetKeys = selectedAssets ? Object.keys(selectedAssets) : [];
 
   ///
   const hasSearchFilter = Boolean(filterValue);
@@ -240,11 +238,23 @@ export default function ItemCards() {
   const [openMod, setOpenMod] = useState(false);
   const [itemsUser, setItemsUser] = useState([]);
   const handleRowClick = (user) => {
-    setItemsUser([])
-    setItemsUser((prev)=> [...prev, user]);
+    setItemsUser([]);
+    setItemsUser((prev) => [...prev, user]);
     setOpenMod(true);
   };
   console.log(itemsUser);
+
+  useEffect(() => {
+    fetchAllEmployeeAssets().then((res) => {
+      if (res?.status == 200) {
+        setAllEmployeeAssets(res?.data?.payload);
+      }
+    });
+  }, []);
+  console.log(allEmployeeAssets);
+  console.log(allAssets);
+
+
   return (
     <>
       <div className="h-[400px]">
@@ -255,7 +265,13 @@ export default function ItemCards() {
         }}
         sortDescriptor={sortDescriptor}
         onSortChange={setSortDescriptor} */}
-        <Table topContent={topContent} topContentPlacement="outside" isStriped isHeaderSticky className=" max-h-[850px] py-5">
+        <Table
+          topContent={topContent}
+          topContentPlacement="outside"
+          isStriped
+          isHeaderSticky
+          className=" max-h-[850px] py-5"
+        >
           <TableHeader>
             <TableColumn>NO</TableColumn>
             <TableColumn>EMPLOYEE</TableColumn>
@@ -266,8 +282,8 @@ export default function ItemCards() {
             <TableColumn>REMARK</TableColumn>
           </TableHeader>
 
-          <TableBody >
-            {asset_user.map((user, index) => (
+          <TableBody>
+            {allEmployeeAssets.map((user, index) => (
               <TableRow
                 key={user.id}
                 onClick={() => handleRowClick(user)}
@@ -275,14 +291,14 @@ export default function ItemCards() {
               >
                 <TableCell className="py-2 pl-4">{index + 1}</TableCell>
                 <TableCell className="flex items-center py-2">
-                  <User 
+                  {/* <User
                     avatarProps={{ radius: "full", src: user.prfl_PHTG }}
                     description={user.userId}
-                    name={user.username}
-                    
+                    name={user.employee_name}
                   >
-                    {user.username}
-                  </User>
+                    {user.employee_name}
+                  </User> */}
+                    {user.employee_name}
                 </TableCell>
                 <TableCell className="py-2">{user.team}</TableCell>
                 <TableCell className="py-2">{user.department}</TableCell>
@@ -297,6 +313,21 @@ export default function ItemCards() {
             ))}
           </TableBody>
         </Table>
+        {/* <div>
+          {allEmployeeAssets.map((user,index)=>(
+            <div key={index} className="flex gap-10">
+              <p>{user?.userId}</p>
+              <p>{user?.employee_name}</p>
+              <p>{user?.team}</p>
+              <p>{user?.department}</p>
+              <p>{user?.company}</p>
+              {user.allAssets.map((value,key)=>(
+                <p key={key}>{value.name}</p>
+              ))}
+              <p>{user?.remark}</p>
+              </div>
+          ))}
+        </div> */}
       </div>
       <ItemDetail
         setOpenMod={setOpenMod}
