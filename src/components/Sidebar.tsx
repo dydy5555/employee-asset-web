@@ -12,7 +12,7 @@ function Sidebar() {
   const pathname = usePathname();
   
   return (
-    <div className="w-60 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
+    <div className="w-60 p-0 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
     <div className="w-full h-full bg-white border-r">
 
     <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2">

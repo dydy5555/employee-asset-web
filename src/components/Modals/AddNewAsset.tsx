@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Modal,
@@ -16,7 +18,11 @@ import {
   Image,
 } from "@nextui-org/react";
 
-import { Heart } from "iconsax-react";
+import { Devices, Heart } from "iconsax-react";
+import {
+  fetchAllCCategory,
+  func_GetCategoryByID,
+} from "@/services/category.service";
 
 const category = [
   { key: "laptop", label: "Laptop" },
@@ -46,24 +52,10 @@ const tempUser = [
   },
   {
     id: 2,
-    userId: "moniroit",
-    username: "Morn Moniroit",
+    userId: "kongrady",
+    username: "Kong Rady",
     prfl_PHTG:
-      "https://i.pinimg.com/originals/be/ce/4f/bece4fb55afdd7bbdc55628cc8242aea.jpg",
-  },
-  {
-    id: 3,
-    userId: "sokhen",
-    username: "Sim Sokhen",
-    prfl_PHTG:
-      "https://i.pinimg.com/564x/62/a2/b5/62a2b5e86f23ff89ce394d7eed6a4d43.jpg",
-  },
-  {
-    id: 4,
-    userId: "rithysak",
-    username: "Ren Rithysak",
-    prfl_PHTG:
-      "https://i.pinimg.com/736x/2e/7a/a5/2e7aa5fc8a1eaa81f604d1b992acbcb1.jpg",
+      "https://i.pinimg.com/736x/8d/96/08/8d960872618c86ab63bd51922c4da6de.jpg",
   },
 ];
 
@@ -72,24 +64,24 @@ export default function AddNewAsset() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
   const [isSelectedUser, setIsSelectedUser] = useState(false);
-
+  const [userSelected, setUserSeleted] = useState([]);
+  const [allCate, setAllCate] = useState([]);
+  const [subCate, setSubCate] = useState([]);
+  
   const handleCategoryChange = (event) => {
     console.log(event.target.value);
     setSelectedCategory(event.target.value);
+    fetchByID(event.target.value);
   };
 
   const renderInputFields = () => {
     if (!selectedCategory) {
       return null;
     }
-
-    const properties = temp.find((item) => item[selectedCategory]);
-    if (!properties) {
+    if (!subCate) {
       return null;
     }
-
-    console.log(properties);
-    const inputs = properties[selectedCategory].map((property, index) => (
+    const inputs = subCate?.map((property, index) => (
       <>
         <div key={index} className="w-full grid grid-cols-4 gap-4 items-center">
           <div className="col-span-1 flex justify-between">
@@ -110,12 +102,49 @@ export default function AddNewAsset() {
     return inputs;
   };
 
-  useEffect(() => {}, []);
+  const fetchCate = () => {
+    try {
+      fetchAllCCategory().then((res) => {
+        if (res?.status == 200) {
+          setAllCate(res?.data?.payload);
+          console.log("allCate", res?.data?.payload);
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // setIsLoading(false);
+    } finally {
+    }
+  };
 
+  const fetchByID = async (selectedCategory) => {
+    console.log(selectedCategory);
+    try {
+      func_GetCategoryByID(selectedCategory).then((res) => {
+        console.log(res);
+        setSubCate(res.data.subCategories);
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+
+  const handleSave=()=>{
+    console.log(userSelected);
+    console.log(subCate)
+
+  }
+
+  useEffect(() => {
+    console.log(isSelectedUser);
+    fetchCate();
+  }, []);
+  
   return (
     <>
-      <Button onPress={onOpen} color="primary">
-        Add New Asset
+      <Button onPress={onOpen}  color="primary" variant="light" className="border-[0.5px] text-md text-semibold text-[#378CE7]" style={{borderColor: "#378CE7"}}>
+      <Devices size="22" color="#378CE7"/> Asset
       </Button>
       <Modal
         isOpen={isOpen}
@@ -166,6 +195,7 @@ export default function AddNewAsset() {
                       },
                     }}
                     renderValue={(items) => {
+                      setUserSeleted(items[0]?.data);
                       setIsSelectedUser(true);
                       return items.map((item) => (
                         <div key={item.key} className="flex items-center gap-2">
@@ -214,9 +244,9 @@ export default function AddNewAsset() {
                       value={selectedCategory || ""}
                       onChange={handleCategoryChange}
                     >
-                      {category.map((item) => (
-                        <SelectItem key={item.key} value={item.key}>
-                          {item.label}
+                      {allCate.map((item) => (
+                        <SelectItem key={item.id} value={item.categoryName}>
+                          {item.categoryName}
                         </SelectItem>
                       ))}
                     </Select>
@@ -224,7 +254,7 @@ export default function AddNewAsset() {
                 ) : (
                   <></>
                 )}
-                <div className="flex flex-col gap-3 my-2 text-sm">
+                <div className="flex flex-col gap-3 my-2 text-sm pl-2">
                   {isSelected ? (
                     <div className=" font-medium">Category properties</div>
                   ) : (
@@ -236,10 +266,21 @@ export default function AddNewAsset() {
               </ModalBody>
 
               <ModalFooter>
-                <Button variant="flat" onPress={onClose}>
+                <Button
+                  variant="flat"
+                  onClick={() => {
+                    setIsSelectedUser(false);
+                    setAllCate([]);
+                    setSubCate([]);
+                    onClose();
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onClick={()=>{
+                  handleSave()
+                  onClose()
+                }}>
                   Save
                 </Button>
               </ModalFooter>

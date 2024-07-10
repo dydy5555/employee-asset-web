@@ -1,3 +1,5 @@
+'use client'
+
 import React, { use, useEffect, useState } from "react";
 import {
   Modal,
@@ -12,8 +14,10 @@ import {
   Link,
   Tooltip,
 } from "@nextui-org/react";
-import { Add, Trash } from "iconsax-react";
+import { Add, CardAdd, Trash } from "iconsax-react";
 import AddNewAsset from "./AddNewAsset";
+import { fetchAllCCategory, func_CreateCategory } from "@/services/category.service";
+import toast from "react-hot-toast";
 
 function CreateCategory() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -45,14 +49,19 @@ function CreateCategory() {
     const propertiesList = inputList
       .map((input) => input.value.trim().toLowerCase())
       .filter((value) => value !== "");
-    const newCategory = { [categoryName]: propertiesList };
-    console.log(newCategory);
+    const newCategory = { categoryName, subCategories: propertiesList };
+    func_CreateCategory(newCategory).then((res)=>{
+      toast.success("Updated Successfully!");
+      console.log(res);
+    })
   };
+
+
 
   return (
     <>
-      <Button onPress={onOpen} color="primary">
-        Create Category
+      <Button onPress={onOpen} color="primary" variant="light" className="border-[0.5px] text-md text-semibold text-[#378CE7]" style={{borderColor: "#378CE7"}}>
+      <CardAdd size="22" color="#378CE7"/>Category
       </Button>
       <Modal
         isOpen={isOpen}
@@ -126,7 +135,10 @@ function CreateCategory() {
                 <Button variant="flat" onPress={onClose}>
                   Cancel
                 </Button>
-                <Button color="primary" onPress={handleSave}>
+                <Button color="primary" onClick={()=>{
+                  handleSave()
+                  onClose()
+                }}>
                   Save
                 </Button>
               </ModalFooter>

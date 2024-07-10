@@ -49,7 +49,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className="hidden md:block">
           {/* <Header /> */}
-          <div className="w-full p-10">{children}</div>
+          <div className="w-full ">{children}</div>
         </div>
       </div>
     </motion.div>

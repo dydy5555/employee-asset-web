@@ -1,3 +1,6 @@
+
+'use client'
+
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -126,18 +129,18 @@ export default function ItemCards() {
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
+        <div className="flex gap-3 items-end">
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
             placeholder="Search by name..."
-            startContent={<SearchNormal1 />}
+            startContent={<SearchNormal1 size="22" color="#378CE7"/>}
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
                   endContent={<ChevronDownIcon className="text-small" />}
@@ -160,7 +163,7 @@ export default function ItemCards() {
                   </DropdownItem>
                 ))}
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
             {/* <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
@@ -201,10 +204,10 @@ export default function ItemCards() {
               ))}
             </Select> */}
             <span className="text-default-400 text-small">
-              Total {items.length} items
+              Total {allEmployeeAssets.length} employee
             </span>
           </div>
-          <label className="flex items-center text-default-400 text-small">
+          {/* <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
               className="bg-transparent outline-none text-default-400 text-small"
@@ -221,7 +224,7 @@ export default function ItemCards() {
               <option value="90">90</option>
               <option value="100">100</option>
             </select>
-          </label>
+          </label> */}
         </div>
       </div>
     );
@@ -272,8 +275,8 @@ export default function ItemCards() {
           isHeaderSticky
           className=" max-h-[850px] py-5"
         >
-          <TableHeader>
-            <TableColumn>NO</TableColumn>
+          <TableHeader >
+            <TableColumn >NO</TableColumn>
             <TableColumn>EMPLOYEE</TableColumn>
             <TableColumn>TEAM</TableColumn>
             <TableColumn>DEPARTMENT</TableColumn>
@@ -285,12 +288,12 @@ export default function ItemCards() {
           <TableBody>
             {allEmployeeAssets.map((user, index) => (
               <TableRow
-                key={user.id}
+                key={index}
                 onClick={() => handleRowClick(user)}
                 className="hover:cursor-pointer"
               >
-                <TableCell className="py-2 pl-4">{index + 1}</TableCell>
-                <TableCell className="flex items-center py-2">
+                <TableCell className="py-2.5 pl-4">{index + 1}</TableCell>
+                <TableCell className="flex items-center py-2.5">
                   {/* <User
                     avatarProps={{ radius: "full", src: user.prfl_PHTG }}
                     description={user.userId}
@@ -300,15 +303,15 @@ export default function ItemCards() {
                   </User> */}
                     {user.employee_name}
                 </TableCell>
-                <TableCell className="py-2">{user.team}</TableCell>
-                <TableCell className="py-2">{user.department}</TableCell>
-                <TableCell className="py-2">{user.company}</TableCell>
-                <TableCell className="py-2">
+                <TableCell className="py-2.5">{user.team}</TableCell>
+                <TableCell className="py-2.5">{user.department}</TableCell>
+                <TableCell className="py-2.5">{user.company}</TableCell>
+                <TableCell className="py-2.5">
                   {user.allAssets.map((asset) => (
                     <>{`${asset.name}, `}</>
                   ))}
                 </TableCell>
-                <TableCell className="py-2">{user.remark}</TableCell>
+                <TableCell className="py-2.5">{user.remark}</TableCell>
               </TableRow>
             ))}
           </TableBody>
