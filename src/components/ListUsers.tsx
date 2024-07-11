@@ -46,6 +46,8 @@ function ListUsers() {
 
   const [company, setCompany]= useState([]);
   const [asset_user,setAssetUser]= useState([]);
+  const [statusFilter, setStatusFilter] = React.useState("all");
+
 
   useEffect(() => {
     setLoading(true);
@@ -76,6 +78,22 @@ function ListUsers() {
     };
     fetchData();
   }, [cachedData]);
+
+  const hasSearchFilter = Boolean(filterValue);
+
+
+  const filteredItems = React.useMemo(() => {
+    let filteredUsers = [...asset_user];
+
+    if (hasSearchFilter) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.flnm.toLowerCase().includes(filterValue.toLowerCase()),
+      );
+    }
+    return filteredUsers;
+  }, [asset_user, filterValue, statusFilter]);
+
+
 
   const fitlerUsers = async (form: any) => {
     try {
@@ -424,8 +442,8 @@ function ListUsers() {
           <div className="border w-[100%] max-h-[600px] custom-scroll rounded-lg overflow-auto h-full">
             <div className="p-2 h-full">
               
-              {asset_user.length > 0 ? (
-                asset_user?.map((user) => (
+              {filteredItems.length > 0 ? (
+                filteredItems?.map((user) => (
                   <div
                     key={user.userId}
                     className={`cursor-pointer flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg ${
@@ -456,15 +474,18 @@ function ListUsers() {
                   </div>
                 ))
               ) : (
-                <div className="flex justify-center h-full items-center">
+                <div className="w-full h-full flex items-center justify-center">
+                <div>
                   <Image
-                    src={nodata}
-                    alt="User"
-                    width={160}
-                    height={160}
-                    className="rounded-full object-cover"
+                    src={"https://img.freepik.com/free-vector/hand-drawn-no-data-concept_52683-127823.jpg"
+                    }
+                    alt="logo"
+                    className="w-[150px] dark:block"
                   />
+    
+                  <p className="text-lg text-gray-400 text-center">No data</p>
                 </div>
+              </div>
               )}
             </div>
           </div>
