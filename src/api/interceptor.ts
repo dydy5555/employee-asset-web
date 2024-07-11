@@ -23,4 +23,6 @@ export const api = axios.create({
 const ihttp = axios.create({
     baseURL: API_URL,
   });
+
+  
   export default ihttp;
