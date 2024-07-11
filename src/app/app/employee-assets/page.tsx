@@ -10,7 +10,7 @@ function Page() {
 
 
     return (
-        <div className='text-gray-500 w-full'>
+        <div className='text-gray-500 w-full p-10'>
                 {/* users table */}
                 <ListUsers />
         </div>

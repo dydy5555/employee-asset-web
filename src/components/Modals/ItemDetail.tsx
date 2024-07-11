@@ -140,7 +140,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       <div key={index} className="flex gap-8">
                         <div>
                           <Image
-                            src={user.prfl_PHTG}
+                            src={user.prfl_PHTG ? user.prfl_PHTG : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"}
                             alt={user?.employee_name}
                             className="w-[150px] h-[150px] rounded-full object-cover border-2 p-[2px] border-gray-400"
                           />

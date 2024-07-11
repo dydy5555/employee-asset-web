@@ -15,8 +15,8 @@ function Sidebar() {
     <div className="w-60 p-0 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
     <div className="w-full h-full bg-white border-r">
 
-    <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2">
-          <div className="h-10 outline outline-primary w-10 flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
+    <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2 text-center">
+          {/* <div className="h-10 outline outline-primary w-10 flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
             <Image
               src={pic}
               alt="User"
@@ -28,7 +28,9 @@ function Sidebar() {
           <div>
             <h1 className="text-sm font-bold text-gray-800">{"Administration"}</h1>
             <p className="text-[11px] text-gray-500 font-medium">{'Manage BizWeb Platform'}</p>
-          </div>
+          </div> */}
+          
+          <div className="text-md font-semibold text-primary w-full ">Assets Employee</div>
         </div>
 
       <div className="flex flex-col gap-1 h-screen">

@@ -22,7 +22,7 @@ function HomePage() {
   ];
 
   return (
-    <div className="w-full h-full mt-5 ">
+    <div className="w-full h-full">
       <ItemCards />
     </div>
   );

@@ -89,7 +89,7 @@ function page() {
   );
   return (
     <>
-      <div className="p-5">
+      <div className="p-10">
         <div className="w-2/4 flex justify-center items-center gap-5">
           <Input
             label="Search"
