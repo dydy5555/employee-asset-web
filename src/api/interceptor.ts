@@ -7,6 +7,7 @@ import axios, {
   
 
 export const API_URL = process.env.apiUrl;
+export const KEY = process.env.KEY;
 
 let session:any = '';
 let token: any;
@@ -22,6 +23,4 @@ export const api = axios.create({
 const ihttp = axios.create({
     baseURL: API_URL,
   });
-
-
   export default ihttp;

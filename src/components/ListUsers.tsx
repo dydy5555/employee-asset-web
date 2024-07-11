@@ -24,6 +24,8 @@ import { asset_user } from "../data/data";
 import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
 import AddNewAsset from "./Modals/AddNewAsset";
+import { log } from "console";
+import { fetchSessionAndPermission } from "@/api/interceptor";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -42,44 +44,80 @@ function ListUsers() {
   const [permission, setPermission] = useState<any>();
   const [items, setItems] = useState([]);
 
+  const [company, setCompany]= useState([]);
+  const [asset_user,setAssetUser]= useState([]);
+
   useEffect(() => {
-    // setLoading(true);
-    // const fetchData = async () => {
-    //   if (cachedData) {
-    //     setLUser(cachedData);
-    //   } else {
-    //     try {
-    //       const permissionData = await fetchSessionAndPermission();
-    //       setPermission(permissionData);
-    //       await companyList(permissionData);
-    //       const form: any = {
-    //         useInttId: "",
-    //         dvsn_NM: "",
-    //       };
-    //       let res = await fitlerUsers(form);
-    //       setLUser(res.data.payload);
-    //       setCachedData(res.data.payload);
-    //       setLoading(false);
-    //     } catch (error) {
-    //       console.error("Failed to fetch data:", error);
-    //     }
-    //   }
-    // };
-    // fetchData();
+    setLoading(true);
+    const fetchData = async () => {
+      if (cachedData) {
+        setLUser(cachedData);
+      } else {
+        try {
+          const permissionData = await fetchSessionAndPermission();
+          setPermission(permissionData);
+          await companyList(permissionData);
+          const form: any = {
+            type: "admin",
+            useInttId: "",
+            appId:"",
+            dvsn_NM: ""
+          };
+          const data = await fitlerUsers(form); // Note: data is already parsed JSON
+        
+          setLUser(data); // Assuming data is already data.payload
+          setCachedData(data);
+          setLoading(false);
+        } catch (error) {
+          console.error("Failed to fetch data:", error);
+        }
+      }
+    };
+    fetchData();
   }, [cachedData]);
 
   const fitlerUsers = async (form: any) => {
-    return await filterAuthUser(form);
+    try {
+      const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtb25pcm9pdCIsImV4cCI6MTcyMDc0NjI3NSwiaWF0IjoxNzIwNjU5ODc1LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoibW9uaXJvaXQifQ.t6pOLDU3sHVLT887bGDr_-vKbfz2NNeyZypkCyUnylRgnyjNizE3t5aypTE6VJuOgLSwDopZH8gtH3XDlC-vuQ'; // Replace with your actual JWT token
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+  
+      const res = await fetch('https://bizweb.kosign.dev/api/v1/auth/filter/users', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(form),
+      });
+  
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+  
+      const data = await res.json();
+      console.log("Filtered Users", data.payload);
+      return data.payload; // Return the filtered users data
+    } catch (error) {
+      console.error("Error fetching filtered users", error.message);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+      }
+    }
   };
-
+  
+  
   const companyList = async (permissionData: any) => {
     try {
-      const listCompanies = await listCompany();
-      if (permissionData.permission !== "SUPER_ADMIN") {
-        const filteredCompanies = listCompanies.data.payload.filter(
-          (company: { com_cd: any }) =>
-            company.com_cd === permissionData.user.use_INTT_ID
-        );
+      const listCompanies = await fetch('https://bizweb-adm.kosign.dev/api/v1/companies/allCompanies');
+      const data = await listCompanies.json();
+      console.log("All data ", data.payload);
+      
+      // if (permissionData.permission !== "SUPER_ADMIN") {
+        // const filteredCompanies =data.payload.filter(
+        //   (company: { com_cd: any }) =>
+        //     company.com_cd === permissionData.user.use_INTT_ID
+        // );
+        const filteredCompanies= data.payload
         setCompanyData(filteredCompanies);
         setSaveComCd(
           filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
@@ -87,40 +125,64 @@ function ListUsers() {
         await listDepartment(
           filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
         );
-      } else {
-        setCompanyData(listCompanies.data.payload);
-        setSaveComCd(
-          listCompanies.data.payload.length > 0
-            ? listCompanies.data.payload[0].com_cd
-            : null
-        );
-        await listDepartment(
-          listCompanies.data.payload.length > 0
-            ? listCompanies.data.payload[0].com_cd
-            : null
-        );
-      }
-    } catch (error) {
+      // } 
+      // else {
+      //   setCompanyData(data.payload);
+      //   setSaveComCd(
+      //     data.payload.length > 0
+      //       ?data.payload[0].com_cd
+      //       : null
+      //   );
+      //   await listDepartment(
+      //     data.payload.length > 0
+      //       ? data.payload[0].com_cd
+      //       : null
+      //   );
+      // }
+    }
+     catch (error) {
       console.error("Error fetching company list:", error);
     }
   };
 
   const listDepartment = async (com_cd: any) => {
+    localStorage.setItem("com_id", com_cd);
     if (com_cd != "") {
-      let listDep = await listDeparment(com_cd);
-      const permissionData = await fetchSessionAndPermission();
-      if (permissionData?.permission !== "SUPER_ADMIN") {
-        const filteredCompanies = listDep.data.payload.filter(
-          (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
-        );
-        setDep(filteredCompanies);
-      } else {
-        setDep(listDep.data.payload);
-      }
-    } else {
-      setDep([]);
+      // let listDep = await fetch(`https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`)
+      // let data = await listDep.json();
+      // console.log("get department", data.payload);
+        try {
+          const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtb25pcm9pdCIsImV4cCI6MTcyMDc0NjI3NSwiaWF0IjoxNzIwNjU5ODc1LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoibW9uaXJvaXQifQ.t6pOLDU3sHVLT887bGDr_-vKbfz2NNeyZypkCyUnylRgnyjNizE3t5aypTE6VJuOgLSwDopZH8gtH3XDlC-vuQ'; // Replace with your actual JWT token
+          const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          };
+    
+          const res = await fetch(`https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`, {
+            headers,
+          });
+      const data = await res.json();
+      console.log("all department", data.payload)
+      
+      // const permissionData = await fetchSessionAndPermission();
+      // if (permissionData?.permission !== "SUPER_ADMIN") {
+      //   const filteredCompanies = data.payload.filter(
+      //     (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
+      //   );
+      //   setDep(filteredCompanies);
+      // } else {
+        setDep(data.payload);
+      // }
+    }catch(error){
+      console.log("error");
+      
     }
-  };
+     
+  }
+  else {
+    setDep([]);
+  }
+}
 
   const clickOnEachUser = (user: any) => {
     console.log({ user });
@@ -174,9 +236,9 @@ function ListUsers() {
     }
   }, []);
 
-  const filteredUsers = lUser.filter((user: any) =>
-    user.flnm.toLowerCase().includes(filterValue.toLowerCase())
-  );
+  // const filteredUsers = lUser.filter((user: any) =>
+  //   user.flnm.toLowerCase().includes(filterValue.toLowerCase())
+  // );
 
   const handleClickToggle = (cardClick: any) => {
     const updatedCards = cards.map((c) => {
@@ -225,8 +287,10 @@ function ListUsers() {
     }
     setSelectedDep(null);
     const form = {
+      type: "admin",
       useInttId: value.size <= 0 ? "" : key,
-      dvsn_NM: "",
+      appId: "1",
+      dvsn_NM: ""
     };
     let res = await fitlerUsers(form);
     if (res && res.data && res.data.payload) {
@@ -238,8 +302,10 @@ function ListUsers() {
     let key = value?.currentKey || "";
     setSelectedDep(key);
     const form: any = {
+      type: "admin",
       useInttId: saveComCd,
-      dvsn_NM: key,
+      appId: "1",
+      dvsn_NM: key
     };
     let res = await fitlerUsers(form);
     if (res && res.data && res.data.payload) {
@@ -248,6 +314,33 @@ function ListUsers() {
   };
   console.log({ clickUser });
   console.log(items);
+
+
+
+
+  const getAllUsers = async () => {
+    try {
+      const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtb25pcm9pdCIsImV4cCI6MTcyMDc0NjI3NSwiaWF0IjoxNzIwNjU5ODc1LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoibW9uaXJvaXQifQ.t6pOLDU3sHVLT887bGDr_-vKbfz2NNeyZypkCyUnylRgnyjNizE3t5aypTE6VJuOgLSwDopZH8gtH3XDlC-vuQ'; // Replace with your actual JWT token
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      const res = await fetch('https://bizweb.kosign.dev/api/v1/auth', {
+        headers,
+      });
+      const data = await res.json();
+      setAssetUser(data?.payload)
+      
+      console.log("All Company", data.payload);
+    } catch (error) {
+      console.log("Data fetch error", error);
+    }
+  };
+  
+  useEffect(() => {
+    getAllUsers();
+  }, []);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -269,9 +362,16 @@ function ListUsers() {
               }}
               startContent={<Buildings2 size="16" color="#596AF4" />}
             >
-              {companyData.map((com: any) => (
+               {companyData.length === 0 ? (
+                <SelectItem key="no-department" isReadOnly>
+                  No Company
+                </SelectItem>
+              ) : (
+              companyData.map((com: any) => (
                 <SelectItem key={com.com_cd}>{com.name}</SelectItem>
-              ))}
+              ))
+              
+              )}
             </Select>
 
             <Select
@@ -320,6 +420,7 @@ function ListUsers() {
           {/* User Map */}
           <div className="border w-[100%] max-h-[600px] custom-scroll rounded-lg overflow-auto h-full">
             <div className="p-2 h-full">
+              
               {asset_user.length > 0 ? (
                 asset_user?.map((user) => (
                   <div
@@ -343,9 +444,9 @@ function ListUsers() {
                       className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
                     />
                       <div className="flex flex-col">
-                        <span className="text-sm">{user.username}</span>
+                        <span className="text-sm">{user.flnm}</span>
                         <span className="text-xs text-gray-400">
-                          {user.userId}
+                          {user.flnm}
                         </span>
                       </div>
                     </div>
@@ -375,14 +476,14 @@ function ListUsers() {
                   <div className="outline flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
                     <Image
                       src={clickUser.prfl_PHTG}
-                      alt={clickUser?.username}
+                      alt={clickUser?.flnm}
                       className="w-[45px] h-[45px] rounded-full object-cover border-1 p-[2px] border-gray-400"
                     />
                   </div>
                   <div>
                     <h1 className="text-sm font-bold text-gray-800">
                       <div className="flex items-center">
-                        {clickUser?.username}
+                        {clickUser?.flnm}
                         {isUserLock ? (
                           <Lock
                             className="ml-2"
