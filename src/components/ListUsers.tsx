@@ -54,9 +54,10 @@ function ListUsers() {
         setLUser(cachedData);
       } else {
         try {
-          const permissionData = await fetchSessionAndPermission();
-          setPermission(permissionData);
-          await companyList(permissionData);
+          // const permissionData = await fetchSessionAndPermission();
+          // setPermission(permissionData);
+          // await companyList(permissionData);
+          await companyList();
           const form: any = {
             type: "admin",
             useInttId: "",
@@ -106,7 +107,9 @@ function ListUsers() {
   };
   
   
-  const companyList = async (permissionData: any) => {
+  // const companyList = async (permissionData: any) => {
+ const companyList = async () => {
+
     try {
       const listCompanies = await fetch('https://bizweb-adm.kosign.dev/api/v1/companies/allCompanies');
       const data = await listCompanies.json();
@@ -444,7 +447,7 @@ function ListUsers() {
                       className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
                     />
                       <div className="flex flex-col">
-                        <span className="text-sm">{user.flnm}</span>
+                        <span className="text-sm">{user.username}</span>
                         <span className="text-xs text-gray-400">
                           {user.flnm}
                         </span>
@@ -476,14 +479,14 @@ function ListUsers() {
                   <div className="outline flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
                     <Image
                       src={clickUser.prfl_PHTG}
-                      alt={clickUser?.flnm}
+                      alt={clickUser?.username}
                       className="w-[45px] h-[45px] rounded-full object-cover border-1 p-[2px] border-gray-400"
                     />
                   </div>
                   <div>
                     <h1 className="text-sm font-bold text-gray-800">
                       <div className="flex items-center">
-                        {clickUser?.flnm}
+                        {clickUser?.username}
                         {isUserLock ? (
                           <Lock
                             className="ml-2"
