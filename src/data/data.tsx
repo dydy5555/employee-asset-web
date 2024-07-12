@@ -307,7 +307,7 @@ const asset_user = [
     remark: "",
   },
   {
-    id: "6662c6465f21945835g204e12",
+    id: "6662c6465f21945835g204e12", 
     userId: "kongrady",
     username: "KongRady",
     team: "B2B",

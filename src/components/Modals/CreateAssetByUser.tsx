@@ -18,52 +18,17 @@ import {
   Image,
 } from "@nextui-org/react";
 
-import { Devices, Heart } from "iconsax-react";
+import { CardAdd, } from "iconsax-react";
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
 import { getListEmployee } from "@/services/employee.service";
-import { userAgent } from "next/server";
 import { func_CreateAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
 
-const category = [
-  { key: "laptop", label: "Laptop" },
-  { key: "phone", label: "Phone" },
-  { key: "monitor", label: "Monitor" },
-];
 
-const temp = [
-  {
-    laptop: ["name", "type", "lable_no", "mac_address"],
-  },
-  {
-    phone: ["name"],
-  },
-  {
-    monitor: ["name", "inch_A"],
-  },
-];
-
-const tempUser = [
-  {
-    id: 1,
-    userId: "kongrady",
-    username: "Kong Rady",
-    prfl_PHTG:
-      "https://i.pinimg.com/736x/8d/96/08/8d960872618c86ab63bd51922c4da6de.jpg",
-  },
-  {
-    id: 2,
-    userId: "kongrady",
-    username: "Kong Rady",
-    prfl_PHTG:
-      "https://i.pinimg.com/736x/8d/96/08/8d960872618c86ab63bd51922c4da6de.jpg",
-  },
-];
-
-export default function AddNewAsset() {
+export default function CreateAssetByUser() {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
@@ -211,7 +176,7 @@ export default function AddNewAsset() {
         className="border-[0.5px] text-md text-semibold text-[#378CE7]"
         style={{ borderColor: "#378CE7" }}
       >
-        <Devices size="22" color="#378CE7" /> Asset
+        <CardAdd size="26" color="#378CE7"/> Asset
       </Button>
       <Modal
         isOpen={isOpen}

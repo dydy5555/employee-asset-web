@@ -1,8 +1,9 @@
-import ihttp from "@/api/interceptor";
+import { ihttp1 } from "@/api/interceptor";
+
 
 export const fetchAllCCategory = async () => {
   try {
-    const response = await ihttp.get(`/api/v1/categories/allCategories`, {
+    const response = await ihttp1.get(`/api/v1/categories/allCategories`, {
       headers: {
         accept: "*/*",
       },
@@ -16,7 +17,7 @@ export const fetchAllCCategory = async () => {
 export const func_EditCategory = async (id, requestBody) => {
   console.log(id, requestBody);
   try {
-    const res = await ihttp.put(`/api/v1/categories/${id}`, requestBody, {
+    const res = await ihttp1.put(`/api/v1/categories/${id}`, requestBody, {
       headers: {
         accept: "*/*",
         "Content-Type": "application/json",
@@ -32,7 +33,7 @@ export const func_EditCategory = async (id, requestBody) => {
 export const func_DeleteCategory = async (id) => {
   console.log(id);
   try {
-    const res = await ihttp.delete(`/api/v1/categories/${id}`, {
+    const res = await ihttp1.delete(`/api/v1/categories/${id}`, {
       headers: {
         accept: "*/*",
       },
@@ -46,12 +47,12 @@ export const func_DeleteCategory = async (id) => {
 export const func_GetCategoryByID = async (id) => {
   console.log(id);
   try {
-    const res = await ihttp.get(`/api/v1/categories/${id}`, {
+    const res = await ihttp1.get(`/api/v1/categories/${id}`, {
       headers: {
         accept: "*/*",
       },
     });
-    return res;
+    return res.data.payload;
   } catch (error) {
     console.log("Error : ", error);
     return error;
@@ -60,7 +61,7 @@ export const func_GetCategoryByID = async (id) => {
 
 export const func_CreateCategory = async (requestBody) => {
   try {
-    const res = await ihttp.post(`/api/v1/categories`, requestBody, {
+    const res = await ihttp1.post(`/api/v1/categories`, requestBody, {
       headers: {
         accept: "*/*",
         "Content-Type": "application/json",

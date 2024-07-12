@@ -26,6 +26,8 @@ import AssestByUserList from "./AssestByUserList";
 import AddNewAsset from "./Modals/AddNewAsset";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
+import { func_GetByUserID } from "@/services/assets.service";
+import CreateAssetByUser from "./Modals/CreateAssetByUser";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -42,7 +44,7 @@ function ListUsers() {
   const [saveComCd, setSaveComCd] = useState<any>("");
   const [selectedDep, setSelectedDep] = useState(null);
   const [permission, setPermission] = useState<any>();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState();
 
   const [company, setCompany]= useState([]);
   const [asset_user,setAssetUser]= useState([]);
@@ -189,11 +191,10 @@ function ListUsers() {
 
   const clickOnEachUser = (user: any) => {
     console.log({ user });
-    setIsUserLock(false);
+    setIsUserLock(false); 
     setUserId(user?.userId);
     setClickUser(user);
-    setItems([])
-    setItems((prevItems) => [...prevItems, user]);
+   
     // getLock(users?.userId)
     //   .then((res) => {
     //     if (res.status === 200) {
@@ -316,14 +317,14 @@ function ListUsers() {
     }
   };
   console.log({ clickUser });
-  console.log(items);
+  console.log("items,", items);
 
 
 
 
   const getAllUsers = async () => {
     try {
-      const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtb25pcm9pdCIsImV4cCI6MTcyMDc0NjI3NSwiaWF0IjoxNzIwNjU5ODc1LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoibW9uaXJvaXQifQ.t6pOLDU3sHVLT887bGDr_-vKbfz2NNeyZypkCyUnylRgnyjNizE3t5aypTE6VJuOgLSwDopZH8gtH3XDlC-vuQ'; // Replace with your actual JWT token
+      const token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMDgzNDk5MiwiaWF0IjoxNzIwNzQ4NTkyLCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.H7qwoy4BG93zxfEkUJ2x3iw6WMKdf1HT9UWfJlxDE6HlICPYBt1pg1ZX3y54VgGJw4t1YwYVauuRHqVu-YmrKw'; // Replace with your actual JWT token
       const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -346,12 +347,12 @@ function ListUsers() {
   }, []);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
         {/* Side 1 */}
         <div className="flex flex-col w-[25%]">
           <div className="flex items-center gap-1">
-            <Select
+            {/* <Select
               variant="bordered"
               className="w-1/2 max-w-xs mb-2"
               defaultSelectedKeys={["UTLZ_590"]}
@@ -375,11 +376,11 @@ function ListUsers() {
               ))
               
               )}
-            </Select>
+            </Select> */}
 
             <Select
               variant="bordered"
-              className="w-1/2 max-w-xs mb-2"
+              className="w-1full max-w-md mb-2"
               onSelectionChange={handleDep}
               placeholder="Department"
               aria-label="Department"
@@ -421,7 +422,7 @@ function ListUsers() {
             onValueChange={onSearchChange}
           />
           {/* User Map */}
-          <div className="border w-[100%] max-h-[600px] custom-scroll rounded-lg overflow-auto h-full">
+          <div className="border w-[100%] max-h-[700px] custom-scroll rounded-lg overflow-auto h-full">
             <div className="p-2 h-full">
               
               {asset_user.length > 0 ? (
@@ -440,16 +441,16 @@ function ListUsers() {
                     <div className="flex gap-2 items-center ">
                        <Image
                       src={
-                        user?.prfl_PHTG ||
+                        user?.prfl_PHTG ? user?.prfl_PHTG :
                         "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"
                       }
                       alt={user?.userId}
                       className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
                     />
                       <div className="flex flex-col">
-                        <span className="text-sm">{user.username}</span>
+                        <span className="text-sm">{user.flnm}</span>
                         <span className="text-xs text-gray-400">
-                          {user.flnm}
+                          {user.userId}
                         </span>
                       </div>
                     </div>
@@ -471,22 +472,23 @@ function ListUsers() {
         </div>
         {/* Side 2 */}
 
-        <div className=" w-[75%] max-h-[695px] overflow-hidden rounded-lg border p-5">
+        <div className=" w-[75%]  overflow-hidden rounded-lg border p-5">
           {clickUser ? (
             <>
               <div className="flex items-center justify-between">
                 <div className="gap-2 flex cursor-pointer group items-center px-4 py-3">
                   <div className="outline flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
                     <Image
-                      src={clickUser.prfl_PHTG}
-                      alt={clickUser?.username}
+                      src={clickUser?.prfl_PHTG ? clickUser?.prfl_PHTG :
+                        "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"}
+                      alt={clickUser?.flnm}
                       className="w-[45px] h-[45px] rounded-full object-cover border-1 p-[2px] border-gray-400"
                     />
                   </div>
                   <div>
                     <h1 className="text-sm font-bold text-gray-800">
                       <div className="flex items-center">
-                        {clickUser?.username}
+                        {clickUser?.flnm}
                         {isUserLock ? (
                           <Lock
                             className="ml-2"
@@ -510,7 +512,7 @@ function ListUsers() {
                   </div>
                 </div>
                 <div className="px-4">
-                  <AddNewAsset />
+                  <CreateAssetByUser />
                 </div>
 
                 {isUserLock ? (
@@ -525,9 +527,7 @@ function ListUsers() {
                   ""
                 )}
               </div>
-              <div className="p-5 w-full h-full">
-                <AssestByUserList clickUser={items} />
-              </div>
+                <AssestByUserList clickUser={clickUser.userId} />
 
               {/* <hr className="mb-4" /> */}
             </>

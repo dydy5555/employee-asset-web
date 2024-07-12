@@ -85,7 +85,7 @@ function page() {
   );
 
   const filteredCategories = categories.filter((category) =>
-    category.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+    category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   return (
     <>
@@ -138,7 +138,7 @@ function page() {
         <div className="text-[14px] mt-5 relative shadow-md border-t-[0.5px] border-gray-50 px-10 py-5 rounded-lg h-full min-h-[800px] max-h-[760px] custom-scroll">
           <div className="text-base font-medium">All Categories</div>
           {isLoading ? (
-            <div className="full h-full ">
+            <div className="w-full h-full ">
               <figure className="loader">
                 <div className="dot white"></div>
                 <div className="dot"></div>

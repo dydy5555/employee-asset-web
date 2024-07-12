@@ -37,6 +37,7 @@ import ItemDetail from "./Modals/ItemDetail";
 import CreateCategory from "./Modals/CreateCategory";
 import { fetchAllEmployeeAssets } from "@/services/assets.service";
 import CardDataStats from "./CardDataStats";
+import { fetchAllCCategory } from "@/services/category.service";
 
 const statusColorMap = {
   active: "success",
@@ -44,11 +45,11 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-const category = [
-  { key: "laptop", label: "Laptop" },
-  { key: "phone", label: "Phone" },
-  { key: "monitor", label: "Monitor" },
-];
+// const category = [
+//   { key: "laptop", label: "Laptop" },
+//   { key: "phone", label: "Phone" },
+//   { key: "monitor", label: "Monitor" },
+// ];
 
 const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
@@ -62,11 +63,12 @@ export default function ItemCards() {
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [allAssets, setAllAssets] = useState([]);
   const [page, setPage] = React.useState(1);
-  const [selectedCategory, setSelectedCategory] = useState(category[0].key);
+  // const [selectedCategory, setSelectedCategory] = useState(category[0].key);
+  const [allCate , setAllCate] = useState([]);
 
   const handleCategoryChange = (event) => {
     console.log(event);
-    setSelectedCategory(event.anchorKey);
+    // setSelectedCategory(event.anchorKey);
   };
 
   ///
@@ -251,15 +253,24 @@ export default function ItemCards() {
   };
   console.log(itemsUser);
 
+  const getAllCate = ()=>{
+    fetchAllCCategory().then((res)=>{
+      console.log(res)
+      setAllCate(res.data.payload)
+    })
+  }
+
   useEffect(() => {
+    getAllCate();
     fetchAllEmployeeAssets().then((res) => {
+      console.log(res)
       if (res?.status == 200) {
         setAllEmployeeAssets(res?.data?.payload);
       }
     });
   }, []);
   console.log(allEmployeeAssets);
-  console.log(allAssets);
+  console.log(allCate.length);
 
   return (
     <>
@@ -299,7 +310,7 @@ export default function ItemCards() {
                       />
                     </svg>
                   </div>
-                  <div className="flex gap-2 mt-2"><span> {allEmployeeAssets.length} </span>
+                  <div className="flex gap-2 mt-2"><span> {allCate.length} </span>
                   <p className=""> Employee </p></div>
                 </div>
               </CardBody>
@@ -361,8 +372,8 @@ export default function ItemCards() {
                   <User
                     avatarProps={{
                       radius: "full",
-                      src: user.prfl_PHTG
-                        ? user.prfl_PHTG
+                      src: user.img_url
+                        ? user.img_url
                         : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg",
                     }}
                     description={user.userId}

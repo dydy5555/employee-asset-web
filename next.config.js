@@ -7,7 +7,8 @@ const nextConfig = {
     output: 'standalone',
     env: {
       apiUrl: process.env.API_URL,
-      // KEY: process.env.KEY,
+      apiUrl1: process.env.API_URL1,
+      KEY: process.env.NEXT_PUBLIC_KEY,
       NEXT_PUBLIC_IMAGE_DOMAINS: process.env.NEXT_PUBLIC_IMAGE_DOMAINS
     },
     images: {
