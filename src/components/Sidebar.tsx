@@ -1,21 +1,19 @@
 "use client";
 
-import { Buildings,  MonitorMobbile, } from "iconsax-react";
+import { Buildings, MonitorMobbile } from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
-import pic from "../../public/pic.jpg"
-
+import pic from "../../public/pic.jpg";
 
 function Sidebar() {
   const pathname = usePathname();
-  
+
   return (
     <div className="w-60 p-0 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
-    <div className="w-full h-full bg-white border-r">
-
-    <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2 text-center">
+      <div className="w-full h-full bg-white border-r">
+        <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2 text-center">
           {/* <div className="h-10 outline outline-primary w-10 flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
             <Image
               src={pic}
@@ -29,57 +27,59 @@ function Sidebar() {
             <h1 className="text-sm font-bold text-gray-800">{"Administration"}</h1>
             <p className="text-[11px] text-gray-500 font-medium">{'Manage BizWeb Platform'}</p>
           </div> */}
-          
-          <div className="text-md font-semibold text-primary w-full ">Assets Employee</div>
+
+          <div className="text-md font-semibold text-primary w-full ">
+            Assets Employee
+          </div>
         </div>
 
-      <div className="flex flex-col gap-1 h-screen">
-      <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
-          <Link
-            href="/app"
-            className={`flex ${
-              pathname === "/app" ? "text-primary" : ""
-            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-          >
-            <Buildings variant="Outline" size={16} />
-            Overview
-          </Link>
-        </div>
-        <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
-          <Link
-            href="/app/employee-assets"
-            className={`flex ${
-              pathname === "/app/employee-assets" ? "text-primary" : ""
-            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-          >
-            <Buildings variant="Outline" size={16} />
-            Assets User
-          </Link>
-        </div>
-        <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
-          <Link
-            href={"/app/assets"}
-            className={`flex ${
-              pathname === "/app/assets" ? "text-primary" : ""
-            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-          >
-            <MonitorMobbile size={16}/>
-            All Assets
-          </Link>
-        </div>
-        <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
-          <Link
-            href={"/app/all-categories"}
-            className={`flex ${
-              pathname === "/app/all-categories" ? "text-primary" : ""
-            } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-          >
-            <MonitorMobbile size={16}/>
-           All Category 
-          </Link>
+        <div className="flex flex-col gap-1 h-screen">
+          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+            <Link
+              href="/app"
+              className={`flex ${
+                pathname === "/app" ? "text-primary" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <Buildings variant="Outline" size={16} />
+              Overview
+            </Link>
+          </div> */}
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+            <Link
+              href="/app/employee-assets"
+              className={`flex ${
+                pathname === "/app/employee-assets" ? "text-primary" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <Buildings variant="Outline" size={16} />
+              Assets User
+            </Link>
+          </div>
+          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+            <Link
+              href={"/app/assets"}
+              className={`flex ${
+                pathname === "/app/assets" ? "text-primary" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <MonitorMobbile size={16} />
+              All Assets
+            </Link>
+          </div> */}
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+            <Link
+              href={"/app/all-categories"}
+              className={`flex ${
+                pathname === "/app/all-categories" ? "text-primary" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <MonitorMobbile size={16} />
+              All Category
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
