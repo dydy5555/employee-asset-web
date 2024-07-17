@@ -2,11 +2,10 @@ import { fetchAllCCategory } from "@/services/category.service";
 import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
-
+import { fetchAllAssetsOfUserId } from "@/services/assetUser.service";
 interface ChartThreeState {
-  series: number[];
+  series: any[];
 }
-
 const options: ApexOptions = {
   chart: {
     fontFamily: "Satoshi, sans-serif",
@@ -49,32 +48,50 @@ const options: ApexOptions = {
     },
   ],
 };
-
 const ChartThree: React.FC = () => {
-  const [allCate, setAllCate] = useState([])
+  const [allAssetUsers, setAllAssetusers] = useState([]);
   const [state, setState] = useState<ChartThreeState>({
-    series: [65, 34, 12, 56],
+    series: [1,2,3,4],
   });
-
-  const handleReset = () => {
+  // Function to update the series state
+  const updateSeries = (newSeries: any[]) => {
     setState((prevState) => ({
       ...prevState,
-      series: [65, 34, 12, 56],
+      series: newSeries,
     }));
   };
-  handleReset;
+  useEffect(() => {
+    fetchAllAssetsOfUserId().then((res) => {
+      if (res?.status == 200) {
+        const data = res?.data?.payload
+        const series = res?.data?.payload?.map((sr: any, key: number) => {
+          return {
+            key: key,
+            desktop: sr.total_desktop,
+            imac: sr.total_Imac,
+            laptop: sr.total_laptop,
+            mobile: sr.total_phone,
+          };
+        });
 
-  useEffect(()=>{
-    const getAllCate = () => {
-      fetchAllCCategory().then((res) => {
-        console.log(res);
-        setAllCate(res.data.payload);
-      });
-    };
-    getAllCate()
-  },[])
+        // Extract arrays of values for each property
+        const desktopValues = series.map((item: any) => item.desktop);
+        const imacValues = series.map((item: any) => item.imac);
+        const laptopValues = series.map((item: any) => item.laptop);
+        const mobileValues = series.map((item: any) => item.mobile);
 
-  console.log(allCate)
+        // Combine all values into a single array
+        const allValues = desktopValues.concat(
+          imacValues,
+          laptopValues,
+          mobileValues
+        );
+        updateSeries(allValues);
+        setAllAssetusers(data);
+      }
+    });
+  }, []);
+
   return (
     <div className="col-span-12 rounded-xl border border-stroke bg-white px-5 pb-5 pt-7.5 customShadow dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-5">
       <div className="mb-3 justify-between gap-4 sm:flex">
@@ -131,59 +148,46 @@ const ChartThree: React.FC = () => {
           />
         </div>
       </div>
-
-      <div className="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-        {/* <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-primary"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Desktop </span>
-              <span> 65% </span>
-            </p>
+      {allAssetUsers.map((assets) => (
+        <div className="-mx-8 flex flex-wrap items-center justify-items-center gap-y-3">
+          <div className="w-full px-8 sm:w-1/2">
+            <div className="flex w-full items-center">
+              <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
+              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+                <span> Destop </span>
+                <span> {assets.total_desktop}% </span>
+              </p>
+            </div>
+          </div>
+          <div className="w-full px-8 sm:w-1/2">
+            <div className="flex w-full items-center">
+              <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
+              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+                <span> iMac </span>
+                <span> {assets.total_Imac}% </span>
+              </p>
+            </div>
+          </div>
+          <div className="w-full px-8 sm:w-1/2">
+            <div className="flex w-full items-center">
+              <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#8FD0EF]"></span>
+              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+                <span> Laptop </span>
+                <span>{assets.total_laptop}%</span>
+              </p>
+            </div>
+          </div>
+          <div className="w-full px-8 sm:w-1/2">
+            <div className="flex w-full items-center">
+              <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#0FADCF]"></span>
+              <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+                <span> Mobile </span>
+                <span> {assets.total_phone}% </span>
+              </p>
+            </div>
           </div>
         </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> iMac </span>
-              <span> 34% </span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#8FD0EF]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Laptop </span>
-              <span> 45% </span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#0FADCF]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Mobile </span>
-              <span> 12% </span>
-            </p>
-          </div>
-        </div> */}
-
-
-        {allCate?.map((value,index)=>(
-        <div key={index} className="w-full px-8 sm:w-1/2">
-          <div className="flex w-full items-center">
-            <span className="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#0FADCF]"></span>
-            <p className="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> {value.categoryName} </span>
-              <span> 12% </span>
-            </p>
-          </div>
-        </div>
-
-        ))}
-      </div>
+      ))}
     </div>
   );
 };
