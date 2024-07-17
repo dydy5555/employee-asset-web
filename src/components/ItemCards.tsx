@@ -274,13 +274,12 @@ export default function ItemCards() {
 
   return (
     <>
-      <div>
+      {/* <div>
         <p className="text-lg font-medium flex gap-5">
-          {/* <ArrowRight2 size="25" color="#000000" /> */}
           All Employee
         </p>
-      </div>
-      <div className="flex justify-between gap-10">
+      </div> */}
+      {/* <div className="flex justify-between gap-10">
         <div className="flex gap-5 w-full mt-3">
           <div>
             <Card className="px-2">
@@ -335,7 +334,7 @@ export default function ItemCards() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
       <div className="">
         {/* isHeaderSticky
         bottomContentPlacement="outside"
@@ -348,7 +347,7 @@ export default function ItemCards() {
           topContentPlacement="outside"
           isStriped
           isHeaderSticky
-          className=" max-h-[650px] py-5"
+          className=" max-h-[580px]"
         >
           <TableHeader>
             <TableColumn>NO</TableColumn>
@@ -364,8 +363,7 @@ export default function ItemCards() {
             {allEmployeeAssets.map((user, index) => (
               <TableRow
                 key={index}
-                onClick={() => handleRowClick(user)}
-                className="hover:cursor-pointer"
+                // onClick={() => handleRowClick(user)}
               >
                 <TableCell className="py-2.5 pl-4">{index + 1}</TableCell>
                 <TableCell className="flex items-center py-2.5">

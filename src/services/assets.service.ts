@@ -45,3 +45,21 @@ export const func_CreateAsset = async (requestBody) => {
     return error;
   }
 };
+
+export const func_UpdateAssetUser = async (userId, id, requestBody) => {
+  console.log(requestBody)
+  console.log(userId)
+  console.log(id)
+  try {
+    const res = await ihttp1.put(`/api/v1/assets/${userId}/${id}`, requestBody, {
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    });
+   return res
+  } catch (error) {
+    console.log("Error : ", error);
+    return error;
+  }
+};

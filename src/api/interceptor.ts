@@ -8,17 +8,18 @@ import axios, {
 export const API_URL = process.env.apiUrl;
 export const API_URL1 = process.env.apiUrl1;
 const KEY = process.env.KEY;
+
 let session:any = '';
 let token: any;
 let url;
 
 // Feteched Token from URL
 if (typeof window !== "undefined") {
-url = new URL(window.location.href);
- token = url.searchParams.get("tid") || localStorage.getItem("tid");
-
+  url = new URL(window.location.href);
+  token = url.searchParams.get("tid") || localStorage.getItem("tid");
 }
 
+console.log({token})
 
 // Without Token
 export const api = axios.create({
@@ -36,13 +37,12 @@ export const ihttp1 = axios.create({
 // Getting Session
 
 export async function getSession() {
-  
     try {
       const headers = { 'Authorization': `Bearer ${token}`};
-      const res = await fetch(`https://bizweb.kosign.dev/api/v1/session?token=${encodeURIComponent(token!)}&key=${encodeURIComponent(KEY!)}`, { headers });
+      const res = await fetch(`${API_URL}/api/v1/session?token=${encodeURIComponent(token!)}&key=${encodeURIComponent(KEY!)}`, { headers });
       const data = await res.json();
       session = data.payload;
-       const permission = await fetch(`https://bizweb.kosign.dev/api/v1/admin/permission/${session?.userId}`, { headers });
+       const permission = await fetch(`${API_URL}/api/v1/admin/permission/${session?.userId}`, { headers });
       localStorage.setItem("tid", session?.token);
       return session;
     } catch (e) {

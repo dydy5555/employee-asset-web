@@ -26,6 +26,7 @@ import { createContext } from "vm";
 import NoImage from "../../public/images/no_app.jpg";
 import Image from "next/image";
 import { func_GetByUserID } from "@/services/assets.service";
+import ItemDetail from "./Modals/ItemDetail";
 
 const category = [
   { key: "laptop", label: "Laptop" },
@@ -37,7 +38,7 @@ const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
 export const DataContext = createContext();
 
-function AssestByUserList({ clickUser }) {
+function AssestByUserList({ clickUser,empInfo }) {
   const [filterValue, setFilterValue] = React.useState("");
   const [visibleColumns, setVisibleColumns] = React.useState(
     new Set(INITIAL_VISIBLE_COLUMNS)
@@ -51,6 +52,10 @@ function AssestByUserList({ clickUser }) {
   const [assetUser, setAssetUser] = useState();
   const [assetProperties, setAssetProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [openMod, setOpenMod] = useState(false);
+  const [itemsUser, setItemsUser] = useState([]);
+  const [empinfo, setEmplInfo] = useState([]);
 
   const onRowsPerPageChange = React.useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
@@ -105,6 +110,16 @@ function AssestByUserList({ clickUser }) {
     }, 1000);
   }, [clickUser]);
 
+
+
+  const handleRowClick = () => {
+    setItemsUser([]);
+    setItemsUser(assetUser);
+    setEmplInfo(empInfo)
+    setOpenMod(true);
+  };
+
+
   return (
     <div className="w-full h-full p-5 text-center ">
       {isLoading ? (
@@ -138,6 +153,8 @@ function AssestByUserList({ clickUser }) {
                     <Image
                       src={NoImage}
                       alt="logo"
+                      width={400}
+                      height={400}
                       className="w-[400px] dark:block"
                     />
 
@@ -146,16 +163,16 @@ function AssestByUserList({ clickUser }) {
                 </div>
               </>
             )}
-            <div>
-              {assetUser?.map((cate) => (
+            <div onClick={handleRowClick}>
+              {assetUser?.map((cate, i) => (
                 <>
                   {cate?.allAssets.map((category, index) => (
                     <div key={category.categoryId} className="mb-4 flex">
                       <>
-                        <div className="w-[250px] text-center pl-3 py-2">
-                          {index + 1}
+                        <div className="w-[120px] text-center pl-3 py-2">
+                          {i + 1}
                         </div>
-                        <div className="w-full py-2">{category.name}</div>
+                        <div className="w-full py-2 capitalize">{category.name || "-" }</div>
                       </>
 
                       {subCategoryKeys.map((key) => (
@@ -170,7 +187,14 @@ function AssestByUserList({ clickUser }) {
             </div>
         </>
       )}
+            <ItemDetail
+        setOpenMod={setOpenMod}
+        openMod={openMod}
+        itemsUser={itemsUser}
+        empinfo={empinfo}
+      ></ItemDetail>
     </div>
+    
   );
 }
 

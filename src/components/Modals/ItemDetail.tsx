@@ -8,7 +8,6 @@ import {
   ModalProps,
   Button,
   useDisclosure,
-  Image,
   Tabs,
   Tab,
   CardBody,
@@ -16,81 +15,182 @@ import {
   Select,
   SelectItem,
   Input,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 import { Add, Edit, Trash, User, Verify } from "iconsax-react";
 import NoImage from "../../../public/images/no_app.jpg";
 import axios from "axios";
 import { log } from "console";
+import { func_GetCategoryByID } from "@/services/category.service";
+import think from "../../../public/images/icon/Thinkin.svg";
+import Image from "next/image";
+import { func_UpdateAssetUser } from "@/services/assets.service";
+import toast from "react-hot-toast";
 
-export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
+export default function ItemDetail({
+  setOpenMod,
+  openMod,
+  itemsUser,
+  empinfo,
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
   const [allAssets, setAllAssets] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(true);
   const [category, setCategory] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
+  const [id, setID] = useState("");
+  const [isLoadingCate, setIsLoadingCate] = useState(false);
+  const [subCate, setSubCate] = useState([]);
+  const [cateName, setCateName] = useState("");
+  const [inputValues, setInputValues] = useState({});
+  const [subCategories, setSubCategories] = useState();
 
-  console.log(itemsUser);
+  // const handleInputChange = (property, value) => {
+  //   setInputValues((prevValues) => ({
+  //     ...prevValues,
+  //     [property]: value.toLowerCase(),
+  //   }));
+  //   setSubCategories(inputValues);
+  //   const allAss = { categoryId: id, name: cateName.toLowerCase(), subCategories };
+  //   console.log("subCate", allAss);
+  //   setAllAssets([]);
+  //   setAllAssets((prev) => [...prev, allAss]);
+  // };
+  const handleCategoryChange = (value) => {
+    if (value === null) {
+      setIsSelected(true);
+    } else {
+      setIsLoadingCate(true);
+      setTimeout(() => {
+        try {
+          const selectedAsset = itemsUser
+            .flatMap((user) => user.allAssets)
+            .find((asset) => asset.categoryId === value);
+            console.log(selectedAsset)
+          setSelectedCategory(selectedAsset);
+          setAllAssets([])
+          setAllAssets(selectedAsset)
+          setCateName(selectedAsset.name)
+          setID(selectedAsset.categoryId)
+          setIsLoadingCate(false);
+          
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoadingCate(false);
+          setIsSelected(false);
+        }
+      }, 2000);
+    }
+  };
 
-  const handleCategoryChange = (event) => {
-    console.log("Selected Category ID:", event.target.value);
-    setSelectedCategory(event.target.value.toLowerCase());
-
-    const cate = allAssets.reduce((acc, data) => {
-      const key = data.name.toLowerCase();
-      acc[key] = data.subCategories;
-      return acc;
-    }, {});
-
-    console.log(cate);
-    const result = Object.keys(cate).map((key) => ({
-      [key]: cate[key],
+  const handleInputChange = (key, value) => {
+ 
+    setSelectedCategory(prevState => ({
+      ...prevState,
+      subCategories: {
+        ...prevState.subCategories,
+        [key]: value
+      }
     }));
-    console.log(result);
-    setCategory(result);
+    setAllAssets(selectedCategory)
+    console.log({selectedCategory})
+    console.log({allAssets})
+  };
+  // const handleCategoryChange = (id) => {
+
+  //   if (id === null) {
+  //     setIsSelected(true);
+  //   }
+  //   setID(id);
+  //   fetchByID(id);
+  // };
+
+  const fetchByID = async (id) => {
+    console.log(id);
+    if (id === null) {
+      setIsSelected(true);
+    } else {
+      setIsLoadingCate(true);
+      setTimeout(() => {
+        try {
+          func_GetCategoryByID(id).then((res) => {
+            setIsLoadingCate(true);
+            setIsSelected(false);
+            // console.log("res", res);
+            setCateName(res.categoryName.toLowerCase());
+            console.log(res);
+            setSubCate(res.subCategories);
+            setInputValues(res.subCategories);
+            setIsLoadingCate(false);
+          });
+          setIsLoadingCate(false);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoadingCate(false);
+          // setIsSelected(false);
+        }
+      }, 2000);
+    }
   };
 
   const renderInputFields = () => {
-    if (!selectedCategory) {
-      return null;
-    }
+    if (!selectedCategory) return null;
 
-    console.log(category);
-    const properties = category.find((item) => item[selectedCategory]);
-    if (!properties) {
-      return null;
-    }
-    console.log(properties);
-    const inputs = Object.entries(properties).map(
-      ([key, subProperties], index) => (
-        <div
-          key={index}
-          className="w-full mt-4 grid grid-cols-2 gap-6 text-[14px]"
-        >
-          {Object.entries(subProperties).map(([subKey, value], subIndex) => (
-            <div key={subIndex} className="col-span-1 flex gap-4 ">
-              <div className="w-1/4 flex justify-between gap-4 items-center">
-                <p className="capitalize">{subKey}</p>
-                <p>:</p>
-              </div>
-              <div className="w-3/4">
-                <Input
-                  radius="sm"
-                  placeholder={`Enter ${subKey}`}
-                  className="w-full"
-                  defaultValue={value}
-                />
-              </div>
-            </div>
-          ))}
+    return Object.keys(selectedCategory.subCategories).map((key) => (
+      <div key={key} className="w-full flex flex-col gap-2">
+        <div className="w-full flex justify-between">
+          <p className="capitalize pb-1 text-sm font-medium">{key}</p>
         </div>
-      )
-    );
-    setIsSelected(true);
-    return inputs;
+        <div className="w-full">
+          <Input
+            radius="md"
+            placeholder={`Enter ${key}`}
+            className="w-full text-sm"
+            defaultValue={selectedCategory.subCategories[key] || ""}
+            onChange={(e) => handleInputChange(key, e.target.value)}
+          />
+        </div>
+      </div>
+    ));
   };
+
+  // const renderInputFields = () => {
+  //   if (!id) {
+  //     return null;
+  //   }
+  //   if (!subCate) {
+  //     return null;
+  //   }
+  //   console.log(allAssets)
+  //   const inputs = allAssets?.map((property) => (
+  //     <>
+  //     {Object.keys(property.subCategories)?.map((key)=>(
+  //        <div key={key} className="items-start  text-sm ">
+  //         <div className=" w-full flex justify-between">
+  //           <p className="capitalize pb-1 text-sm font-medium ">{key}</p>
+  //         </div>
+  //         <div className=" w-full">
+  //           <Input
+  //             radius="md"
+  //             placeholder={`Enter ${key}`}
+  //             className="w-full text-sm"
+  //             defaultValue={property.subCategories[key] || ""}
+  //             onChange={(e) => handleInputChange(property.subCategories[key], e.target.value)}
+  //           />
+  //         </div>
+  //       </div>
+  //     ))}
+
+  //     </>
+  //   ));
+  //   return inputs;
+  // };
 
   const OnChangeTab = (key) => {
     console.log(key);
@@ -102,10 +202,15 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
   };
 
   useEffect(() => {
-    itemsUser.map((user) => {
-      console.log(user);
-      setAllAssets(user.allAssets);
-    });
+    console.log(itemsUser);
+    // const fetchCate = async () => {
+    //   itemsUser?.map((user) => {
+    //     console.log(user);
+    //     setAllAssets([]);
+    //     setAllAssets(user.allAssets);
+    //   });
+    // };
+    // fetchCate();
   }, [itemsUser]);
 
   const subCategoryKeys = Array.from(
@@ -116,77 +221,102 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
     )
   );
 
-  console.log(itemsUser);
-  console.log("get assetsssssssss: ", allAssets);
+  const handleSave = () => {
+    console.log(allAssets);
+    console.log(subCategories);
+    const data = {
+      userId: empinfo.userId,
+      employee_name: empinfo.flnm,
+      team: empinfo.dvsn_NM,
+      remark: empinfo.remark || "",
+      department: empinfo.dvsn_NM,
+      company: empinfo.use_INTT_ID,
+      img_url: empinfo.prfl_PHTG,
+      use_INNITID: empinfo.use_INTT_ID,
+      allAssets,
+    };
 
+    try {
+      func_UpdateAssetUser(empinfo.userId, empinfo.id, data).then((res) => {
+        if (res.status === 200) {
+          toast.success("Updated successfully!");
+          setSelectedCategory(null);
+          setOpenMod(false);
+        }
+      });
+    } catch (error) {
+      console.log("Erorr ::: ", error);
+    }
+
+    console.log({ data });
+    setAllAssets([]);
+    setIsSelected(true);
+    // setIsLoadingCate(true)
+  };
+  // console.log({ empinfo });
   return (
     <div className="flex flex-col gap-2 ">
       <Modal
         isOpen={openMod}
         onOpenChange={onOpenChange}
         scrollBehavior={scrollBehavior}
-        className="lg:max-h-[800px] md:max-h-[500px] max-w-[50%] h-[800px]"
+        className="min-h-[650px] min-w-[700px]"
       >
         <ModalContent className="">
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1 ">
-                {/* Details */}
+              <ModalHeader className="flex flex-col gap-1 mt-2 py-0 pt-4 pb-2">
+                <h1 className="text-center">Assets Detail</h1>
+                <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-5">
-                  <div className="flex justify-between gap-5">
-                    {itemsUser.map((user, index) => (
-                      <div key={index} className="flex gap-8">
-                        <div>
-                          <Image
-                            src={user.prfl_PHTG ? user.prfl_PHTG : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"}
-                            alt={user?.employee_name}
-                            className="w-[150px] h-[150px] rounded-full object-cover border-2 p-[2px] border-gray-400"
-                          />
+                  <div className="flex h-full justify-between  text-sm">
+                    {/* {itemsUser.map((user, index) => ( */}
+                    <>
+                      <div className="grid grid-cols-6 w-3/5 gap-6">
+                        <div className="col-span-2 font-medium flex flex-col justify-center">
+                          <p className="py-1">Employee </p>
+                          <p className="py-1">User ID </p>
+                          <p className="py-1">Company </p>
+                          <p className="py-1">Department </p>
+                          {/* <p className="py-1">Position </p> */}
                         </div>
-                        <div className="flex flex-col gap-4">
-                          <div className="flex flex-col">
-                            <div className="flex items-center font-medium">
-                              {user?.employee_name}
-                              <Verify
-                                className="ml-2"
-                                variant="Bold"
-                                size="14"
-                                color="#63F155"
-                              />
-                            </div>
-                            <div className="text-[14px] text-gray-500">
-                              {user.userId}
-                            </div>
-                          </div>
-                          <div className="text-sm flex gap-5">
-                            <div className="flex flex-col gap-1">
-                              <p>Team </p>
-                              <p>Department</p>
-                              <p>Company </p>
-                            </div>
-                            <div className="flex flex-col gap-1 font-medium">
-                              <p>{user?.team ? user?.team : "-"}</p>
-                              <p> {user?.department}</p>
-                              <p>{user?.company}</p>
-                            </div>
-                          </div>
+
+                        <div className="col-span-4 flex flex-col justify-center">
+                          <p className="py-1">{empinfo.flnm}</p>
+                          <p className="py-1">{empinfo.userId}</p>
+                          <p className="py-1">
+                            {empinfo.use_INTT_ID &&
+                            empinfo.use_INTT_ID == "UTLZ_590"
+                              ? "KOSIGN"
+                              : "-"}
+                          </p>
+                          <p className="py-1">{empinfo.dvsn_NM}</p>
+                          {/* <p className="py-1">
+                              {empinfo.jbcl_NM ? empinfo.jbcl_NM : "-"}
+                            </p> */}
                         </div>
                       </div>
-                    ))}
-                    {/* <div className="flex gap-2 items-end">
-                      <Button
-                        isIconOnly
-                        variant="light"
-                        className="border-[1px] border-[#FF1E00]"
-                      >
-                        <Trash size="18" color="#FF1E00" />
-                      </Button>
-                    </div> */}
+
+                      <div className="w-2/5 flex justify-center item-center">
+                        <Image
+                          width={150}
+                          height={150}
+                          src={
+                            empinfo.prfl_PHTG
+                              ? empinfo.prfl_PHTG
+                              : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
+                          }
+                          alt={empinfo?.flnm}
+                          className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
+                        />
+                      </div>
+                    </>
+                    {/* ))} */}
                   </div>
 
-                  {/* <div className="border-b-[0.5px] border-gray-100"></div> */}
+                  {/* <div className="border-b-[0.5px] border--100"></div> */}
 
                   <div className="flex w-full flex-col">
                     <Tabs
@@ -196,12 +326,12 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       onSelectionChange={OnChangeTab}
                     >
                       <Tab key="view" title="VIEW" className="w-full">
-                        <Card>
-                          <CardBody>
-                            <table className="w-full mt-4 border-collapse text-[14px]">
+                        <Card className=" min-h-[300px] overflow-auto custom-scroll">
+                          <CardBody className="px-4">
+                            <table className="w-full mt-2  border-collapse text-[14px]">
                               <thead>
-                                <tr className="bg-gray-100 py-2 hover:bg-gray-200 hover:cursor-pointer">
-                                  <th
+                                <tr className="bg-gray-100 py-2  hover:bg-gray-200 hover:cursor-pointer">
+                                  {/* <th
                                     className="text-center pl-3 py-2"
                                     style={{
                                       borderRadius: "10px 0 0 10px",
@@ -209,24 +339,27 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                     }}
                                   >
                                     No
-                                  </th>
+                                  </th> */}
                                   <th
-                                    className="pl-5 text-left py-2"
-                                    style={{ borderColor: "red" }}
+                                    className="pl-5 text-left font-medium"
+                                    style={{
+                                      borderRadius: "10px 0 0 10px",
+                                      borderColor: "red",
+                                    }}
                                   >
                                     Category Name
                                   </th>
                                   {subCategoryKeys.map((key, index) => (
                                     <th
                                       key={index}
-                                      className="p-2 text-center"
+                                      className="p-2 text-center font-medium"
                                       style={{ borderColor: "red" }}
                                     >
                                       {key}
                                     </th>
                                   ))}
                                   <th
-                                    className="p-2 text-center"
+                                    className="p-2 text-center font-medium"
                                     style={{
                                       borderRadius: "0 10px 10px 0",
                                       borderColor: "red",
@@ -243,9 +376,9 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                       key={`${userIndex}-${asset.categoryId}`}
                                       className="py-2"
                                     >
-                                      <td className="py-2 pl-3 text-center">
+                                      {/* <td className="py-2 pl-3 text-center">
                                         {assetIndex + 1}
-                                      </td>
+                                      </td> */}
                                       <td className="py-2 pl-6 capitalize">
                                         {asset.name}
                                       </td>
@@ -272,31 +405,68 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                           </CardBody>
                         </Card>
                       </Tab>
+
                       <Tab key="edit" title="EDIT" className="w-full">
-                        <Card className=" min-h-[450px] p-4">
+                        <Card className=" min-h-[300px] px-3 py-2 text-sm">
                           <CardBody>
-                            <div>
-                              <p className="">
-                                Please choose category to update
+                            <div className="w-3/6 ">
+                              <p className="font-medium pb-2">
+                                Please choose a category{" "}
                               </p>
-                              <div className="flex w-full my-2">
-                                <Select
-                                  label="Choose category"
-                                  className="max-w-md"
-                                  value={selectedCategory || ""}
-                                  onChange={handleCategoryChange}
-                                >
-                                  {allAssets.map((item) => (
-                                    <SelectItem
-                                      key={item.name}
-                                      value={item.name}
-                                    >
-                                      {item.name}
-                                    </SelectItem>
-                                  ))}
-                                </Select>
-                              </div>
-                              <div className="mt-2">{renderInputFields()}</div>
+                              <Autocomplete
+                                placeholder="Laptop, Monitor, Keyboad ,..."
+                                className="max-w-sm"
+                                onSelectionChange={handleCategoryChange}
+                              >
+                                {itemsUser?.map((cate) => {
+                                  return cate.allAssets.map(
+                                    (asset, assetIndex) => (
+                                      <AutocompleteItem
+                                        key={asset.categoryId}
+                                        value={asset.categoryId}
+                                      >
+                                        {asset.name}
+                                      </AutocompleteItem>
+                                    )
+                                  );
+                                })}
+                              </Autocomplete>
+                            </div>
+
+                            <div className="mt-4">
+                              {isLoadingCate ? (
+                                <div className="flex justify-center items-center w-full h-[175px]">
+                                  <button className="custom-loader"></button>
+                                </div>
+                              ) : (
+                                <>
+                                  {isSelected ? (
+                                    <div className="w-full h-full flex justify-center items-center">
+                                      <Image
+                                        width={200}
+                                        height={200}
+                                        src={think}
+                                        alt="logo"
+                                        className="w-[175px] h-[175px] object-cover rounded-full dark:block "
+                                      />
+                                    </div>
+                                  ) : (
+                                    <>
+                                      {isLoadingCate ? (
+                                        <div className="flex justify-center items-center w-full h-[175px]">
+                                          <button className="custom-loader"></button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <div className="grid grid-cols-2 gap-6 -z-1 max-h-[300px] pt-2  overflow-auto custom-scroll w-full h-full">
+                                            {renderInputFields()}
+                                          </div>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </>
+                              )}
                             </div>
                           </CardBody>
                         </Card>
@@ -307,37 +477,41 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
               </ModalBody>
               <ModalFooter>
                 {isEdit ? (
-                 <>
-                  <Button
-                    color="default"
-                    variant="light"
-                    className="border-[1px] border-gray-200"
-                    onClick={() => {
-                      setSelectedCategory(null)
-                      setOpenMod(false);
-                    }}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    color="primary"
-                    className="border-[1px] text-white font-medium border-gray-200"
-                    onClick={() => {
-                      setSelectedCategory(null)
-                      setOpenMod(false);
-                    }}
-                  >
-                    Save Change
-                  </Button>
-                 </>
+                  <>
+                    <Button
+                      color="default"
+                      variant="light"
+                      className="border-[1px] border-gray-200"
+                      onClick={() => {
+                        setSelectedCategory(null);
+                        setOpenMod(false);
+                        setAllAssets([]);
+                        setIsSelected(true);
+                      }}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      color="primary"
+                      className="border-[1px] text-white font-medium border-gray-200"
+                      onClick={() => {
+                        handleSave();
+                      }}
+                    >
+                      Save Change
+                    </Button>
+                  </>
                 ) : (
                   <Button
                     color="default"
                     variant="light"
                     className="border-[1px] border-gray-200"
                     onClick={() => {
-                      setSelectedCategory(null)
+                      // setSelectedCategory(null);
+                      setSubCate([]);
                       setOpenMod(false);
+                      setAllAssets([]);
+                      setIsSelected(true);
                     }}
                   >
                     Close

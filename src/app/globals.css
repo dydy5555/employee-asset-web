@@ -43,20 +43,27 @@
 
 
   .custom-loader {
-    border: 4px solid rgb(255, 255, 255);
+    border: 4px solid #55adff;
     border-left-color: transparent;
     border-radius: 50%;
   }
   
   .custom-loader {
-    border: 4px solid rgb(255, 255, 255);
+    border: 4px solid #55adff;
     border-left-color: transparent;
     width: 24px;
     height: 24px;
   }
   
   .custom-loader {
-    border: 4px solid rgb(255, 255, 255);
+    border: 4px solid #55adff;
+    border-left-color: transparent;
+    width: 24px;
+    height: 24px;
+    animation: spin89345 1s linear infinite;
+  }
+  .custom-loader {
+    border: 4px solid #55adff;
     border-left-color: transparent;
     width: 24px;
     height: 24px;
