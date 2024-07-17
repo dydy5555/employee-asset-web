@@ -53,7 +53,7 @@ export default function TableOne() {
               assetUser.allAssets.map((asset: any) =>
                     <TableRow>
                       <TableCell>{asset.name}</TableCell>
-                      <TableCell>{""}</TableCell>
+                      <TableCell>{`${asset.subCategories.name?? ''} ${asset.subCategories.inch ?? ''}`}</TableCell>
                       <TableCell>{""}</TableCell>
                       <TableCell>{assetUser.remark}</TableCell>
                     </TableRow>
