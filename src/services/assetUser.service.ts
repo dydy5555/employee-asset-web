@@ -1,9 +1,9 @@
-import ihttp from "@/api/interceptor"
+import ihttp from "@/api/interceptor";
 
 
-export const fetchAllEmployeeAssets = async() => {
+export const fetchAllAssetsOfUserId = async() => {
     try {
-        const response = await ihttp.get(`/api/v1/assets/allEmployeeAssets`,{
+        const response = await ihttp.get(`/api/v1/assets/allAssetsOfUserId`,{
             headers: {
               accept: "*/*",
             },

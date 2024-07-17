@@ -10,17 +10,21 @@ const nextConfig = {
       // KEY: process.env.KEY,
       NEXT_PUBLIC_IMAGE_DOMAINS: process.env.NEXT_PUBLIC_IMAGE_DOMAINS
     },
-    images: {
-      domains: imageDomains,
-      remotePatterns: [
-        {
-          protocol: "https",
-          hostname: '**',
-          port: '',
-          pathname: '**',
-        },
-      ],
-    },
+// next.config.js
+
+  images: {
+    domains: ['localhost', 'platform.bizplay.co.kr'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'platform.bizplay.co.kr',
+        port: '',
+        pathname: '/wecloud3/**',
+      },
+    ],
+  },
+
+
     typescript: {
       ignoreBuildErrors: true,
     },
