@@ -7,6 +7,7 @@ import axios, {
 
 export const API_URL = process.env.apiUrl;
 export const API_URL1 = process.env.apiUrl1;
+export const API_URL_AUTH = process.env.API_URL_AUTH;
 const KEY = process.env.KEY;
 
 let session:any = '';
@@ -36,54 +37,27 @@ export const ihttp1 = axios.create({
 
 // Getting Session
 
+// Getting Session
 export async function getSession() {
-    try {
-      const headers = { 'Authorization': `Bearer ${token}`};
-      const res = await fetch(`${API_URL}/api/v1/session?token=${encodeURIComponent(token!)}&key=${encodeURIComponent(KEY!)}`, { headers });
-      const data = await res.json();
-      session = data.payload;
-       const permission = await fetch(`${API_URL}/api/v1/admin/permission/${session?.userId}`, { headers });
-      localStorage.setItem("tid", session?.token);
-      return session;
-    } catch (e) {
-      return null;
-    }
-}
-
-export async function getPermission(userId:any, token:any) {
   try {
     const headers = { 'Authorization': `Bearer ${token}`};
-    const permission = await fetch(`https://bizweb-adm.kosign.dev/api/v1/admin/permission/${userId}`, { headers });
-    const data = await permission.json();
-    const result = data.payload;
-    return result;
+    const res = await fetch(`${API_URL_AUTH}/api/v1/session?token=${encodeURIComponent(token!)}&key=${encodeURIComponent(KEY!)}`, { headers });
+    if (!res.ok) {
+      return res.status;
+    }
+    const data = await res.json();
+    session = data.payload;
+    localStorage.setItem("tid", session?.token);
+    return session;
   } catch (e) {
-    return null;
+    console.error("Error: ", e);
+    throw e;
   }
 }
-  
-  (async () => {
-    const session = await getSession();
-  })();
 
-
-  export async function fetchSessionAndPermission() {
-    try {
-      const session = await getSession();
-      if (session) {
-        const per = await getPermission(session.userId, session.token);
-        return per;
-      } else {
-        console.error('Failed to fetch session.');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      return null;
-    }
-  }
-
-
+(async () => {
+  await getSession();
+})();
 
 async function requestInterceptor(config: InternalAxiosRequestConfig) {
   if (!session) {
@@ -130,6 +104,8 @@ async function responseErrorInterceptor({ status, code, ...err }: AxiosError) {
 
 ihttp.interceptors.request.use(requestInterceptor);
 ihttp.interceptors.response.use(responseInterceptor, responseErrorInterceptor);
+ihttp1.interceptors.request.use(requestInterceptor);
+ihttp1.interceptors.response.use(responseInterceptor, responseErrorInterceptor);
 
 export const ihttpFormData = axios.create({
   baseURL: API_URL,

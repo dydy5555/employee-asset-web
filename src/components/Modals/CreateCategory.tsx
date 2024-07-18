@@ -14,17 +14,18 @@ import {
   Link,
   Tooltip,
 } from "@nextui-org/react";
-import { Add, CardAdd, Trash } from "iconsax-react";
+import { Add, CardAdd, Category, Trash } from "iconsax-react";
 import AddNewAsset from "./AddNewAsset";
 import { fetchAllCCategory, func_CreateCategory } from "@/services/category.service";
 import toast from "react-hot-toast";
+import { showToastSuccess } from "@/services/commonfunc.service";
 
-function CreateCategory() {
+function CreateCategory({ setCategoriesFromParent, setTotalSubCategories, }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [inputList, setInputList] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [properties, setProperties] = useState([]);
-
+  const onClose = () => setIsOpen(false);
   const handleAddInput = () => {
     setInputList([...inputList, { id: inputList.length, value: "" }]);
   };
@@ -51,8 +52,17 @@ function CreateCategory() {
       .filter((value) => value !== "");
     const newCategory = { categoryName, subCategories: propertiesList };
     func_CreateCategory(newCategory).then((res)=>{
-      toast.success("Updated Successfully!");
       console.log(res);
+      showToastSuccess("Updated Successfully!");
+      fetchAllCCategory().then((res) => {
+        if (res?.status == 200) {
+          setCategoriesFromParent(res?.data?.payload);
+          setTotalSubCategories([])
+          const count = res?.data?.payload.map((data) => {
+            setTotalSubCategories((prev) => [...prev, data.subCategories]);
+          });
+        }
+      });
     })
   };
 
@@ -60,93 +70,82 @@ function CreateCategory() {
 
   return (
     <>
-      <Button onPress={onOpen} color="primary" variant="light" className="border-[0.5px] text-md text-semibold text-[#378CE7]" style={{borderColor: "#378CE7"}}>
-      <CardAdd size="22" color="#378CE7"/>Category
-      </Button>
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        placement="top-center"
-        size="xl"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1 mt-2">
-                <h1 className="text-center">CreateCategory</h1>
-                <div className="border-b-[0.5px] border-gray-100 mt-2"></div>
-              </ModalHeader>
-              <ModalBody className="px-6">
-                <div className="flex gap-4 items-center w-full">
+    <Button
+      onPress={onOpen}
+      color="primary"
+      className="bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold px-4 py-2 rounded-full transition-all duration-300 ease-in-out"
+      startContent={<CardAdd size="36" />}
+    >
+      Add Category
+    </Button>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size="3xl"
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              <h2 className="text-2xl font-bold text-center text-primary">Create Category</h2>
+            </ModalHeader>
+            <ModalBody>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
                   <Input
-                    className="w-full"
-                    autoFocus
-                    placeholder="Enter your category name"
+                    label="Category Name"
+                    placeholder="Enter category name"
+                    value={categoryName}
                     onChange={handleChangeCategoryName}
+                    className="flex-grow"
+                    startContent={<Category className="text-gray-400"  size="20" />}
                   />
-                  <div className="right-6 flex">
-                    <Tooltip
-                      color="default"
-                      content="Add Property"
-                      placement="bottom"
-                      className="capitalize"
+                  <Tooltip content="Add Property">
+                    <Button
+                      color="primary"
+                      isIconOnly
+                      className="rounded-full p-2"
+                      onClick={handleAddInput}
                     >
-                      <Button
-                        color="primary"
-                        className=""
-                        isIconOnly
-                        variant="flat"
-                        onClick={handleAddInput}
-                      >
-                        <Add size="20" color="#006FEE" />
-                      </Button>
-                    </Tooltip>
+                      <Add size={24} />
+                    </Button>
+                  </Tooltip>
+                </div>
+                {inputList.map((input, index) => (
+                  <div key={input.id} className="flex items-center gap-4">
+                    <Input
+                      label={`Property ${index + 1}`}
+                      placeholder="Enter property name"
+                      value={input.value}
+                      onChange={(e) => handleInputChange(input.id, e.target.value)}
+                      className="flex-grow"
+                    />
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      variant="light"
+                      className="rounded-full p-2"
+                      onClick={() => handleDeleteInput(input.id)}
+                    >
+                      <Trash size={24} />
+                    </Button>
                   </div>
-                </div>
-
-                <div className="flex flex-col gap-4 mt-2 mb-3">
-                  <div className=" border-b-[0.5px] w-full border-gray-100"></div>
-                  {inputList.map((input) => (
-                    <>
-                      <div className="flex items-center gap-4">
-                        <Input
-                          key={input.id}
-                          value={input.value}
-                          onChange={(e) =>
-                            handleInputChange(input.id, e.target.value)
-                          }
-                          placeholder="Enter property name"
-                          className="w-full"
-                        />
-                        <Button
-                          isIconOnly
-                          onClick={() => handleDeleteInput(input.id)}
-                        >
-                          <Trash size="20" color="#F31260"></Trash>
-                        </Button>
-                      </div>
-                    </>
-                  ))}
-                </div>
-
-                  {/* <div className=" border-[1px] border-gray-100"></div> */}
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="flat" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="primary" onClick={()=>{
-                  handleSave()
-                  onClose()
-                }}>
-                  Save
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+                ))}
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="flat" onPress={onClose}>
+                Cancel
+              </Button>
+              <Button color="primary" onClick={handleSave}>
+                Save Category
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  </>
   );
 }
 
