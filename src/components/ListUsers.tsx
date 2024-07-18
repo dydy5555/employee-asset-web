@@ -41,6 +41,7 @@ import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
 import AddNewAsset from "./Modals/AddNewAsset";
+import ConfirmDelete from "./Modals/ConfirmDelete";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -469,8 +470,8 @@ function ListUsers() {
           {clickUser ? (
             <>
               <div className="pt-5 pl-5">
-                <Button className="hover:text-[#378CE7]" variant="light" onClick={() => setClickUser(false)}>
-                  {/* <Back size="28" color="#378CE7" /> */} Back
+                <Button className="text-[#378CE7] font-medium" variant="light" onClick={() => setClickUser(false)}>
+                  <Back size="28" color="#378CE7" /> Back
                 </Button>
               </div>
               <div className="flex items-center justify-between  px-5">
@@ -515,6 +516,7 @@ function ListUsers() {
                   </div>
                 </div>
                 <div className="px-4">
+                  {/* <ConfirmDelete /> */}
                   <CreateAssetByUser clickUser={clickUser} />
                 </div>
 
@@ -530,6 +532,7 @@ function ListUsers() {
                   ""
                 )}
               </div>
+              
               <AssestByUserList
                 clickUser={clickUser.userId}
                 empInfo={clickUser}
