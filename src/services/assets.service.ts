@@ -63,3 +63,19 @@ export const func_UpdateAssetUser = async (userId, id, requestBody) => {
     return error;
   }
 };
+export const func_DeleteAssetUser = async (userId, id) => {
+  console.log(userId)
+  console.log(id)
+  try {
+    const res = await ihttp1.delete(`/api/v1/assets/${userId}/${id}`, {
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    });
+   return res
+  } catch (error) {
+    console.log("Error : ", error);
+    return error;
+  }
+};
