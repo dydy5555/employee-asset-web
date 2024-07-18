@@ -20,7 +20,7 @@ import { fetchAllCCategory, func_CreateCategory } from "@/services/category.serv
 import toast from "react-hot-toast";
 import { showToastSuccess } from "@/services/commonfunc.service";
 
-function CreateCategory({ setCategoriesFromParent, setTotalSubCategories, }) {
+function CreateCategory({ setCategoriesFromParent, setTotalSubCategories }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [inputList, setInputList] = useState([]);
   const [categoryName, setCategoryName] = useState("");
@@ -46,14 +46,15 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories, }) {
     setInputList(updatedInputList);
   };
 
-  const handleSave = () => {
+  const handleSave = (onClose) => {
     const propertiesList = inputList
       .map((input) => input.value.trim().toLowerCase())
       .filter((value) => value !== "");
     const newCategory = { categoryName, subCategories: propertiesList };
     func_CreateCategory(newCategory).then((res)=>{
       console.log(res);
-      showToastSuccess("Updated Successfully!");
+      showToastSuccess("Asset created successfully!");
+      onClose()
       fetchAllCCategory().then((res) => {
         if (res?.status == 200) {
           setCategoriesFromParent(res?.data?.payload);
@@ -138,7 +139,7 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories, }) {
               <Button variant="flat" onPress={onClose}>
                 Cancel
               </Button>
-              <Button color="primary" onClick={handleSave}>
+              <Button color="primary" onClick={()=>handleSave(onClose)}>
                 Save Category
               </Button>
             </ModalFooter>
