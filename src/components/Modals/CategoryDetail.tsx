@@ -107,6 +107,7 @@ export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCat
             <>
               <ModalHeader className="flex flex-col gap-1 text-[16px] text-center mt-2">
                 Edit Category
+                <hr />
               </ModalHeader>
               <ModalBody className="px-10 text-[14px] ">
                 <div>
