@@ -10,8 +10,10 @@ import {
   user,
 } from "@nextui-org/react";
 import {
+  Back,
   Briefcase,
   Buildings2,
+  Devices,
   Lock,
   Note,
   SearchNormal1,
@@ -30,7 +32,6 @@ import { Select, SelectItem } from "@nextui-org/react";
 import { users } from "../data/users";
 import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
-import AddNewAsset from "./Modals/AddNewAsset";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
 import { func_GetByUserID } from "@/services/assets.service";
@@ -39,6 +40,7 @@ import CreateCategory from "./Modals/CreateCategory";
 import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
+import AddNewAsset from "./Modals/AddNewAsset";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -60,6 +62,7 @@ function ListUsers() {
   const [company, setCompany] = useState([]);
   const [asset_user, setAssetUser] = useState([]);
   const [allCate, setAllCate] = useState([]);
+  const [openMod, setOpenMod] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -105,7 +108,7 @@ function ListUsers() {
   const fitlerUsers = async (form: any) => {
     try {
       const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTI3MDE4OCwiaWF0IjoxNzIxMTgzNzg4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.crULPkhtzggsUUu6Wj7MAYjGAiSQJRk3wu0laN7XCEhxab2ro1S7MJWSAyhTjY9yJ8Ig0ehAuURp867M_nh-Xg"; // Replace with your actual JWT token
+        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTM1NzQ5NywiaWF0IjoxNzIxMjcxMDk3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.luXXj8Vo0nmiQefrqgp0PMXGKw3ePdq2_p5Gaq2p_MH6mPBCczaJdC6BnZmufYAp079zDWHx053GYHCUaNzjMA"; // Replace with your actual JWT token
       const headers = {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -123,7 +126,7 @@ function ListUsers() {
         body: JSON.stringify(formTemp),
       });
 
-      console.log("all user", res)
+      console.log("all user", res);
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -430,7 +433,7 @@ function ListUsers() {
                         src={
                           user?.prfl_PHTG
                             ? user?.prfl_PHTG
-                            : "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"
+                            : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
                         }
                         alt={user?.userId}
                         width={35}
@@ -462,17 +465,22 @@ function ListUsers() {
         </div>
         {/* Side 2 */}
 
-        <div className=" w-[75%]  overflow-hidden rounded-lg border p-5">
+        <div className=" w-[75%]  overflow-hidden rounded-lg border">
           {clickUser ? (
             <>
-              <div className="flex items-center justify-between">
+              <div className="pt-5 pl-5">
+                <Button className="hover:text-[#378CE7]" variant="light" onClick={() => setClickUser(false)}>
+                  {/* <Back size="28" color="#378CE7" /> */} Back
+                </Button>
+              </div>
+              <div className="flex items-center justify-between  px-5">
                 <div className="gap-2 flex cursor-pointer group items-center px-4 py-3">
                   <div className="outline flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
                     <Image
                       src={
                         clickUser?.prfl_PHTG
                           ? clickUser?.prfl_PHTG
-                          : "https://i.pinimg.com/236x/cd/03/8f/cd038fc3ed09f3eddd1a647c06d79c8d.jpg"
+                          : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
                       }
                       alt={clickUser?.flnm}
                       width={50}
@@ -522,139 +530,91 @@ function ListUsers() {
                   ""
                 )}
               </div>
-              <AssestByUserList clickUser={clickUser.userId} empInfo={clickUser}/>
+              <AssestByUserList
+                clickUser={clickUser.userId}
+                empInfo={clickUser}
+              />
 
-              {/* <hr className="mb-4" /> */}
             </>
           ) : (
             <>
-              <div className="flex flex-col gap-5">
-              <div className="flex justify-between items-end">
-                <div className="flex w-full gap-5">
-                  <div className="min-w-[200px] min-h-[130px]">
-                    <Card className=" h-full flex items-start justify-end px-3 py-4">
-                      <div className=" font-medium p-3">
-                        <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
-                          <svg
-                            className="fill-primary dark:fill-white "
-                            width="22"
-                            height="18"
-                            viewBox="0 0 22 18"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M7.18418 8.03751C9.31543 8.03751 11.0686 6.35313 11.0686 4.25626C11.0686 2.15938 9.31543 0.475006 7.18418 0.475006C5.05293 0.475006 3.2998 2.15938 3.2998 4.25626C3.2998 6.35313 5.05293 8.03751 7.18418 8.03751ZM7.18418 2.05626C8.45605 2.05626 9.52168 3.05313 9.52168 4.29063C9.52168 5.52813 8.49043 6.52501 7.18418 6.52501C5.87793 6.52501 4.84668 5.52813 4.84668 4.29063C4.84668 3.05313 5.9123 2.05626 7.18418 2.05626Z"
-                              fill=""
-                            />
-                            <path
-                              d="M15.8124 9.6875C17.6687 9.6875 19.1468 8.24375 19.1468 6.42188C19.1468 4.6 17.6343 3.15625 15.8124 3.15625C13.9905 3.15625 12.478 4.6 12.478 6.42188C12.478 8.24375 13.9905 9.6875 15.8124 9.6875ZM15.8124 4.7375C16.8093 4.7375 17.5999 5.49375 17.5999 6.45625C17.5999 7.41875 16.8093 8.175 15.8124 8.175C14.8155 8.175 14.0249 7.41875 14.0249 6.45625C14.0249 5.49375 14.8155 4.7375 15.8124 4.7375Z"
-                              fill=""
-                            />
-                            <path
-                              d="M15.9843 10.0313H15.6749C14.6437 10.0313 13.6468 10.3406 12.7874 10.8563C11.8593 9.61876 10.3812 8.79376 8.73115 8.79376H5.67178C2.85303 8.82814 0.618652 11.0625 0.618652 13.8469V16.3219C0.618652 16.975 1.13428 17.4906 1.7874 17.4906H20.2468C20.8999 17.4906 21.4499 16.9406 21.4499 16.2875V15.4625C21.4155 12.4719 18.9749 10.0313 15.9843 10.0313ZM2.16553 15.9438V13.8469C2.16553 11.9219 3.74678 10.3406 5.67178 10.3406H8.73115C10.6562 10.3406 12.2374 11.9219 12.2374 13.8469V15.9438H2.16553V15.9438ZM19.8687 15.9438H13.7499V13.8469C13.7499 13.2969 13.6468 12.7469 13.4749 12.2313C14.0937 11.7844 14.8499 11.5781 15.6405 11.5781H15.9499C18.0812 11.5781 19.8343 13.3313 19.8343 15.4625V15.9438H19.8687Z"
-                              fill=""
-                            />
-                          </svg>
+              <div className="flex flex-col gap-5  p-5">
+                <div className="flex justify-between items-end">
+                  <div className="flex w-full gap-5">
+                    <div className="min-w-[200px] min-h-[130px]">
+                      <Card className=" h-full flex items-start justify-end px-3 py-4">
+                        <div className=" font-medium p-3">
+                          <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                            <svg
+                              className="fill-primary dark:fill-white "
+                              width="22"
+                              height="18"
+                              viewBox="0 0 22 18"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M7.18418 8.03751C9.31543 8.03751 11.0686 6.35313 11.0686 4.25626C11.0686 2.15938 9.31543 0.475006 7.18418 0.475006C5.05293 0.475006 3.2998 2.15938 3.2998 4.25626C3.2998 6.35313 5.05293 8.03751 7.18418 8.03751ZM7.18418 2.05626C8.45605 2.05626 9.52168 3.05313 9.52168 4.29063C9.52168 5.52813 8.49043 6.52501 7.18418 6.52501C5.87793 6.52501 4.84668 5.52813 4.84668 4.29063C4.84668 3.05313 5.9123 2.05626 7.18418 2.05626Z"
+                                fill=""
+                              />
+                              <path
+                                d="M15.8124 9.6875C17.6687 9.6875 19.1468 8.24375 19.1468 6.42188C19.1468 4.6 17.6343 3.15625 15.8124 3.15625C13.9905 3.15625 12.478 4.6 12.478 6.42188C12.478 8.24375 13.9905 9.6875 15.8124 9.6875ZM15.8124 4.7375C16.8093 4.7375 17.5999 5.49375 17.5999 6.45625C17.5999 7.41875 16.8093 8.175 15.8124 8.175C14.8155 8.175 14.0249 7.41875 14.0249 6.45625C14.0249 5.49375 14.8155 4.7375 15.8124 4.7375Z"
+                                fill=""
+                              />
+                              <path
+                                d="M15.9843 10.0313H15.6749C14.6437 10.0313 13.6468 10.3406 12.7874 10.8563C11.8593 9.61876 10.3812 8.79376 8.73115 8.79376H5.67178C2.85303 8.82814 0.618652 11.0625 0.618652 13.8469V16.3219C0.618652 16.975 1.13428 17.4906 1.7874 17.4906H20.2468C20.8999 17.4906 21.4499 16.9406 21.4499 16.2875V15.4625C21.4155 12.4719 18.9749 10.0313 15.9843 10.0313ZM2.16553 15.9438V13.8469C2.16553 11.9219 3.74678 10.3406 5.67178 10.3406H8.73115C10.6562 10.3406 12.2374 11.9219 12.2374 13.8469V15.9438H2.16553V15.9438ZM19.8687 15.9438H13.7499V13.8469C13.7499 13.2969 13.6468 12.7469 13.4749 12.2313C14.0937 11.7844 14.8499 11.5781 15.6405 11.5781H15.9499C18.0812 11.5781 19.8343 13.3313 19.8343 15.4625V15.9438H19.8687Z"
+                                fill=""
+                              />
+                            </svg>
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <span> {asset_user.length} </span>
+                            <p className="">Total Employees </p>
+                          </div>
                         </div>
-                        <div className="flex gap-2 mt-2">
-                          <span> {asset_user.length} </span>
-                          <p className="">Total Employees </p>
+                      </Card>
+                    </div>
+
+                    <div className="min-w-[200px] min-h-[130px]">
+                      <Card className="flex h-full items-start justify-end px-3 py-4">
+                        <div className=" font-medium p-3">
+                          <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                            <Note size="28" color="#4A6CF7" />
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <span> {allCate.length} </span>
+                            <p className=""> Total Assets </p>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
+                      </Card>
+                    </div>
                   </div>
 
-                  <div className="min-w-[200px] min-h-[130px]">
-                    <Card className="flex h-full items-start justify-end px-3 py-4">
-                      <div className=" font-medium p-3">
-                        <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
-                          <Note size="28" color="#4A6CF7" />
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <span> {allCate.length} </span>
-                          <p className=""> Total Assets </p>
-                        </div>
-                      </div>
-                    </Card>
+                  <div className="flex w-full gap-5 py-4 justify-end">
+                    <CreateCategory />
+
+                    <Button
+                      onClick={() => {
+                        setOpenMod(true);
+                      }}
+                      color="primary"
+                      variant="light"
+                      className="border-[0.5px] text-md text-semibold text-[#378CE7]"
+                      style={{ borderColor: "#378CE7" }}
+                    >
+                      <Devices size="22" color="#378CE7" /> Asset
+                    </Button>
                   </div>
                 </div>
 
-                <div className="flex w-full gap-5 py-4 justify-end">
-                  <CreateCategory />
-                  <AddNewAsset />
+                <div className="">
+                  <ItemCards />
                 </div>
-              </div>
-
-              <div className="">
-                <ItemCards />
-              </div>
               </div>
             </>
           )}
-
-          {/* <div className="custom-scroll grid max-h-[500px] grid-cols-3 gap-3 overflow-auto p-4">
-            {cards?.length > 0 ? (
-              cards?.map((card, index) => (
-                <div
-                  className="border rounded-xl flex flex-col justify-between p-2.5 space-y-2"
-                  key={card?.id}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="p-1.5 border rounded-md w-8 h-8 flex items-center justify-center">
-                        <Image src={Avatar3} alt="MS Office" />
-                      </div>
-                      <div onClick={() => handleClickToggle(card)}>
-                        <button
-                          className={`${
-                            card?.isEnabled === "Y" || card?.isEnabled === "R"
-                              ? "justify-end bg-primary"
-                              : "justify-start bg-gray-300"
-                          } duration-200 w-8 h-5 border flex items-center px-1 rounded-full`}
-                        >
-                          <motion.span
-                            layout
-                            transition={{ duration: 0.2 }}
-                            className={`inline-block w-3 h-3 rounded-full bg-white`}
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h1 className="text-gray-800 font-medium">
-                        {card?.app_name}
-                      </h1>
-                      <p className="text-xs text-gray-500">{card?.des}</p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      manageApplication(card.id);
-                    }}
-                    className="flex text-xs group text-gray-500 font-medium rounded-lg w-full items-center justify-center gap-1 border px-2 py-1"
-                  >
-                    <Setting2
-                      size={16}
-                      className="group-hover:rotate-90 duration-300"
-                    />
-                    <span>Manage</span>
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="w-[100%] flex justify-center items-center col-start-2">
-                <Image
-                  src={no_card}
-                  alt="No data available"
-                  className="w-[400px] h-[400px]"
-                />
-              </div>
-            )}
-          </div> */}
         </div>
+        <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
       </div>
     </div>
   );

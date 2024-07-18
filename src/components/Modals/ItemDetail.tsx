@@ -12,16 +12,10 @@ import {
   Tab,
   CardBody,
   Card,
-  Select,
-  SelectItem,
   Input,
   Autocomplete,
   AutocompleteItem,
 } from "@nextui-org/react";
-import { Add, Edit, Trash, User, Verify } from "iconsax-react";
-import NoImage from "../../../public/images/no_app.jpg";
-import axios from "axios";
-import { log } from "console";
 import { func_GetCategoryByID } from "@/services/category.service";
 import think from "../../../public/images/icon/Thinkin.svg";
 import Image from "next/image";
@@ -49,17 +43,7 @@ export default function ItemDetail({
   const [inputValues, setInputValues] = useState({});
   const [subCategories, setSubCategories] = useState();
 
-  // const handleInputChange = (property, value) => {
-  //   setInputValues((prevValues) => ({
-  //     ...prevValues,
-  //     [property]: value.toLowerCase(),
-  //   }));
-  //   setSubCategories(inputValues);
-  //   const allAss = { categoryId: id, name: cateName.toLowerCase(), subCategories };
-  //   console.log("subCate", allAss);
-  //   setAllAssets([]);
-  //   setAllAssets((prev) => [...prev, allAss]);
-  // };
+
   const handleCategoryChange = (value) => {
     if (value === null) {
       setIsSelected(true);
@@ -70,14 +54,18 @@ export default function ItemDetail({
           const selectedAsset = itemsUser
             .flatMap((user) => user.allAssets)
             .find((asset) => asset.categoryId === value);
-            console.log(selectedAsset)
           setSelectedCategory(selectedAsset);
-          setAllAssets([])
-          setAllAssets(selectedAsset)
-          setCateName(selectedAsset.name)
-          setID(selectedAsset.categoryId)
+          setAllAssets([]);
+          setAllAssets(selectedAsset);
+          setCateName(selectedAsset.name);
+
+          itemsUser.map((user) => {
+            const select = user.allAssets.find(asset => asset.categoryId === value);
+            if (select) {
+              setID(user.id);
+            }
+          });
           setIsLoadingCate(false);
-          
         } catch (error) {
           console.error("Error fetching data:", error);
         } finally {
@@ -89,26 +77,17 @@ export default function ItemDetail({
   };
 
   const handleInputChange = (key, value) => {
- 
-    setSelectedCategory(prevState => ({
+    console.log(key, value);
+
+    setSelectedCategory((prevState) => ({
       ...prevState,
       subCategories: {
         ...prevState.subCategories,
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
-    setAllAssets(selectedCategory)
-    console.log({selectedCategory})
-    console.log({allAssets})
   };
-  // const handleCategoryChange = (id) => {
 
-  //   if (id === null) {
-  //     setIsSelected(true);
-  //   }
-  //   setID(id);
-  //   fetchByID(id);
-  // };
 
   const fetchByID = async (id) => {
     console.log(id);
@@ -145,7 +124,7 @@ export default function ItemDetail({
     return Object.keys(selectedCategory.subCategories).map((key) => (
       <div key={key} className="w-full flex flex-col gap-2">
         <div className="w-full flex justify-between">
-          <p className="capitalize pb-1 text-sm font-medium">{key}</p>
+          <p className="capitalize text-sm font-medium">{key}</p>
         </div>
         <div className="w-full">
           <Input
@@ -160,37 +139,6 @@ export default function ItemDetail({
     ));
   };
 
-  // const renderInputFields = () => {
-  //   if (!id) {
-  //     return null;
-  //   }
-  //   if (!subCate) {
-  //     return null;
-  //   }
-  //   console.log(allAssets)
-  //   const inputs = allAssets?.map((property) => (
-  //     <>
-  //     {Object.keys(property.subCategories)?.map((key)=>(
-  //        <div key={key} className="items-start  text-sm ">
-  //         <div className=" w-full flex justify-between">
-  //           <p className="capitalize pb-1 text-sm font-medium ">{key}</p>
-  //         </div>
-  //         <div className=" w-full">
-  //           <Input
-  //             radius="md"
-  //             placeholder={`Enter ${key}`}
-  //             className="w-full text-sm"
-  //             defaultValue={property.subCategories[key] || ""}
-  //             onChange={(e) => handleInputChange(property.subCategories[key], e.target.value)}
-  //           />
-  //         </div>
-  //       </div>
-  //     ))}
-
-  //     </>
-  //   ));
-  //   return inputs;
-  // };
 
   const OnChangeTab = (key) => {
     console.log(key);
@@ -202,15 +150,7 @@ export default function ItemDetail({
   };
 
   useEffect(() => {
-    console.log(itemsUser);
-    // const fetchCate = async () => {
-    //   itemsUser?.map((user) => {
-    //     console.log(user);
-    //     setAllAssets([]);
-    //     setAllAssets(user.allAssets);
-    //   });
-    // };
-    // fetchCate();
+
   }, [itemsUser]);
 
   const subCategoryKeys = Array.from(
@@ -222,8 +162,12 @@ export default function ItemDetail({
   );
 
   const handleSave = () => {
-    console.log(allAssets);
-    console.log(subCategories);
+    const allAss = Array.of({
+      categoryId: selectedCategory.categoryId,
+      name: cateName,
+      subCategories: selectedCategory.subCategories,
+    });
+
     const data = {
       userId: empinfo.userId,
       employee_name: empinfo.flnm,
@@ -233,11 +177,11 @@ export default function ItemDetail({
       company: empinfo.use_INTT_ID,
       img_url: empinfo.prfl_PHTG,
       use_INNITID: empinfo.use_INTT_ID,
-      allAssets,
+      allAssets: allAss,
     };
 
     try {
-      func_UpdateAssetUser(empinfo.userId, empinfo.id, data).then((res) => {
+      func_UpdateAssetUser(empinfo.userId, id, data).then((res) => {
         if (res.status === 200) {
           toast.success("Updated successfully!");
           setSelectedCategory(null);
@@ -251,14 +195,15 @@ export default function ItemDetail({
     console.log({ data });
     setAllAssets([]);
     setIsSelected(true);
-    // setIsLoadingCate(true)
   };
   // console.log({ empinfo });
   return (
     <div className="flex flex-col gap-2 ">
       <Modal
         isOpen={openMod}
-        onOpenChange={onOpenChange}
+        onOpenChange={()=>{
+          setOpenMod(false);
+        }}
         scrollBehavior={scrollBehavior}
         className="min-h-[650px] min-w-[700px]"
       >
@@ -424,6 +369,7 @@ export default function ItemDetail({
                                       <AutocompleteItem
                                         key={asset.categoryId}
                                         value={asset.categoryId}
+                                        className="capitalize"
                                       >
                                         {asset.name}
                                       </AutocompleteItem>

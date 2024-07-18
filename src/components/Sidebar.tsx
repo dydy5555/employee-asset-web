@@ -28,7 +28,7 @@ function Sidebar() {
             <p className="text-[11px] text-gray-500 font-medium">{'Manage BizWeb Platform'}</p>
           </div> */}
 
-          <div className="text-md font-semibold text-primary w-full ">
+          <div className="text-md font-semibold text-[#378CE7] w-full ">
             Assets Employee
           </div>
         </div>
@@ -45,11 +45,11 @@ function Sidebar() {
               Overview
             </Link>
           </div> */}
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href="/app/employee-assets"
               className={`flex ${
-                pathname === "/app/employee-assets" ? "text-primary" : ""
+                pathname === "/app/employee-assets" ? "text-[#378CE7]" : ""
               } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
             >
               <Buildings variant="Outline" size={16} />
@@ -67,11 +67,11 @@ function Sidebar() {
               All Assets
             </Link>
           </div> */}
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href={"/app/all-categories"}
               className={`flex ${
-                pathname === "/app/all-categories" ? "text-primary" : ""
+                pathname === "/app/all-categories" ? "text-[#378CE7]" : ""
               } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
             >
               <MonitorMobbile size={16} />

@@ -37,6 +37,7 @@ export const ihttp1 = axios.create({
 // Getting Session
 
 export async function getSession() {
+    token = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTM1NzQ5NywiaWF0IjoxNzIxMjcxMDk3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.luXXj8Vo0nmiQefrqgp0PMXGKw3ePdq2_p5Gaq2p_MH6mPBCczaJdC6BnZmufYAp079zDWHx053GYHCUaNzjMA'
     try {
       const headers = { 'Authorization': `Bearer ${token}`};
       const res = await fetch(`${API_URL}/api/v1/session?token=${encodeURIComponent(token!)}&key=${encodeURIComponent(KEY!)}`, { headers });

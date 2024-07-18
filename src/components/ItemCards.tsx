@@ -372,7 +372,7 @@ export default function ItemCards() {
                       radius: "full",
                       src: user.img_url
                         ? user.img_url
-                        : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg",
+                        : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png",
                     }}
                     description={user.userId}
                     name={user.employee_name}

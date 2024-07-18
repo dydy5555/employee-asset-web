@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import {
   Modal,
@@ -9,61 +7,26 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Checkbox,
   Input,
-  Link,
   Select,
   SelectItem,
   Avatar,
-  Image,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 
-import { Devices, Heart } from "iconsax-react";
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
 import { getListEmployee } from "@/services/employee.service";
-import { userAgent } from "next/server";
 import { func_CreateAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
+import NoImage from "../../../public/images/no_app.jpg";
+import Image from "next/image";
+import think from "../../../public/images/icon/Thinkin.svg";
 
-const category = [
-  { key: "laptop", label: "Laptop" },
-  { key: "phone", label: "Phone" },
-  { key: "monitor", label: "Monitor" },
-];
-
-const temp = [
-  {
-    laptop: ["name", "type", "lable_no", "mac_address"],
-  },
-  {
-    phone: ["name"],
-  },
-  {
-    monitor: ["name", "inch_A"],
-  },
-];
-
-const tempUser = [
-  {
-    id: 1,
-    userId: "kongrady",
-    username: "Kong Rady",
-    prfl_PHTG:
-      "https://i.pinimg.com/736x/8d/96/08/8d960872618c86ab63bd51922c4da6de.jpg",
-  },
-  {
-    id: 2,
-    userId: "kongrady",
-    username: "Kong Rady",
-    prfl_PHTG:
-      "https://i.pinimg.com/736x/8d/96/08/8d960872618c86ab63bd51922c4da6de.jpg",
-  },
-];
-
-export default function AddNewAsset() {
+export default function AddNewAsset({ setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
@@ -86,10 +49,10 @@ export default function AddNewAsset() {
     setSubCategories(inputValues);
   };
 
-  const handleCategoryChange = (event) => {
-    console.log(event.target.value);
-    setID(event.target.value);
-    fetchByID(event.target.value);
+  const handleCategoryChange = (value) => {
+    console.log(value);
+    setID(value);
+    fetchByID(value);
   };
 
   const renderInputFields = () => {
@@ -102,16 +65,15 @@ export default function AddNewAsset() {
 
     const inputs = subCate?.map((property, index) => (
       <>
-        <div key={index} className="w-full grid grid-cols-4 gap-4 items-center">
-          <div className="col-span-1 flex justify-between">
-            <p className="capitalize ">{property}</p>
-            <p>:</p>
+        <div key={index} className="items-start  text-sm ">
+          <div className=" w-full flex justify-between">
+            <p className="capitalize pb-1 font-medium ">{property}</p>
           </div>
-          <div className="col-span-3">
+          <div className=" w-full">
             <Input
-              radius="sm"
+              radius="md"
               placeholder={`Enter ${property}`}
-              className="w-full"
+              className="w-full "
               value={inputValues[property] || ""}
               onChange={(e) => handleInputChange(property, e.target.value)}
             />
@@ -121,21 +83,6 @@ export default function AddNewAsset() {
     ));
     setIsSelected(true);
     return inputs;
-  };
-
-  const fetchCate = () => {
-    try {
-      fetchAllCCategory().then((res) => {
-        if (res?.status == 200) {
-          setAllCate(res?.data?.payload);
-          console.log("allCate", res?.data?.payload);
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      // setIsLoading(false);
-    } finally {
-    }
   };
 
   const fetchByID = async (id) => {
@@ -154,18 +101,25 @@ export default function AddNewAsset() {
 
   const fetchEmployee = () => {
     getListEmployee().then((res) => {
-      console.log(res);
-      setAllUser(res);
+      console.log(res.user);
+      setAllUser(res.user);
     });
   };
 
-  const handleSave = async () => {
+  const handleSelectUser = (userID) => {
+    console.log({ userID });
+    const selectedUser = allUser.find((user) => user.id === userID);
+    setUserSeleted(selectedUser);
+    setIsSelectedUser(true);
+    console.log(userSelected);
+  };
 
+  const handleSave = async () => {
     const allAss = { categoryId: id, name: cateName, subCategories };
     console.log("subCate", allAss);
-    setAllAssets((prev)=>[...prev,allAss]);
+    setAllAssets((prev) => [...prev, allAss]);
     setIsDisabledBtn(true);
-    console.log(allAssets)
+    console.log(allAssets);
     const data = {
       userId: userSelected.userId,
       employee_name: userSelected.flnm,
@@ -179,12 +133,13 @@ export default function AddNewAsset() {
     };
     try {
       await new Promise((resolve) => {
-        // func_CreateAsset(data).then((res) => {
-        //   console.log(res);
-        //   if (res.status === 200) {
-        //     toast.success("Added asset successfully!");
-        //   }
-        // });
+        func_CreateAsset(data).then((res) => {
+          console.log(res);
+          if (res.status === 200) {
+            toast.success("Added asset successfully!");
+            setOpenMod(false);
+          }
+        });
         setTimeout(resolve, 2000);
       });
     } catch (error) {
@@ -192,144 +147,238 @@ export default function AddNewAsset() {
     } finally {
       setIsDisabledBtn(false);
     }
-
     console.log(data);
   };
 
   useEffect(() => {
-    console.log(isSelectedUser);
+    const fetchCate = () => {
+      try {
+        fetchAllCCategory().then((res) => {
+          if (res?.status == 200) {
+            setAllCate(res?.data?.payload);
+            console.log("allCate", res?.data?.payload);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // setIsLoading(false);
+      } finally {
+      }
+    };
     fetchCate();
     fetchEmployee();
   }, []);
 
+  console.log({ allUser });
+  console.log({ allCate });
+
   return (
-    <>
-      <Button
-        onPress={onOpen}
-        color="primary"
-        variant="light"
-        className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-        style={{ borderColor: "#378CE7" }}
-      >
-        <Devices size="22" color="#378CE7" /> Asset
-      </Button>
+    <div>
       <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={openMod}
+        onOpenChange={() => {
+          setOpenMod(false);
+          setIsSelectedUser(false);
+        }}
         placement="top-center"
         size="xl"
+        className="min-h-[650px] min-w-[700px]"
       >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1 mt-2">
-                <h1 className="text-center">Add New Asset</h1>
+              <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
+                <h1 className="text-center text-[#378CE7]">Add New Asset</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
-              <ModalBody className="px-8">
-                <div>
-                  {/* <p>Choose a user to add asset</p> */}
-
-                  <Select
-                    items={allUser}
-                    label="Select a user"
-                    className="max-w-lg w-full"
-                    classNames={{
-                      label: "group-data-[filled=true]:-translate-y-5",
-                      trigger: "min-h-16",
-                      listboxWrapper: "max-h-[400px]",
-                    }}
-                    listboxProps={{
-                      itemClasses: {
-                        base: [
-                          "rounded-md",
-                          "text-default-500",
-                          "transition-opacity",
-                          "data-[hover=true]:text-foreground",
-                          "data-[hover=true]:bg-default-100",
-                          "dark:data-[hover=true]:bg-default-50",
-                          "data-[selectable=true]:focus:bg-default-50",
-                          "data-[pressed=true]:opacity-70",
-                          "data-[focus-visible=true]:ring-default-500",
-                        ],
-                      },
-                    }}
-                    popoverProps={{
-                      classNames: {
-                        base: "before:bg-default-200",
-                        content:
-                          "p-0 border-small border-divider bg-background",
-                      },
-                    }}
-                    renderValue={(items) => {
-                      setUserSeleted(items[0]?.data);
-                      setIsSelectedUser(true);
-                      return items.map((item) => (
-                        <div key={item.key} className="flex items-center gap-2">
-                          <Avatar
-                            alt={item.data.userId}
-                            className="flex-shrink-0"
-                            size="sm"
-                            src={item.data.prfl_PHTG}
-                          />
-                          <div className="flex flex-col">
-                            <span>{item.data.flnm}</span>
-                            {/* <span className="text-default-500 text-tiny">
-                              {item.data.userId}
-                            </span> */}
-                          </div>
-                        </div>
-                      ));
-                    }}
-                  >
-                    {(user) => (
-                      <SelectItem key={user.id} textValue={user.flnm}>
-                        <div className="flex gap-2 items-center">
-                          <Avatar
-                            alt={user.userId}
-                            className="flex-shrink-0"
-                            size="sm"
-                            src={user.prfl_PHTG}
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-small">{user.flnm}</span>
-                            <span className="text-tiny text-default-400">
-                              {user.userId}
-                            </span>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    )}
-                  </Select>
-                </div>
-
-                {isSelectedUser ? (
-                  <div className="flex w-full">
-                    <Select
-                      label="Select a category"
-                      className="max-w-lg w-full"
-                      value={id || ""}
-                      onChange={handleCategoryChange}
-                    >
-                      {allCate.map((item) => (
-                        <SelectItem key={item.id} value={item.categoryName}>
-                          {item.categoryName}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                  </div>
+              <ModalBody className="px-8 w-full h-full py-0 ">
+                {allUser?.length < 0 ? (
+                  <>
+                    <div className="w-full flex-col flex items-center justify-center">
+                      <Image
+                        width={400}
+                        height={400}
+                        src={NoImage}
+                        alt="no_app"
+                      />
+                      <div className="text-gray-400">No user</div>
+                    </div>
+                  </>
                 ) : (
-                  <></>
+                  <>
+                    <div>
+                      <div className="flex gap-5 items-center justify-between">
+                        <div className="w-full">
+                          <div className="text-md py-1 pl-2 font-medium">
+                            Users
+                          </div>
+                          <Autocomplete
+                            items={allUser}
+                            label="Select a user"
+                            className="max-w-xs w-full "
+                            classNames={{
+                              label: "group-data-[filled=true]:-translate-y-5",
+                              trigger: "min-h-16",
+                              listboxWrapper: "max-h-[400px]",
+                            }}
+                            listboxProps={{
+                              itemClasses: {
+                                base: [
+                                  "rounded-md",
+                                  "text-default-500",
+                                  "transition-opacity",
+                                  "data-[hover=true]:text-foreground",
+                                  "data-[hover=true]:bg-default-100",
+                                  "dark:data-[hover=true]:bg-default-50",
+                                  "data-[selectable=true]:focus:bg-default-50",
+                                  "data-[pressed=true]:opacity-70",
+                                  "data-[focus-visible=true]:ring-default-500",
+                                ],
+                              },
+                            }}
+                            popoverProps={{
+                              classNames: {
+                                base: "before:bg-default-200",
+                                content:
+                                  "p-0 border-small border-divider bg-background",
+                              },
+                            }}
+                            renderValue={(items) => {
+                              setIsSelectedUser(true);
+                              return items.map((item) => (
+                                <div
+                                  key={item.key}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Avatar
+                                    alt={item.data.userId}
+                                    className="flex-shrink-0"
+                                    size="sm"
+                                    src={
+                                      item.data.prfl_PHTG ||
+                                      "https://i.pinimg.com/originals/1b/0a/46/1b0a46e65b98612baa606d0c9af5f715.jpg"
+                                    }
+                                  />
+                                  <div className="flex flex-col">
+                                    <span>{item.data.flnm}</span>
+                                  </div>
+                                </div>
+                              ));
+                            }}
+                            onSelectionChange={handleSelectUser}
+                            onClear={() => [setIsSelectedUser(false)]}
+                          >
+                            {(user) => (
+                              <AutocompleteItem
+                                key={user.id}
+                                textValue={user.flnm}
+                                className="capitalize"
+                              >
+                                <div className="flex gap-2 items-center">
+                                  <Image
+                                    alt={user.userId}
+                                    className=" w-[40px] h-[40px] object-cover rounded-full p-[0.5px] border border-gray-100"
+                                    width={40}
+                                    height={40}
+                                    src={
+                                      user.prfl_PHTG ||
+                                      "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
+                                    }
+                                  />
+                                  <div className="flex flex-col">
+                                    <span className="text-small">
+                                      {user.flnm}
+                                    </span>
+                                    <span className="text-tiny text-default-400">
+                                      {user.userId}
+                                    </span>
+                                  </div>
+                                </div>
+                              </AutocompleteItem>
+                            )}
+                          </Autocomplete>
+                        </div>
+                        {isSelectedUser ? (
+                          <>
+                            <div className="w-full">
+                              <div className="text-md py-1 pl-2 font-medium">
+                                Assets
+                              </div>
+                              <Autocomplete
+                                label="Select an asset"
+                                className="max-w-xs"
+                                scrollShadowProps={{
+                                  isEnabled: false,
+                                }}
+                                onSelectionChange={handleCategoryChange}
+                              >
+                                {allCate?.map((item) => (
+                                  <AutocompleteItem
+                                    key={item.id}
+                                    value={item.categoryName}
+                                  >
+                                    {item.categoryName}
+                                  </AutocompleteItem>
+                                ))}
+                              </Autocomplete>
+                            </div>
+                          </>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
+                    </div>
+
+                    {isSelectedUser ? (
+                      <>
+                        {/* <div className="w-full h-full ">
+                          <div className="w-full h-full flex flex-col justify-center items-center">
+                            <Image
+                              width={200}
+                              height={200}
+                              src={think}
+                              alt="logo"
+                              className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
+                            />
+                            <div className="text-gray-400 text-sm">
+                              Please select an asset!
+                            </div>
+                          </div>
+                        </div> */}
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-full h-full ">
+                          <div className="w-full h-full flex flex-col justify-center items-center">
+                            <Image
+                              width={200}
+                              height={200}
+                              src={think}
+                              alt="logo"
+                              className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
+                            />
+                            <div className="text-gray-400 text-sm">
+                              Please select a user!
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* <div className="flex flex-col w-full h-full gap-3 my-2 text-sm pl-2"> */}
+                    {isSelected ? (
+                      <div className=" mt-2 font-medium text-sm">
+                        Category properties
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                    <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
+                      {renderInputFields()}
+                    </div>
+                    {/* </div> */}
+                  </>
                 )}
-                <div className="flex flex-col gap-3 my-2 text-sm pl-2">
-                  {isSelected ? (
-                    <div className=" font-medium">Category properties</div>
-                  ) : (
-                    <></>
-                  )}
-                  {renderInputFields()}
-                </div>
-                {/* <div className="border border-[1px] border-gray-100"></div> */}
               </ModalBody>
 
               <ModalFooter>
@@ -339,13 +388,13 @@ export default function AddNewAsset() {
                     setIsSelectedUser(false);
                     setAllCate([]);
                     setSubCate([]);
-                    onClose();
+                    setOpenMod(false);
                   }}
                 >
                   Cancel
                 </Button>
                 <Button
-                 disabled={isDisabledBtn}
+                  disabled={isDisabledBtn}
                   color="primary"
                   onClick={() => {
                     handleSave();
@@ -359,6 +408,6 @@ export default function AddNewAsset() {
           )}
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
