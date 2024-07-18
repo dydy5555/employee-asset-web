@@ -88,6 +88,7 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories, }) {
           <>
             <ModalHeader className="flex flex-col gap-1">
               <h2 className="text-2xl font-bold text-center text-primary">Create Category</h2>
+              <hr />
             </ModalHeader>
             <ModalBody>
               <div className="space-y-6">

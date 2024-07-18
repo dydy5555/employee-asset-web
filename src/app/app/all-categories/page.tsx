@@ -26,7 +26,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import NoImage from "../../../../public/images/no_app.jpg";
 
-function page() {
+function Categoires() {
   const [categories, setCategories] = useState([]);
   const [data, setData] = useState([]);
   const [totalSubCategories, setTotalSubCategories] = useState([]);
@@ -88,10 +88,17 @@ function page() {
   };
 
 
-  const filteredCategories = categories.filter((category) =>
-    category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredCategories = categories.filter((category) =>
+  //   category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
+  const filteredCategories = categories.filter((category) => {
+    const categoryNameMatch = category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase());
+    const subCategoriesMatch = category.subCategories.some(subCategory =>
+      subCategory.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return categoryNameMatch || subCategoriesMatch;
+  });
 
   return (
     <>
@@ -121,7 +128,7 @@ function page() {
                   "dark:group-data-[focused=true]:bg-default-50",
                 ],
               }}
-              placeholder="Type to search categories name..."
+              placeholder="Type to search categories name, sub categories..."
               startContent={
                 <SearchNormal1 size={20} className="text-default-400" />
               }
@@ -231,4 +238,4 @@ function page() {
   );
 }
 
-export default page;
+export default Categoires;
