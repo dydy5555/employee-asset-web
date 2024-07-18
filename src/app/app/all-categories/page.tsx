@@ -9,7 +9,11 @@ import {
 } from "@/services/category.service";
 import {
   Button,
+  ButtonGroup,
+  Card,
+  CardBody,
   Input,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -32,6 +36,10 @@ function page() {
   const [openDelete, setOpenDelete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  useEffect(() => {
+    fetch();
+  }, []);
 
   const fetch = () => {
     setIsLoading(true);
@@ -58,9 +66,15 @@ function page() {
     }, 1000);
   };
 
-  useEffect(() => {
-    fetch();
-  }, []);
+  const largestArrayItem = totalSubCategories.reduce((max, item) => {
+    return item?.length > max?.length ? item : max;
+  }, totalSubCategories[0]);
+
+  const maxSubCategories = Math.max(
+    ...categories.map((category) => category.subCategories?.length),
+    largestArrayItem?.length
+  );
+
 
   const handleCategoryDetailClick = (category) => {
     setSelectedCategory([]);
@@ -73,228 +87,145 @@ function page() {
     setSelectedID(id);
   };
 
-  const largestArrayItem = totalSubCategories.reduce((max, item) => {
-    return item?.length > max?.length ? item : max;
-  }, totalSubCategories[0]);
-
-  // console.log(largestArrayItem);
-
-  const maxSubCategories = Math.max(
-    ...categories.map((category) => category.subCategories?.length),
-    largestArrayItem?.length
-  );
 
   const filteredCategories = categories.filter((category) =>
     category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+
   return (
     <>
-      <div className="p-10">
-        <div className="w-2/4 flex justify-center items-center gap-5">
-          <Input
-            label="Search"
-            isClearable
-            radius="lg"
-            classNames={{
-              label: "text-black/50 dark:text-white/90",
-              input: [
-                "bg-transparent",
-                "text-black/90 dark:text-white/90",
-                "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-              ],
-              innerWrapper: "bg-transparent",
-              inputWrapper: [
-                "shadow-md",
-                "bg-default-200/50",
-                "dark:bg-default/60",
-                "backdrop-blur-xl",
-                "backdrop-saturate-200",
-                "hover:bg-default-200/70",
-                "dark:hover:bg-default/70",
-                "group-data-[focus=true]:bg-default-200/50",
-                "dark:group-data-[focus=true]:bg-default/60",
-                "!cursor-text",
-              ],
-            }}
-            placeholder="Type to search..."
-            startContent={
-              <SearchNormal1
-                size="20"
-                className="text-black/50 mb-0.5 dark:text-white/90 text-slate-400 pointer-events-none flex-shrink-0"
-              />
-            }
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onClear={() => {
-              console.log("input cleared");
-              setSearchQuery("");
-            }}
-          />
-          <div>
-            <CreateCategory />
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-4 text-primary">Categories</h1>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Input
+              // label="Search categories name"
+              isClearable
+              radius="lg"
+              className="flex-grow"
+              classNames={{
+                label: "text-black/50 dark:text-white/90",
+                input: [
+                  "bg-transparent",
+                  "text-black/90 dark:text-white/90",
+                  "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                ],
+                inputWrapper: [
+                  "shadow-sm",
+                  "bg-default-100",
+                  "dark:bg-default-50",
+                  "hover:bg-default-200",
+                  "dark:hover:bg-default-100",
+                  "group-data-[focused=true]:bg-default-100",
+                  "dark:group-data-[focused=true]:bg-default-50",
+                ],
+              }}
+              placeholder="Type to search categories name..."
+              startContent={
+                <SearchNormal1 size={20} className="text-default-400" />
+              }
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onClear={() => setSearchQuery("")}
+            />
+            <CreateCategory
+              setCategoriesFromParent={setCategories}
+              setTotalSubCategories={setTotalSubCategories}
+            />
           </div>
         </div>
 
-        <div className="text-[14px] mt-5 relative shadow-md border-t-[0.5px] border-gray-50 px-10 py-5 rounded-lg h-full min-h-[800px] max-h-[760px] custom-scroll">
-          <div className="text-base font-medium">All Categories</div>
+        <Card className="w-full">
           {isLoading ? (
-            <div className="w-full h-full ">
-              <figure className="loader">
-                <div className="dot white"></div>
-                <div className="dot"></div>
-                <div className="dot"></div>
-                <div className="dot"></div>
-                <div className="dot"></div>
-              </figure>
-            </div>
+            <CardBody className="flex items-center justify-center h-96">
+              <Spinner size="lg" />
+            </CardBody>
+          ) : filteredCategories.length > 0 ? (
+            <Table
+              aria-label="Categories table"
+              classNames={{
+                th: "bg-default-100 text-default-800 border-b border-divider",
+                td: "border-b border-divider",
+              }}
+            >
+              <TableHeader>
+                <TableColumn>No</TableColumn>
+                <TableColumn>Category Name</TableColumn>
+                {Array.from({ length: maxSubCategories }).map((_, key) => (
+                  <TableColumn key={key}>Subcategory {key + 1}</TableColumn>
+                ))}
+                <TableColumn>Actions</TableColumn>
+              </TableHeader>
+              <TableBody>
+                {filteredCategories.map((v, i) => (
+                  <TableRow key={v.id}>
+                    <TableCell>{i + 1}</TableCell>
+                    <TableCell className="font-medium capitalize">
+                      {v.categoryName}
+                    </TableCell>
+                    {Array.from({ length: maxSubCategories }).map((_, key) => (
+                      <TableCell key={key} className="lowercase">
+                        {v.subCategories[key] || ""}
+                      </TableCell>
+                    ))}
+                    <TableCell>
+                      <ButtonGroup>
+                        <Button
+                          isIconOnly
+                          variant="flat"
+                          color="primary"
+                          onClick={() => handleCategoryDetailClick(v)}
+                        >
+                          <Edit2 size={18} />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          variant="flat"
+                          color="danger"
+                          onClick={() => handleDelete(v.id)}
+                        >
+                          <Minus size={18} />
+                        </Button>
+                      </ButtonGroup>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           ) : (
-            <div className="max-h-[730px] h-full w-full mt-2 overflow-hidden">
-              <div className="max-h-[730px] h-full w-full overflow-y-auto">
-                {filteredCategories.length > 0 ? (
-                  <table className="w-full border-collapse">
-                    <thead className="bg-gray-100 sticky top-0 z-10">
-                      <tr className="py-3 font-normal hover:bg-gray-200 hover:cursor-pointer">
-                        <th
-                          className="text-center font-medium pl-3 py-3"
-                          style={{
-                            borderRadius: "10px 0 0 10px",
-                            borderColor: "red",
-                          }}
-                        >
-                          No
-                        </th>
-                        <th
-                          className="pl-5 font-medium text-left py-3"
-                          style={{
-                            borderRadius: "0px 0 0 0px",
-                            borderColor: "red",
-                          }}
-                        >
-                          Category Name
-                        </th>
-                        {Array.from({ length: maxSubCategories }).map(
-                          (_, key) => (
-                            <th
-                              key={key}
-                              className="p-2 text-center font-medium "
-                              style={
-                                key === maxSubCategories - 1
-                                  ? {
-                                      borderRadius: "0 0px 0px 0",
-                                      borderColor: "red",
-                                    }
-                                  : { borderColor: "red" }
-                              }
-                            >
-                              Subcategory {key + 1}
-                            </th>
-                          )
-                        )}
-                        <th
-                          className="p-2 text-center"
-                          style={{
-                            borderRadius: "0 10px 10px 0",
-                            borderColor: "red",
-                          }}
-                        ></th>
-                      </tr>
-                    </thead>
+            <CardBody className="flex flex-col items-center justify-center h-96 text-center">
+              <Image
+                src={NoImage}
+                alt="No categories"
+                className="w-48 h-48 mb-4 opacity-50"
+              />
+              <p className="text-xl text-default-500">No categories found</p>
+              <p className="text-sm text-default-400 mt-2">
+                Try adding a new category or adjusting your search.
+              </p>
+            </CardBody>
+          )}
+        </Card>
 
-                    <tbody>
-                      <>
-                        {filteredCategories.map((v, i) => (
-                          <tr key={i} className="hover:bg-gray-200">
-                            <td
-                              className="py-1 pl-3 text-center"
-                              style={{
-                                borderRadius: "10px 0px 0px 10px",
-                              }}
-                            >
-                              {i + 1}
-                            </td>
-                            <td className="py-1 pl-6 capitalize">
-                              {v.categoryName}
-                            </td>
-                            {Array.from({ length: maxSubCategories }).map(
-                              (_, key) => (
-                                <td
-                                  key={key}
-                                  className="p-1 text-center lowercase"
-                                  style={
-                                    key === maxSubCategories - 1
-                                      ? {
-                                          borderRadius: "0 0px 0px 0",
-                                          borderColor: "red",
-                                        }
-                                      : { borderColor: "red" }
-                                  }
-                                >
-                                  {v.subCategories[key] || ""}
-                                </td>
-                              )
-                            )}
-                            <td
-                              className="p-1 text-center"
-                              style={{
-                                borderRadius: "0 10px 10px 0",
-                              }}
-                            >
-                              <Button
-                                isIconOnly
-                                variant="light"
-                                onClick={() => handleCategoryDetailClick(v)}
-                              >
-                                <Edit2 size="18" color="#FF7F3E" />
-                              </Button>
-                              <Button
-                                isIconOnly
-                                variant="light"
-                                color="danger"
-                                onClick={() => handleDelete(v.id)}
-                              >
-                                <Minus size="20" color="#FF1E00" />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </>
-                    </tbody>
-                  </table>
-                ) : (
-                  <>
-                    <div className="w-full h-4/5 absolute flex items-center justify-center">
-                      <div>
-                        <Image
-                          src={NoImage}
-                          alt="logo"
-                          className="w-[400px] dark:block"
-                        />
-
-                        <p className="text-lg text-gray-400 w-full text-center">
-                          No Asset
-                        </p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          {selectedCategory && (
-            <CategoryDetail
-              category={selectedCategory}
-              setOpenEdit={setOpenEdit}
-              isOpen={openEdit}
-            />
-          )}
-          {selectedID && (
-            <ConfirmDeleteCategory
-              id={selectedID}
-              setOpenDelete={setOpenDelete}
-              isOpen={openDelete}
-            />
-          )}
-        </div>
+        {selectedCategory && (
+          <CategoryDetail
+            setCategoriesFromParent={setCategories}
+            setTotalSubCategories={setTotalSubCategories}
+            category={selectedCategory}
+            setOpenEdit={setOpenEdit}
+            isOpen={openEdit}
+          />
+        )}
+        {selectedID && (
+          <ConfirmDeleteCategory
+            setCategoriesFromParent={setCategories}
+            setTotalSubCategories={setTotalSubCategories}
+            id={selectedID}
+            setOpenDelete={setOpenDelete}
+            isOpen={openDelete}
+          />
+        )}
       </div>
     </>
   );

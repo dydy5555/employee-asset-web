@@ -8,6 +8,7 @@ const nextConfig = {
     env: {
       apiUrl: process.env.API_URL,
       apiUrl1: process.env.API_URL1,
+      API_URL_AUTH: process.env.API_URL_AUTH,
       KEY: process.env.NEXT_PUBLIC_KEY,
       NEXT_PUBLIC_IMAGE_DOMAINS: process.env.NEXT_PUBLIC_IMAGE_DOMAINS
     },
