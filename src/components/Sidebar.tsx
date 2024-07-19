@@ -1,6 +1,6 @@
 "use client";
 
-import { Buildings, MonitorMobbile } from "iconsax-react";
+import { Book, Bookmark, Buildings, Category, Document, MonitorMobbile } from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -52,21 +52,21 @@ function Sidebar() {
                 pathname === "/app/employee-assets" ? "text-[#378CE7]" : ""
               } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
             >
-              <Buildings variant="Outline" size={16} />
+              <Buildings variant="Outline" size={20} />
               Assets User
             </Link>
           </div>
-          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
-              href={"/app/assets"}
+              href={"/app/items"}
               className={`flex ${
-                pathname === "/app/assets" ? "text-primary" : ""
+                pathname === "/app/items" ? "text-[#378CE7]" : ""
               } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
             >
-              <MonitorMobbile size={16} />
-              All Assets
+              <MonitorMobbile size={20} />
+             Items
             </Link>
-          </div> */}
+          </div>
           <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href={"/app/all-categories"}
@@ -74,8 +74,19 @@ function Sidebar() {
                 pathname === "/app/all-categories" ? "text-[#378CE7]" : ""
               } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
             >
-              <MonitorMobbile size={16} />
-              All Category
+              <Category size={20} />
+              Categories
+            </Link>
+          </div>
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+            <Link
+              href={"/app/items-history"}
+              className={`flex ${
+                pathname === "/app/items-history" ? "text-[#378CE7]" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <Document size={20} />
+              Items History
             </Link>
           </div>
         </div>

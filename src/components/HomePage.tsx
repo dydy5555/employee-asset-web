@@ -23,7 +23,7 @@ function HomePage() {
 
   return (
     <div className="w-full h-full">
-      <ItemCards />
+      {/* <ItemCards /> */}
     </div>
   );
 }

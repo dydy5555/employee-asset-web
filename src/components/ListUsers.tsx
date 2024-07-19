@@ -41,6 +41,7 @@ import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
 import AddNewAsset from "./Modals/AddNewAsset";
+import ConfirmDelete from "./Modals/ConfirmDelete";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -194,7 +195,7 @@ function ListUsers() {
       // console.log("get department", data.payload);
       try {
         const token =
-          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTE4MzE5NSwiaWF0IjoxNzIxMDk2Nzk1LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.wTJ4WLJhU95SarzJbTTSpTtveUTV7z8K4XE4nLE6TspZ7D5p5TpEtjBzedyKIqThHtTlWbMd5RV1di-fS0rpnA"; // Replace with your actual JWT token
+          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTM2NDQwMywiaWF0IjoxNzIxMjc4MDAzLCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.y-Qk_ttnALyx8uygVY4-O7Dvt1asED4h9HPJTzcdhZ4aEwrng3Bfg_hchyPG3yRh54qvhwnDvjUxMkj0kLVbiA"; // Replace with your actual JWT token
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -469,8 +470,8 @@ function ListUsers() {
           {clickUser ? (
             <>
               <div className="pt-5 pl-5">
-                <Button className="hover:text-[#378CE7]" variant="light" onClick={() => setClickUser(false)}>
-                  {/* <Back size="28" color="#378CE7" /> */} Back
+                <Button className="text-[#378CE7] font-medium" variant="light" onClick={() => setClickUser(false)}>
+                  <Back size="28" color="#378CE7" /> Back
                 </Button>
               </div>
               <div className="flex items-center justify-between  px-5">
@@ -515,6 +516,7 @@ function ListUsers() {
                   </div>
                 </div>
                 <div className="px-4">
+                  {/* <ConfirmDelete /> */}
                   <CreateAssetByUser clickUser={clickUser} />
                 </div>
 
@@ -530,6 +532,7 @@ function ListUsers() {
                   ""
                 )}
               </div>
+              
               <AssestByUserList
                 clickUser={clickUser.userId}
                 empInfo={clickUser}

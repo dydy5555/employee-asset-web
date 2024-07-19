@@ -1,17 +1,14 @@
 "use client";
 
-import CategoryDetail from "@/components/Modals/CategoryDetail";
-import ConfirmDeleteCategory from "@/components/Modals/ConfirmDeleteCategory";
-import CreateCategory from "@/components/Modals/CreateCategory";
+import { fetchAllCCategory } from "@/services/category.service";
 import {
-  fetchAllCCategory,
-  func_DeleteCategory,
-} from "@/services/category.service";
-import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   ButtonGroup,
   Card,
   CardBody,
+  Image,
   Input,
   Spinner,
   Table,
@@ -21,22 +18,37 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { Edit2, Minus, SearchNormal1 } from "iconsax-react";
+import { Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import NoImage from "../../../../public/images/no_app.jpg";
+import NoImage from "../../public/images/no_app.jpg";
 
-function Categoires() {
-  const [categories, setCategories] = useState([]);
-  const [data, setData] = useState([]);
-  const [totalSubCategories, setTotalSubCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selectedID, setSelectedID] = useState([]);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
+export const animals = [
+  {
+    label: "Cat",
+    value: "cat",
+    description: "The second most popular pet in the world",
+  },
+  {
+    label: "Dog",
+    value: "dog",
+    description: "The most popular pet in the world",
+  },
+  {
+    label: "Elephant",
+    value: "elephant",
+    description: "The largest land animal",
+  },
+  { label: "Lion", value: "lion", description: "The king of the jungle" },
+  { label: "Tiger", value: "tiger", description: "The largest cat species" },
+];
+
+function AllItems() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const [categories, setCategories] = useState([]);
+  const [totalSubCategories, setTotalSubCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
+
   useEffect(() => {
     fetch();
   }, []);
@@ -75,41 +87,36 @@ function Categoires() {
     largestArrayItem?.length
   );
 
-
   const handleCategoryDetailClick = (category) => {
     setSelectedCategory([]);
-    setOpenEdit(true);
+    // setOpenEdit(true);
     setSelectedCategory(category);
   };
   const handleDelete = (id) => {
-    setSelectedID([]);
-    setOpenDelete(true);
-    setSelectedID(id);
+    // setSelectedID([]);
+    // setOpenDelete(true);
+    // setSelectedID(id);
   };
 
-
-  // const filteredCategories = categories.filter((category) =>
-  //   category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
   const filteredCategories = categories.filter((category) => {
-    const categoryNameMatch = category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const subCategoriesMatch = category.subCategories.some(subCategory =>
+    const categoryNameMatch = category.categoryName
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const subCategoriesMatch = category.subCategories.some((subCategory) =>
       subCategory.toLowerCase().includes(searchQuery.toLowerCase())
     );
     return categoryNameMatch || subCategoriesMatch;
   });
-
   return (
-    <>
-      <div className="p-6 max-w-7xl mx-auto">
+    <div>
+      <div className="p-6 mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-primary">Categories</h1>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <h1 className="text-3xl font-bold mb-4 text-primary">Items</h1>
+          <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <Input
               isClearable
               radius="lg"
-              className="flex-grow"
+              className="flex-grow max-w-sm"
               classNames={{
                 label: "text-black/50 dark:text-white/90",
                 input: [
@@ -135,10 +142,32 @@ function Categoires() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery("")}
             />
-            <CreateCategory
+            {/* <CreateCategory
               setCategoriesFromParent={setCategories}
               setTotalSubCategories={setTotalSubCategories}
-            />
+            /> */}
+            <div className="flex gap-4">
+              <div>
+                <Autocomplete
+                  defaultItems={animals}
+                  label=""
+                  placeholder="Search an animal"
+                  className="max-w-xs"
+                >
+                  {(animal) => (
+                    <AutocompleteItem key={animal.value}>
+                      {animal.label}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              </div>
+              <Button
+                variant="light"
+                className="border font-medium text-[#378CE7] border-[#378CE7]"
+              >
+                <Monitor size="22" color="#378CE7" /> Add Item
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -214,7 +243,7 @@ function Categoires() {
           )}
         </Card>
 
-        {selectedCategory && (
+        {/* {selectedCategory && (
           <CategoryDetail
             setCategoriesFromParent={setCategories}
             setTotalSubCategories={setTotalSubCategories}
@@ -231,10 +260,10 @@ function Categoires() {
             setOpenDelete={setOpenDelete}
             isOpen={openDelete}
           />
-        )}
+        )} */}
       </div>
-    </>
+    </div>
   );
 }
 
-export default Categoires;
+export default AllItems;
