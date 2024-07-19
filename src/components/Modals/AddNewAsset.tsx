@@ -188,11 +188,11 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
-                <h1 className="text-center text-[#378CE7]">Add New Asset</h1>
+                <h1 className="text-center text-[#378CE7]">Add New Items</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
-                {allUser?.length < 0 ? (
+                {/* {allUser?.length < 0 ? (
                   <>
                     <div className="w-full flex-col flex items-center justify-center">
                       <Image
@@ -331,20 +331,7 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
 
                     {isSelectedUser ? (
                       <>
-                        {/* <div className="w-full h-full ">
-                          <div className="w-full h-full flex flex-col justify-center items-center">
-                            <Image
-                              width={200}
-                              height={200}
-                              src={think}
-                              alt="logo"
-                              className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
-                            />
-                            <div className="text-gray-400 text-sm">
-                              Please select an asset!
-                            </div>
-                          </div>
-                        </div> */}
+
                       </>
                     ) : (
                       <>
@@ -365,7 +352,6 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
                       </>
                     )}
 
-                    {/* <div className="flex flex-col w-full h-full gap-3 my-2 text-sm pl-2"> */}
                     {isSelected ? (
                       <div className=" mt-2 font-medium text-sm">
                         Category properties
@@ -376,9 +362,28 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
                     <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
                       {renderInputFields()}
                     </div>
-                    {/* </div> */}
                   </>
-                )}
+                )} */}
+
+                <div className="w-full">
+                  <div className="text-md py-1 pl-2 font-medium">Categories</div>
+                  <Autocomplete
+                    label="Categories"
+                     placeholder="Search an category"
+                    className="max-w-xs"
+                    radius="lg"
+                    scrollShadowProps={{
+                      isEnabled: false,
+                    }}
+                    onSelectionChange={handleCategoryChange}
+                  >
+                    {allCate?.map((item) => (
+                      <AutocompleteItem key={item.id} value={item.categoryName}>
+                        {item.categoryName}
+                      </AutocompleteItem>
+                    ))}
+                  </Autocomplete>
+                </div>
               </ModalBody>
 
               <ModalFooter>
@@ -386,7 +391,6 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
                   variant="flat"
                   onClick={() => {
                     setIsSelectedUser(false);
-                    setAllCate([]);
                     setSubCate([]);
                     setOpenMod(false);
                   }}
