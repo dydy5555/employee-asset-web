@@ -13,6 +13,7 @@ import {
   Avatar,
   Autocomplete,
   AutocompleteItem,
+  Card,
 } from "@nextui-org/react";
 
 import {
@@ -87,12 +88,18 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
 
   const fetchByID = async (id) => {
     console.log(id);
+    if(id === null){
+      setIsSelectedUser(false)
+      return null
+    }
     try {
       func_GetCategoryByID(id).then((res) => {
+        
         console.log("res", res);
         setCateName(res.categoryName);
         console.log(res.subCategories);
         setSubCate(res.subCategories);
+        setIsSelectedUser(true);
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -166,7 +173,7 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
       }
     };
     fetchCate();
-    fetchEmployee();
+    // fetchEmployee();
   }, []);
 
   console.log({ allUser });
@@ -366,16 +373,21 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
                 )} */}
 
                 <div className="w-full">
-                  <div className="text-md py-1 pl-2 font-medium">Categories</div>
+                  <div className="text-md py-1 pl-2 font-medium">
+                    Categories
+                  </div>
                   <Autocomplete
                     label="Categories"
-                     placeholder="Search an category"
+                    placeholder="Search an category"
                     className="max-w-xs"
                     radius="lg"
                     scrollShadowProps={{
                       isEnabled: false,
                     }}
                     onSelectionChange={handleCategoryChange}
+                    onClear={()=>{
+                      setIsSelectedUser(false)
+                    }}
                   >
                     {allCate?.map((item) => (
                       <AutocompleteItem key={item.id} value={item.categoryName}>
@@ -383,6 +395,38 @@ export default function AddNewAsset({ setOpenMod, openMod }) {
                       </AutocompleteItem>
                     ))}
                   </Autocomplete>
+                </div>
+
+                <div>
+                  {isSelectedUser ? (
+                    <>
+                      <div className=" mt-2 font-medium text-md">
+                        Category properties
+                      </div>
+                      <Card className="p-5 mt-3 min-h-[350px]">
+                        <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
+                          {renderInputFields()}
+                        </div>
+                      </Card>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-full h-full ">
+                        <div className="w-full h-full flex flex-col justify-center items-center">
+                          <Image
+                            width={200}
+                            height={200}
+                            src={think}
+                            alt="logo"
+                            className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
+                          />
+                          <div className="text-gray-400 text-sm">
+                            Please select a category!
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </ModalBody>
 

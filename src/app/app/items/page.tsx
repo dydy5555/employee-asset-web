@@ -4,7 +4,7 @@ import React from 'react'
 
 function page() {
   return (
-    <div className='p-10'>
+    <div className='p-10 h-full w-full'>
         <AllItems />
     </div>
   )
