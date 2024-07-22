@@ -280,6 +280,7 @@ export default function ItemCards() {
       }
     });
   }, []);
+
   console.log(allEmployeeAssets);
   console.log(allCate.length);
 
@@ -398,7 +399,7 @@ export default function ItemCards() {
                   {/* {user.allAssets.map((asset) => (
                     <>{`${asset.name}, `}</>
                   ))} */}
-                  {user.allAssets.length}
+                  {/* {user.allAssets.length} */}
                 </TableCell>
                 <TableCell className="py-2.5">{user.remark}</TableCell>
                 <TableCell className="flex py-2.5 justify-end">

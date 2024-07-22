@@ -51,7 +51,7 @@ function AddNewAsset() {
     setID(value);
     fetchByID(value);
     setIsSelected(true);
-  }
+  };
 
   const fetchEmployee = () => {
     getListEmployee().then((res) => {
@@ -94,7 +94,7 @@ function AddNewAsset() {
         </div>
       </>
     ));
-    
+
     return inputs;
   };
 
@@ -135,6 +135,26 @@ function AddNewAsset() {
     fetchCate();
     fetchEmployee();
   }, []);
+
+  const btn_save = () => {
+    const data = {
+      userId: "string",
+      employee_name: "string",
+      team: "string",
+      remark: "string",
+      department: "string",
+      company: "string",
+      img_url: "string",
+      use_INNITID: "string",
+      problem: "Good",
+      start_date: "string",
+      end_date: "string",
+      item_Id: "string",
+      solution: "string",
+      start_date_repair: "string",
+      end_date_repair: "string",
+    };
+  };
 
   return (
     <div className="text-sm">
@@ -326,8 +346,8 @@ function AddNewAsset() {
                           <div className="text-sm w-full">
                             <p className="font-medium">{`Item's Condition`}</p>
                             <RadioGroup className="py-1 px-2" size="sm">
-                              <Radio value="good">Good</Radio>
-                              <Radio value="broken">Broken</Radio>
+                              <Radio value="Good">Good</Radio>
+                              <Radio value="Broken">Broken</Radio>
                             </RadioGroup>
                           </div>
                           <div className="text-sm w-full ">
@@ -338,7 +358,7 @@ function AddNewAsset() {
                             </RadioGroup>
                           </div>
                         </div>
-                         {/*<div className=" font-medium text-sm">
+                        {/*<div className=" font-medium text-sm">
                           Category properties
                         </div>
                         <div className="grid grid-cols-2 gap-3 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
@@ -363,7 +383,9 @@ function AddNewAsset() {
                           </div>
                         </div> */}
                         <div className=" w-full h-full">
-                          <p className="capitalize pb-1 text-sm font-medium">Remark</p>
+                          <p className="capitalize pb-1 text-sm font-medium">
+                            Remark
+                          </p>
                           <Textarea
                             placeholder="Enter your description"
                             className="max-w-xs"
