@@ -3,7 +3,7 @@ import { ihttp1 } from "@/api/interceptor";
 
 export const fetchAllEmployeeAssets = async() => {
     try {
-        const response = await ihttp1.get(`/api/v1/assets/allEmployeeAssets`,{
+        const response = await ihttp1.get(`/api/v1/assets/groupOfUserId`,{
             headers: {
               accept: "*/*",
             },

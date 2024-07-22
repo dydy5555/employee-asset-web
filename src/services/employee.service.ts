@@ -3,7 +3,7 @@ import ihttp from "@/api/interceptor";
 export const getListEmployee = async () => {
   try {
     const token =
-      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTM1NzQ5NywiaWF0IjoxNzIxMjcxMDk3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.luXXj8Vo0nmiQefrqgp0PMXGKw3ePdq2_p5Gaq2p_MH6mPBCczaJdC6BnZmufYAp079zDWHx053GYHCUaNzjMA"; // Replace with your actual JWT token
+      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTY5OTIxNywiaWF0IjoxNzIxNjEyODE3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.fYo51MXnghhPoNfSZWXSG73QnpX9MTuER_zbqLu9COdMzERaf0Ggu-Q6xGzUFLjyTnwvIjTqckUNfzaXjPxMoA"; // Replace with your actual JWT token
     const headers = {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",

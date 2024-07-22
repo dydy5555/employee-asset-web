@@ -28,14 +28,17 @@ import {
 import { PlusIcon } from "../../public/icons/PlusIcon";
 import { columns, asset_user, statusOptions, items } from "../data/data";
 import { capitalize } from "../utils/util";
-import { ArrowRight2, SearchNormal1, UserSquare } from "iconsax-react";
+import { ArrowRight2, SearchNormal1, Trash, UserSquare } from "iconsax-react";
 import { ChevronDownIcon } from "../../public/icons/ChevronDownIcon";
 import { VerticalDotsIcon } from "../../public/icons/VerticalDotsIcon";
-import AddNewAsset from "./Modals/AddNewAsset";
+import AddNewItem from "./Modals/AddNewItem";
 import ConfirmDelete from "./Modals/ConfirmDelete";
 import ItemDetail from "./Modals/ItemDetail";
 import CreateCategory from "./Modals/CreateCategory";
-import { fetchAllEmployeeAssets } from "@/services/assets.service";
+import {
+  fetchAllEmployeeAssets,
+  func_GetByUserID,
+} from "@/services/assets.service";
 import CardDataStats from "./CardDataStats";
 import { fetchAllCCategory } from "@/services/category.service";
 
@@ -64,7 +67,7 @@ export default function ItemCards() {
   const [allAssets, setAllAssets] = useState([]);
   const [page, setPage] = React.useState(1);
   // const [selectedCategory, setSelectedCategory] = useState(category[0].key);
-  const [allCate , setAllCate] = useState([]);
+  const [allCate, setAllCate] = useState([]);
 
   const handleCategoryChange = (event) => {
     console.log(event);
@@ -195,7 +198,7 @@ export default function ItemCards() {
               </DropdownMenu>
             </Dropdown> */}
             <CreateCategory />
-            <AddNewAsset />
+            <AddNewItem />
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -253,22 +256,31 @@ export default function ItemCards() {
   };
   console.log(itemsUser);
 
-  const getAllCate = ()=>{
-    fetchAllCCategory().then((res)=>{
-      console.log(res)
-      setAllCate(res.data.payload)
-    })
-  }
+  const getAllCate = () => {
+    fetchAllCCategory().then((res) => {
+      console.log(res);
+      setAllCate(res.data.payload);
+    });
+  };
 
   useEffect(() => {
     getAllCate();
+    const fetByUserId = (id) => {
+      func_GetByUserID(id).then((res) => {
+        console.log(res.data.payload);
+      });
+    };
     fetchAllEmployeeAssets().then((res) => {
-      console.log(res)
+      console.log(res);
       if (res?.status == 200) {
         setAllEmployeeAssets(res?.data?.payload);
+        res?.data?.payload?.map((user) => {
+          fetByUserId(user.userId);
+        });
       }
     });
   }, []);
+
   console.log(allEmployeeAssets);
   console.log(allCate.length);
 
@@ -330,7 +342,7 @@ export default function ItemCards() {
             />
             <div className="flex gap-3">
               <CreateCategory />
-              <AddNewAsset />
+              <AddNewItem />
             </div>
           </div>
         </div>
@@ -357,21 +369,21 @@ export default function ItemCards() {
             <TableColumn>COMPANY</TableColumn>
             <TableColumn>ASSETS</TableColumn>
             <TableColumn>REMARK</TableColumn>
+            <TableColumn className="">
+              <p></p>
+            </TableColumn>
           </TableHeader>
 
           <TableBody>
             {allEmployeeAssets.map((user, index) => (
-              <TableRow
-                key={index}
-                // onClick={() => handleRowClick(user)}
-              >
+              <TableRow key={index} onClick={() => handleRowClick(user)}>
                 <TableCell className="py-2.5 pl-4">{index + 1}</TableCell>
                 <TableCell className="flex items-center py-2.5">
                   <User
                     avatarProps={{
                       radius: "full",
                       src: user.img_url
-                        ? user.img_url
+                        ? ""
                         : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png",
                     }}
                     description={user.userId}
@@ -379,17 +391,22 @@ export default function ItemCards() {
                   >
                     {user.employee_name}
                   </User>
-                  {/* {user.employee_name} */}
                 </TableCell>
                 <TableCell className="py-2.5">{user.team}</TableCell>
                 <TableCell className="py-2.5">{user.department}</TableCell>
                 <TableCell className="py-2.5">{user.company}</TableCell>
                 <TableCell className="py-2.5">
-                  {user.allAssets.map((asset) => (
+                  {/* {user.allAssets.map((asset) => (
                     <>{`${asset.name}, `}</>
-                  ))}
+                  ))} */}
+                  {/* {user.allAssets.length} */}
                 </TableCell>
                 <TableCell className="py-2.5">{user.remark}</TableCell>
+                <TableCell className="flex py-2.5 justify-end">
+                  <Button isIconOnly>
+                    <Trash size="22"></Trash>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

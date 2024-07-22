@@ -18,9 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
+import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import NoImage from "../../public/images/no_app.jpg";
+import AddNewAsset from "./Modals/AddNewItem";
 
 export const animals = [
   {
@@ -48,6 +49,7 @@ function AllItems() {
   const [categories, setCategories] = useState([]);
   const [totalSubCategories, setTotalSubCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
+  const [openMod, setOpenMod] = useState(false);
 
   useEffect(() => {
     fetch();
@@ -108,8 +110,8 @@ function AllItems() {
     return categoryNameMatch || subCategoriesMatch;
   });
   return (
-    <div>
-      <div className="p-6 mx-auto">
+    <>
+      <div className="h-full mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-primary">Items</h1>
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -162,27 +164,36 @@ function AllItems() {
                 </Autocomplete>
               </div>
               <Button
+                onClick={() => {
+                  setOpenMod(true);
+                }}
+                color="primary"
                 variant="light"
-                className="border font-medium text-[#378CE7] border-[#378CE7]"
+                className="border-[0.5px] text-md text-semibold text-[#378CE7]"
+                style={{ borderColor: "#378CE7" }}
               >
-                <Monitor size="22" color="#378CE7" /> Add Item
+                <Devices size="22" color="#378CE7" /> Add Item
               </Button>
             </div>
           </div>
         </div>
 
-        <Card className="w-full">
+       
           {isLoading ? (
-            <CardBody className="flex items-center justify-center h-96">
+            <div className="flex items-center justify-center h-96">
               <Spinner size="lg" />
-            </CardBody>
+            </div>
           ) : filteredCategories.length > 0 ? (
-            <Table
+            <Card className="p-5 h-full max-h-[750px]">
+              <Table
+              isCompact
+              removeWrapper
               aria-label="Categories table"
               classNames={{
-                th: "bg-default-100 text-default-800 border-b border-divider",
+                th: "bg-default-100 text-default-800  border-divider",
                 td: "border-b border-divider",
               }}
+              className="h-full w-full"
             >
               <TableHeader>
                 <TableColumn>No</TableColumn>
@@ -190,9 +201,9 @@ function AllItems() {
                 {Array.from({ length: maxSubCategories }).map((_, key) => (
                   <TableColumn key={key}>Subcategory {key + 1}</TableColumn>
                 ))}
-                <TableColumn>Actions</TableColumn>
+                <TableColumn className="text-right pr-8">Actions</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody className="">
                 {filteredCategories.map((v, i) => (
                   <TableRow key={v.id}>
                     <TableCell>{i + 1}</TableCell>
@@ -204,8 +215,8 @@ function AllItems() {
                         {v.subCategories[key] || ""}
                       </TableCell>
                     ))}
-                    <TableCell>
-                      <ButtonGroup>
+                    <TableCell className="flex items-center justify-end">
+                      <ButtonGroup className="w-full justify-end">
                         <Button
                           isIconOnly
                           variant="flat"
@@ -228,8 +239,9 @@ function AllItems() {
                 ))}
               </TableBody>
             </Table>
+            </Card>
           ) : (
-            <CardBody className="flex flex-col items-center justify-center h-96 text-center">
+            <div className="flex flex-col items-center justify-center h-96 text-center">
               <Image
                 src={NoImage}
                 alt="No categories"
@@ -239,9 +251,9 @@ function AllItems() {
               <p className="text-sm text-default-400 mt-2">
                 Try adding a new category or adjusting your search.
               </p>
-            </CardBody>
+            </div>
           )}
-        </Card>
+     
 
         {/* {selectedCategory && (
           <CategoryDetail
@@ -262,7 +274,8 @@ function AllItems() {
           />
         )} */}
       </div>
-    </div>
+      <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
+    </>
   );
 }
 

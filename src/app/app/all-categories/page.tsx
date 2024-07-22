@@ -102,14 +102,14 @@ function Categoires() {
 
   return (
     <>
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-10 mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-primary">Categories</h1>
           <div className="flex flex-col sm:flex-row gap-4">
             <Input
               isClearable
               radius="lg"
-              className="flex-grow"
+              className="flex-grow w-md"
               classNames={{
                 label: "text-black/50 dark:text-white/90",
                 input: [
