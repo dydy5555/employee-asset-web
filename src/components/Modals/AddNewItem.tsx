@@ -1,42 +1,46 @@
+import React, { useEffect, useState } from "react";
 import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Input,
+  Select,
+  SelectItem,
+  Avatar,
   Autocomplete,
   AutocompleteItem,
-  Avatar,
-  Button,
   Card,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Radio,
-  RadioGroup,
-  Textarea,
-  useDisclosure,
 } from "@nextui-org/react";
-import { Devices } from "iconsax-react";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import think from "../../../public/images/icon/Thinkin.svg";
-import { getListEmployee } from "@/services/employee.service";
+
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
+import { getListEmployee } from "@/services/employee.service";
+import { func_CreateAsset } from "@/services/assets.service";
+import toast from "react-hot-toast";
+import NoImage from "../../../public/images/no_app.jpg";
+import Image from "next/image";
+import think from "../../../public/images/icon/Thinkin.svg";
 
-function AddNewAsset() {
+export default function AddNewItem({ setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
-  const [allUser, setAllUser] = useState([]);
+  const [isSelected, setIsSelected] = useState(false);
   const [isSelectedUser, setIsSelectedUser] = useState(false);
   const [userSelected, setUserSeleted] = useState([]);
-  const [isSelected, setIsSelected] = useState(false);
-  const [inputValues, setInputValues] = useState({});
-  const [subCategories, setSubCategories] = useState();
   const [allCate, setAllCate] = useState([]);
   const [subCate, setSubCate] = useState([]);
+  const [allUser, setAllUser] = useState([]);
+  const [inputValues, setInputValues] = useState({});
   const [cateName, setCateName] = useState("");
+  const [subCategories, setSubCategories] = useState();
+  const [allAssets, setAllAssets] = useState([]);
+  const [isDisabledBtn, setIsDisabledBtn] = useState(false);
 
   const handleInputChange = (property, value) => {
     setInputValues((prevValues) => ({
@@ -50,22 +54,6 @@ function AddNewAsset() {
     console.log(value);
     setID(value);
     fetchByID(value);
-    setIsSelected(true);
-  }
-
-  const fetchEmployee = () => {
-    getListEmployee().then((res) => {
-      console.log(res.user);
-      setAllUser(res.user);
-    });
-  };
-
-  const handleSelectUser = (userID) => {
-    console.log({ userID });
-    const selectedUser = allUser.find((user) => user.id === userID);
-    setUserSeleted(selectedUser);
-    setIsSelectedUser(true);
-    console.log(userSelected);
   };
 
   const renderInputFields = () => {
@@ -94,18 +82,19 @@ function AddNewAsset() {
         </div>
       </>
     ));
-    
+    setIsSelected(true);
     return inputs;
   };
 
   const fetchByID = async (id) => {
     console.log(id);
-    if (id === null) {
-      setIsSelectedUser(false);
-      return null;
+    if(id === null){
+      setIsSelectedUser(false)
+      return null
     }
     try {
       func_GetCategoryByID(id).then((res) => {
+        
         console.log("res", res);
         setCateName(res.categoryName);
         console.log(res.subCategories);
@@ -115,6 +104,57 @@ function AddNewAsset() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  };
+
+  const fetchEmployee = () => {
+    getListEmployee().then((res) => {
+      console.log(res.user);
+      setAllUser(res.user);
+    });
+  };
+
+  const handleSelectUser = (userID) => {
+    console.log({ userID });
+    const selectedUser = allUser.find((user) => user.id === userID);
+    setUserSeleted(selectedUser);
+    setIsSelectedUser(true);
+    console.log(userSelected);
+  };
+
+  const handleSave = async () => {
+    const allAss = { categoryId: id, name: cateName, subCategories };
+    console.log("subCate", allAss);
+    setAllAssets((prev) => [...prev, allAss]);
+    setIsDisabledBtn(true);
+    console.log(allAssets);
+    const data = {
+      userId: userSelected.userId,
+      employee_name: userSelected.flnm,
+      team: "B2B",
+      remark: "",
+      department: userSelected.dvsn_NM,
+      company: userSelected.use_INTT_ID,
+      img_url: userSelected.prfl_PHTG,
+      use_INNITID: userSelected.use_INTT_ID,
+      allAssets,
+    };
+    try {
+      await new Promise((resolve) => {
+        func_CreateAsset(data).then((res) => {
+          console.log(res);
+          if (res.status === 200) {
+            toast.success("Added asset successfully!");
+            setOpenMod(false);
+          }
+        });
+        setTimeout(resolve, 2000);
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsDisabledBtn(false);
+    }
+    console.log(data);
   };
 
   useEffect(() => {
@@ -133,23 +173,20 @@ function AddNewAsset() {
       }
     };
     fetchCate();
-    fetchEmployee();
+    // fetchEmployee();
   }, []);
 
+  console.log({ allUser });
+  console.log({ allCate });
+
   return (
-    <div className="text-sm">
-      <Button
-        onPress={onOpen}
-        color="primary"
-        variant="light"
-        className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-        style={{ borderColor: "#378CE7" }}
-      >
-        <Devices size="22" color="#378CE7" /> Asset
-      </Button>
+    <div>
       <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={openMod}
+        onOpenChange={() => {
+          setOpenMod(false);
+          setIsSelectedUser(false);
+        }}
         placement="top-center"
         size="xl"
         className="min-h-[650px] min-w-[700px]"
@@ -162,7 +199,7 @@ function AddNewAsset() {
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
-                {allUser?.length < 0 ? (
+                {/* {allUser?.length < 0 ? (
                   <>
                     <div className="w-full flex-col flex items-center justify-center">
                       <Image
@@ -272,10 +309,10 @@ function AddNewAsset() {
                           <>
                             <div className="w-full">
                               <div className="text-md py-1 pl-2 font-medium">
-                                Items
+                                Assets
                               </div>
                               <Autocomplete
-                                label="Select an item"
+                                label="Select an asset"
                                 className="max-w-xs"
                                 scrollShadowProps={{
                                   isEnabled: false,
@@ -300,7 +337,9 @@ function AddNewAsset() {
                     </div>
 
                     {isSelectedUser ? (
-                      <></>
+                      <>
+
+                      </>
                     ) : (
                       <>
                         <div className="w-full h-full ">
@@ -321,62 +360,19 @@ function AddNewAsset() {
                     )}
 
                     {isSelected ? (
-                      <>
-                        <div className="flex gap-5 my-2 justify-between w-full">
-                          <div className="text-sm w-full">
-                            <p className="font-medium">{`Item's Condition`}</p>
-                            <RadioGroup className="py-1 px-2" size="sm">
-                              <Radio value="good">Good</Radio>
-                              <Radio value="broken">Broken</Radio>
-                            </RadioGroup>
-                          </div>
-                          <div className="text-sm w-full ">
-                            <p className="font-medium">Usage</p>
-                            <RadioGroup className="py-1 px-2" size="sm">
-                              <Radio value="variable">Variable</Radio>
-                              <Radio value="invariable">Invariable</Radio>
-                            </RadioGroup>
-                          </div>
-                        </div>
-                         {/*<div className=" font-medium text-sm">
-                          Category properties
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
-                          {renderInputFields()}
-                          <div className="items-start  text-sm w-11/12">
-                            <div className=" w-full flex justify-between">
-                              <p className="capitalize pb-1 font-medium ">
-                                Amount
-                              </p>
-                            </div>
-                            <div className=" w-full">
-                              <Input
-                                radius="md"
-                                placeholder={`Enter amount`}
-                                className="w-full "
-                                value="1"
-                                onChange={(e) =>
-                                  handleInputChange(property, e.target.value)
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div> */}
-                        <div className=" w-full h-full">
-                          <p className="capitalize pb-1 text-sm font-medium">Remark</p>
-                          <Textarea
-                            placeholder="Enter your description"
-                            className="max-w-xs"
-                          />
-                        </div>
-                      </>
+                      <div className=" mt-2 font-medium text-sm">
+                        Category properties
+                      </div>
                     ) : (
                       <></>
                     )}
+                    <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
+                      {renderInputFields()}
+                    </div>
                   </>
-                )}
+                )} */}
 
-                {/* <div className="w-full">
+                <div className="w-full">
                   <div className="text-md py-1 pl-2 font-medium">
                     Categories
                   </div>
@@ -389,8 +385,8 @@ function AddNewAsset() {
                       isEnabled: false,
                     }}
                     onSelectionChange={handleCategoryChange}
-                    onClear={() => {
-                      setIsSelectedUser(false);
+                    onClear={()=>{
+                      setIsSelectedUser(false)
                     }}
                   >
                     {allCate?.map((item) => (
@@ -431,28 +427,27 @@ function AddNewAsset() {
                       </div>
                     </>
                   )}
-                </div> */}
+                </div>
               </ModalBody>
 
               <ModalFooter>
                 <Button
                   variant="flat"
-                  //   onClick={() => {
-                  //     setIsSelectedUser(false);
-                  //     setSubCate([]);
-                  //     setOpenMod(false);
-                  //   }}
-                  onPress={onClose}
+                  onClick={() => {
+                    setIsSelectedUser(false);
+                    setSubCate([]);
+                    setOpenMod(false);
+                  }}
                 >
                   Cancel
                 </Button>
                 <Button
-                  //   disabled={isDisabledBtn}
+                  disabled={isDisabledBtn}
                   color="primary"
-                  onPress={onClose}
-                  //   onClick={() => {
-                  //     handleSave();
-                  //   }}
+                  onClick={() => {
+                    handleSave();
+                    // onClose();
+                  }}
                 >
                   Save
                 </Button>
@@ -464,5 +459,3 @@ function AddNewAsset() {
     </div>
   );
 }
-
-export default AddNewAsset;

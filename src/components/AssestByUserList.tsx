@@ -19,7 +19,7 @@ import {
 import { SearchNormal1 } from "iconsax-react";
 import { ChevronDownIcon } from "../../public/icons/ChevronDownIcon";
 import CreateCategory from "./Modals/CreateCategory";
-import AddNewAsset from "./Modals/AddNewAsset";
+import AddNewAsset from "./Modals/AddNewItem";
 import { columns, asset_user, statusOptions, items } from "../data/data";
 import { capitalize } from "../utils/util";
 import { createContext } from "vm";

@@ -22,12 +22,7 @@ import Image from "next/image";
 import { func_UpdateAssetUser } from "@/services/assets.service";
 import toast from "react-hot-toast";
 
-export default function ItemDetail({
-  setOpenMod,
-  openMod,
-  itemsUser,
-  empinfo,
-}) {
+export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
@@ -43,6 +38,7 @@ export default function ItemDetail({
   const [inputValues, setInputValues] = useState({});
   const [subCategories, setSubCategories] = useState();
 
+  console.log({ itemsUser });
 
   const handleCategoryChange = (value) => {
     if (value === null) {
@@ -60,7 +56,9 @@ export default function ItemDetail({
           setCateName(selectedAsset.name);
 
           itemsUser.map((user) => {
-            const select = user.allAssets.find(asset => asset.categoryId === value);
+            const select = user.allAssets.find(
+              (asset) => asset.categoryId === value
+            );
             if (select) {
               setID(user.id);
             }
@@ -87,7 +85,6 @@ export default function ItemDetail({
       },
     }));
   };
-
 
   const fetchByID = async (id) => {
     console.log(id);
@@ -139,7 +136,6 @@ export default function ItemDetail({
     ));
   };
 
-
   const OnChangeTab = (key) => {
     console.log(key);
     if (key === "edit") {
@@ -149,9 +145,7 @@ export default function ItemDetail({
     }
   };
 
-  useEffect(() => {
-
-  }, [itemsUser]);
+  useEffect(() => {}, [itemsUser]);
 
   const subCategoryKeys = Array.from(
     new Set(
@@ -201,7 +195,7 @@ export default function ItemDetail({
     <div className="flex flex-col gap-2 ">
       <Modal
         isOpen={openMod}
-        onOpenChange={()=>{
+        onOpenChange={() => {
           setOpenMod(false);
         }}
         scrollBehavior={scrollBehavior}
@@ -217,48 +211,47 @@ export default function ItemDetail({
               <ModalBody>
                 <div className="flex flex-col gap-5">
                   <div className="flex h-full justify-between  text-sm">
-                    {/* {itemsUser.map((user, index) => ( */}
-                    <>
-                      <div className="grid grid-cols-6 w-3/5 gap-6">
-                        <div className="col-span-2 font-medium flex flex-col justify-center">
-                          <p className="py-1">Employee </p>
-                          <p className="py-1">User ID </p>
-                          <p className="py-1">Company </p>
-                          <p className="py-1">Department </p>
-                          {/* <p className="py-1">Position </p> */}
-                        </div>
+                    {itemsUser.map((empinfo) => (
+                      <>
+                        <div className="grid grid-cols-6 w-3/5 gap-6">
+                          <div className="col-span-2 font-medium flex flex-col justify-center">
+                            <p className="py-1">Employee </p>
+                            <p className="py-1">User ID </p>
+                            <p className="py-1">Company </p>
+                            <p className="py-1">Department </p>
+                            {/* <p className="py-1">Position </p> */}
+                          </div>
 
-                        <div className="col-span-4 flex flex-col justify-center">
-                          <p className="py-1">{empinfo.flnm}</p>
-                          <p className="py-1">{empinfo.userId}</p>
-                          <p className="py-1">
-                            {empinfo.use_INTT_ID &&
-                            empinfo.use_INTT_ID == "UTLZ_590"
-                              ? "KOSIGN"
-                              : "-"}
-                          </p>
-                          <p className="py-1">{empinfo.dvsn_NM}</p>
-                          {/* <p className="py-1">
+                          <div className="col-span-4 flex flex-col justify-center">
+                            <p className="py-1">{empinfo.employee_name}</p>
+                            <p className="py-1">{empinfo.userId}</p>
+                            <p className="py-1">
+                              {empinfo.company && empinfo.company == "UTLZ_590"
+                                ? "KOSIGN"
+                                : "-"}
+                            </p>
+                            <p className="py-1">{empinfo.department}</p>
+                            {/* <p className="py-1">
                               {empinfo.jbcl_NM ? empinfo.jbcl_NM : "-"}
                             </p> */}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="w-2/5 flex justify-center item-center">
-                        <Image
-                          width={150}
-                          height={150}
-                          src={
-                            empinfo.prfl_PHTG
-                              ? empinfo.prfl_PHTG
-                              : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
-                          }
-                          alt={empinfo?.flnm}
-                          className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
-                        />
-                      </div>
-                    </>
-                    {/* ))} */}
+                        <div className="w-2/5 flex justify-center item-center">
+                          <Image
+                            width={150}
+                            height={150}
+                            src={
+                              empinfo.img_url
+                                ? ''
+                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
+                            }
+                            alt={empinfo?.employee_name}
+                            className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
+                          />
+                        </div>
+                      </>
+                    ))}
                   </div>
 
                   {/* <div className="border-b-[0.5px] border--100"></div> */}

@@ -16,7 +16,7 @@ import {
   Card,
 } from "@nextui-org/react";
 import { Add, CardAdd, Category, Trash } from "iconsax-react";
-import AddNewAsset from "./AddNewAsset";
+import AddNewAsset from "./AddNewItem";
 import {
   fetchAllCCategory,
   func_CreateCategory,

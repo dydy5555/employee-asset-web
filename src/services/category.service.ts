@@ -8,7 +8,7 @@ export const fetchAllCCategory = async () => {
         accept: "*/*",
       },
     });
-    console.log({response});
+    // console.log({response});
     return response;
   } catch (error) {
     return error;

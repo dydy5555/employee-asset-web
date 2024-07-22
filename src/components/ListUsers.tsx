@@ -40,8 +40,9 @@ import CreateCategory from "./Modals/CreateCategory";
 import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
-import AddNewAsset from "./Modals/AddNewAsset";
+import AddNewItem from "./Modals/AddNewItem";
 import ConfirmDelete from "./Modals/ConfirmDelete";
+import AddNewAsset from "./Modals/AddNewAsset";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -127,7 +128,7 @@ function ListUsers() {
         body: JSON.stringify(formTemp),
       });
 
-      console.log("all user", res);
+      // console.log("all user", res);
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -419,17 +420,7 @@ function ListUsers() {
               <div className="flex w-full gap-5 justify-start">
                 {/* <CreateCategory /> */}
 
-                <Button
-                  onClick={() => {
-                    setOpenMod(true);
-                  }}
-                  color="primary"
-                  variant="light"
-                  className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-                  style={{ borderColor: "#378CE7" }}
-                >
-                  <Devices size="22" color="#378CE7" /> Asset
-                </Button>
+                <AddNewAsset></AddNewAsset>
               </div>
             </div>
             <>
@@ -642,8 +633,6 @@ function ListUsers() {
           </div> */}
         </div>
         {/* Side 2 */}
-
-        <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
       </div>
     </div>
   );

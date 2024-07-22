@@ -21,7 +21,7 @@ import {
 import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import NoImage from "../../public/images/no_app.jpg";
-import AddNewAsset from "./Modals/AddNewAsset";
+import AddNewAsset from "./Modals/AddNewItem";
 
 export const animals = [
   {
