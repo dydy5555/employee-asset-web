@@ -85,7 +85,7 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <p className="text-center font-bold text-2xl">
-                  Asset History
+                  Item Detail
                 </p>
                 <hr />
               </ModalHeader>

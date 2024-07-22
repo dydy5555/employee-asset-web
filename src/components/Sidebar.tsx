@@ -78,7 +78,7 @@ function Sidebar() {
               Categories
             </Link>
           </div>
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href={"/app/items-history"}
               className={`flex ${
@@ -88,7 +88,7 @@ function Sidebar() {
               <Document size={20} />
               Items History
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

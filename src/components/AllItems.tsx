@@ -22,6 +22,7 @@ import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import NoImage from "../../public/images/no_app.jpg";
 import AddNewAsset from "./Modals/AddNewItem";
+import ViewHistoryModal from "./Modals/ViewHistoryModal";
 
 export const animals = [
   {
@@ -50,6 +51,8 @@ function AllItems() {
   const [totalSubCategories, setTotalSubCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [openMod, setOpenMod] = useState(false);
+  const [openHistory, setOpenHistory] = useState(false)
+
 
   useEffect(() => {
     fetch();
@@ -221,7 +224,7 @@ function AllItems() {
                           isIconOnly
                           variant="flat"
                           color="primary"
-                          onClick={() => handleCategoryDetailClick(v)}
+                          onClick={() => setOpenHistory(true)}
                         >
                           <Edit2 size={18} />
                         </Button>
@@ -275,6 +278,7 @@ function AllItems() {
         )} */}
       </div>
       <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
+      <ViewHistoryModal openHistory={openHistory} setOpenHistory={setOpenHistory} />
     </>
   );
 }

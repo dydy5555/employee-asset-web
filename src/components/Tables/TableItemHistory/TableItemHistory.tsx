@@ -33,7 +33,7 @@ const statusColorMap = {
   vacation: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "givenby", "receiveby", "returneddate", "status", "actions"];
 
 export default function TableItemHistory() {
   const [filterValue, setFilterValue] = React.useState("");
@@ -190,6 +190,8 @@ export default function TableItemHistory() {
       <div className="flex flex-col gap-4">
         {/* Item Detail */}
         <AssetItemDetail />
+        <hr />
+        <p>Histoires</p>
         <div className="flex justify-between gap-3 items-end">
           <Input
             isClearable
@@ -270,7 +272,6 @@ export default function TableItemHistory() {
             </select>
           </label>
         </div>
-        <hr />
       </div>
     );
   }, [
