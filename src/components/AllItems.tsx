@@ -22,6 +22,7 @@ import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import NoImage from "../../public/images/no_app.jpg";
 import AddNewAsset from "./Modals/AddNewItem";
+import ViewHistoryModal from "./Modals/ViewHistoryModal";
 
 export const animals = [
   {
@@ -50,6 +51,8 @@ function AllItems() {
   const [totalSubCategories, setTotalSubCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [openMod, setOpenMod] = useState(false);
+  const [openHistory, setOpenHistory] = useState(false)
+
 
   useEffect(() => {
     fetch();
@@ -144,10 +147,6 @@ function AllItems() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery("")}
             />
-            {/* <CreateCategory
-              setCategoriesFromParent={setCategories}
-              setTotalSubCategories={setTotalSubCategories}
-            /> */}
             <div className="flex gap-4">
               <div>
                 <Autocomplete
@@ -221,7 +220,7 @@ function AllItems() {
                           isIconOnly
                           variant="flat"
                           color="primary"
-                          onClick={() => handleCategoryDetailClick(v)}
+                          onClick={() => setOpenHistory(true)}
                         >
                           <Edit2 size={18} />
                         </Button>
@@ -253,28 +252,9 @@ function AllItems() {
               </p>
             </div>
           )}
-     
-
-        {/* {selectedCategory && (
-          <CategoryDetail
-            setCategoriesFromParent={setCategories}
-            setTotalSubCategories={setTotalSubCategories}
-            category={selectedCategory}
-            setOpenEdit={setOpenEdit}
-            isOpen={openEdit}
-          />
-        )}
-        {selectedID && (
-          <ConfirmDeleteCategory
-            setCategoriesFromParent={setCategories}
-            setTotalSubCategories={setTotalSubCategories}
-            id={selectedID}
-            setOpenDelete={setOpenDelete}
-            isOpen={openDelete}
-          />
-        )} */}
       </div>
       <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
+      <ViewHistoryModal openHistory={openHistory} setOpenHistory={setOpenHistory} />
     </>
   );
 }

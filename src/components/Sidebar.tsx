@@ -136,19 +136,7 @@ function Sidebar() {
                 Categories
               </Link>
             </div>
-            <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
-              <Link
-                href={"/app/items-history"}
-                className={`flex ${
-                  pathname === "/app/items-history" ? "text-[#378CE7]" : ""
-                } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-              >
-                <Document size={20} />
-                Items History
-              </Link>
-            </div>
           </div>
-
           <div>
             <Button>
               <Back size="32" color="#FF8A65" />

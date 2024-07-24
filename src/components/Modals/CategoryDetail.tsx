@@ -161,7 +161,7 @@ export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCat
                               type="text"
                               size="md"
                               className="mt-1"
-                              placeholder=""
+                              placeholder="Enter property label..."
                               defaultValue={property}
                               onChange={(e) =>
                                 handleInputChange(e.target.value, index)
