@@ -147,10 +147,6 @@ function AllItems() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery("")}
             />
-            {/* <CreateCategory
-              setCategoriesFromParent={setCategories}
-              setTotalSubCategories={setTotalSubCategories}
-            /> */}
             <div className="flex gap-4">
               <div>
                 <Autocomplete
@@ -256,26 +252,6 @@ function AllItems() {
               </p>
             </div>
           )}
-     
-
-        {/* {selectedCategory && (
-          <CategoryDetail
-            setCategoriesFromParent={setCategories}
-            setTotalSubCategories={setTotalSubCategories}
-            category={selectedCategory}
-            setOpenEdit={setOpenEdit}
-            isOpen={openEdit}
-          />
-        )}
-        {selectedID && (
-          <ConfirmDeleteCategory
-            setCategoriesFromParent={setCategories}
-            setTotalSubCategories={setTotalSubCategories}
-            id={selectedID}
-            setOpenDelete={setOpenDelete}
-            isOpen={openDelete}
-          />
-        )} */}
       </div>
       <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
       <ViewHistoryModal openHistory={openHistory} setOpenHistory={setOpenHistory} />

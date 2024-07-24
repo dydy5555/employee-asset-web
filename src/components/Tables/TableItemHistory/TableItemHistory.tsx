@@ -17,8 +17,13 @@ import {
   User,
   Pagination,
   Image,
+  Tabs,
+  Tab,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@nextui-org/react";
-import { columns, datas, statusOptions } from "./data";
+import { columns, statusOptions } from "./data";
 import { VerticalDotsIcon } from "../../../../public/icons/VerticalDotsIcon";
 import { PlusIcon } from "../../../../public/icons/PlusIcon";
 import { ChevronDownIcon } from "../../../../public/icons/ChevronDownIcon";
@@ -26,14 +31,28 @@ import { SearchIcon } from "../../../../public/icons/SearchIcon";
 import { capitalize } from "@/utils/util";
 import { Back } from "iconsax-react";
 import AssetItemDetail from "@/components/AssetItemDetail";
-
+import ManageHistoryRoundedIcon from "@mui/icons-material/ManageHistoryRounded";
+import DetailsRoundedIcon from "@mui/icons-material/DetailsRounded";
+import { func_GetItemHistoryByItemId } from "@/services/itemhistory.service";
+import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
+import DoNotDisturbOnTotalSilenceOutlinedIcon from '@mui/icons-material/DoNotDisturbOnTotalSilenceOutlined';
+import { formatDateForUi } from "@/services/commonfunc.service";
 const statusColorMap = {
-  active: "success",
-  paused: "danger",
-  vacation: "warning",
+  RETURNED: "success",
+  INUSE: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "givenby", "receiveby", "returneddate", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = [
+  "name",
+  "givenby",
+  "givendate",
+  // "receiveby",
+  "returneddate",
+  "description",
+  "condition",
+  "status",
+  // "actions",
+];
 
 export default function TableItemHistory() {
   const [filterValue, setFilterValue] = React.useState("");
@@ -48,6 +67,19 @@ export default function TableItemHistory() {
     direction: "ascending",
   });
   const [page, setPage] = React.useState(1);
+
+  // fetch data
+  const [datas, setDatas] = React.useState([]);
+  React.useEffect(() => {
+    func_GetItemHistoryByItemId("6698dabe868b2579766a6178").then((res) => {
+      console.log({ res });
+      if (res?.status == 200) {
+        setDatas(res.data.payload);
+      }
+    });
+  }, []);
+
+  console.log({ datas });
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -64,15 +96,13 @@ export default function TableItemHistory() {
 
     if (hasSearchFilter) {
       filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
+        user.employeeId.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
+
+    if (statusFilter !== "all") {
       filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
+        user.status.includes(statusFilter)
       );
     }
 
@@ -100,24 +130,82 @@ export default function TableItemHistory() {
 
   const renderCell = React.useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
-
     switch (columnKey) {
       case "name":
         return (
           <User
-            avatarProps={{ radius: "lg", src: user.avatar }}
-            description={user.email}
-            name={cellValue}
+            isBordered
+            radius="lg"
+            avatarProps={{ radius: "lg", src: user.userProfile }}
+            // description={user.employeeId}
+            name={user.employeeId}
           >
-            {user.email}
+            {/* {user.employeeId} */}
           </User>
         );
-      case "role":
+      case "givenby":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
+            {/* <p className="text-bold text-small capitalize">{cellValue}</p> */}
             <p className="text-bold text-tiny capitalize text-default-400">
-              {user.team}
+              {user.givenBy}
+            </p>
+          </div>
+        );
+      case "givendate":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-tiny capitalize text-default-400">
+              {formatDateForUi(user.givenDate)}
+            </p>
+          </div>
+        );
+      case "receiveby":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-tiny capitalize text-default-400">
+              {user.receivedBy}
+            </p>
+          </div>
+        );
+      case "returneddate":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-tiny capitalize text-default-400">
+              {formatDateForUi(user.returnedDate)}
+            </p>
+          </div>
+        );
+      case "description":
+        return (
+          <Popover placement="top">
+            <PopoverTrigger>
+              <p
+                color="#ffffff"
+                variant="light"
+                className="text-bold line-clamp-1 flex w-24 items-center justify-start break-all p-0 text-tiny capitalize text-default-400 hover:text-primary cursor-pointer"
+              >
+                <div className="flex flex-col w-36">
+                  <p className="text-bold text-tiny text-start capitalize text-default-400 line-clamp-1">
+                    {user.description}
+                  </p>
+                </div>
+              </p>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex flex-col w-32 p-2">
+                <p className="text-bold text-tiny text-justify capitalize break-all text-primary">
+                  {user.description}
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        );
+      case "condition":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-tiny capitalize text-default-400">
+              {user.condition}
             </p>
           </div>
         );
@@ -128,27 +216,28 @@ export default function TableItemHistory() {
             color={statusColorMap[user.status]}
             size="sm"
             variant="flat"
+            startContent={user.status == "RETURNED" ? <TaskAltOutlinedIcon fontSize="small" /> : <DoNotDisturbOnTotalSilenceOutlinedIcon  fontSize="small" />}
           >
             {cellValue}
           </Chip>
         );
-      case "actions":
-        return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-300" />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem>View</DropdownItem>
-                <DropdownItem>Edit</DropdownItem>
-                <DropdownItem>Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        );
+      // case "actions":
+      //   return (
+      //     <div className="relative flex justify-end items-center gap-2">
+      //       <Dropdown>
+      //         <DropdownTrigger>
+      //           <Button isIconOnly size="sm" variant="light">
+      //             <VerticalDotsIcon className="text-default-300" />
+      //           </Button>
+      //         </DropdownTrigger>
+      //         <DropdownMenu>
+      //           <DropdownItem>View</DropdownItem>
+      //           <DropdownItem>Edit</DropdownItem>
+      //           <DropdownItem>Delete</DropdownItem>
+      //         </DropdownMenu>
+      //       </Dropdown>
+      //     </div>
+      //   );
       default:
         return cellValue;
     }
@@ -185,17 +274,15 @@ export default function TableItemHistory() {
     setPage(1);
   }, []);
 
+  console.log("statusFilter", statusFilter);
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
-        {/* Item Detail */}
-        <AssetItemDetail />
-        <hr />
-        <p>Histoires</p>
         <div className="flex justify-between gap-3 items-end">
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
+            color="primary"
             placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
@@ -203,30 +290,11 @@ export default function TableItemHistory() {
             onValueChange={onSearchChange}
           />
           <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<ChevronDownIcon className="text-small" />}
-                  variant="flat"
-                >
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            <Tabs aria-label="Tabs sizes" onSelectionChange={setStatusFilter}>
+              <Tab key="all" title="All" />
+              <Tab key="INUSE" title="In use" />
+              <Tab key="RETURNED" title="Returned" />
+            </Tabs>
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button
@@ -251,9 +319,6 @@ export default function TableItemHistory() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Give to
-            </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
@@ -287,11 +352,6 @@ export default function TableItemHistory() {
   const bottomContent = React.useMemo(() => {
     return (
       <div className="py-2 px-2 flex justify-between items-center">
-        <span className="w-[30%] text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${filteredItems.length} selected`}
-        </span>
         <Pagination
           isCompact
           showControls
@@ -324,42 +384,79 @@ export default function TableItemHistory() {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
-    <Table
-      aria-label="Example table with custom cells, pagination and sorting"
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px]",
-      }}
-      selectedKeys={selectedKeys}
-      // selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
+    <div className="flex w-full flex-col">
+      <Tabs
+        aria-label="Options"
+        color="primary"
+        variant="underlined"
+        classNames={{
+          tabList:
+            "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+          cursor: "w-full bg-primary",
+          tab: "max-w-fit px-0 h-12",
+          tabContent: "group-data-[selected=true]:text-primary",
+        }}
+      >
+        <Tab
+          key="detail"
+          title={
+            <div className="flex items-center space-x-2">
+              <DetailsRoundedIcon />
+              <span>Detail</span>
+            </div>
+          }
+        >
+          <AssetItemDetail />
+        </Tab>
+        <Tab
+          key="history"
+          title={
+            <div className="flex items-center space-x-2">
+              <ManageHistoryRoundedIcon />
+              <span>History</span>
+            </div>
+          }
+        >
+          <Table
+            isStriped
+            aria-label="Example table with custom cells, pagination and sorting"
+            isHeaderSticky
+            bottomContent={bottomContent}
+            bottomContentPlacement="outside"
+            classNames={{
+              wrapper: "h-[280px] custom-scroll",
+            }}
+            selectedKeys={selectedKeys}
+            // selectionMode="multiple"
+            sortDescriptor={sortDescriptor}
+            topContent={topContent}
+            topContentPlacement="outside"
+            onSelectionChange={setSelectedKeys}
+            onSortChange={setSortDescriptor}
           >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={"No users found"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.id}>
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+            <TableHeader columns={headerColumns}>
+              {(column) => (
+                <TableColumn
+                  key={column.uid}
+                  align={column.uid === "actions" ? "center" : "start"}
+                  allowsSorting={column.sortable}
+                >
+                  {column.name}
+                </TableColumn>
+              )}
+            </TableHeader>
+            <TableBody emptyContent={"No data available"} items={sortedItems}>
+              {(item) => (
+                <TableRow key={item.id}>
+                  {(columnKey) => (
+                    <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Tab>
+      </Tabs>
+    </div>
   );
 }

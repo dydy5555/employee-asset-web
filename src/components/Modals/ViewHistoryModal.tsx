@@ -56,12 +56,7 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
     setTimeout(() => {
       setItemHistory(sampleData.payload);
       setLoading(false);
-    }, 1000);
-    func_GetItemHistoryByItemId("string").then((res)=>{
-      console.log(res)
-      setItems(res.data.payload)
-    })
-    
+    }, 1000);    
   }, []);
 
 
@@ -69,7 +64,7 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
     return (
       <div className="flex items-center justify-center h-96">
         <Spinner size="lg" />
-      </div>
+      </div>                                                                      
     );
   }
 
@@ -78,18 +73,18 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
       <Modal
         isOpen={openHistory}
         onOpenChange={() => setOpenHistory(false)}
-        size="4xl"
+        size="5xl"
+        // className="w-[100vw]"
       >
-        <ModalContent>
+        <ModalContent  className="h-[70vh]">
           {(onClose) => (
-            <>
+            <>                                                                        
               <ModalHeader className="flex flex-col gap-1">
                 <p className="text-center font-bold text-2xl">
                   Item Detail
                 </p>
-                <hr />
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="overflow-y-auto custom-scroll">
                 <div className="py-0 px-5">
                   <TableItemHistory />
                 </div>
@@ -102,9 +97,9 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
                 >
                   Close
                 </Button>
-                <Button color="primary" onPress={() => setOpenHistory(false)}>
+                {/* <Button color="primary" onPress={() => setOpenHistory(false)}>
                   Action
-                </Button>
+                </Button> */}
               </ModalFooter>
             </>
           )}

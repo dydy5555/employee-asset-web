@@ -1,21 +1,20 @@
 import React from "react";
 const columns = [
-  // {name: "ID", uid: "id", sortable: true},
-  {name: "EMPLOYEE NAME", uid: "name", sortable: true},
-  {name: "GIVEN BY", uid: "givenby", sortable: true},
-  {name: "RECEIVED BY", uid: "receiveby", sortable: true},
-  {name: "GIVEN DATE", uid: "givendate", sortable: true},
-  {name: "RETURNED DATE", uid: "returneddate", sortable: true},
-  {name: "DESCRIPTION", uid: "description", sortable: true},
-  {name: "CONDITION", uid: "condition", sortable: true},
-  {name: "STATUS", uid: "status", sortable: true},
-  {name: "ACTIONS", uid: "actions"},
+  // {name: "ID", uid: "id"},
+  {name: "EMPLOYEE NAME", uid: "name"},
+  {name: "GIVEN BY", uid: "givenby"},
+  {name: "GIVEN DATE", uid: "givendate"},
+  {name: "RECEIVED BY", uid: "receiveby"},
+  {name: "RETURNED DATE", uid: "returneddate"},
+  {name: "DESCRIPTION", uid: "description"},
+  {name: "CONDITION", uid: "condition"},
+  {name: "STATUS", uid: "status"},
+  // {name: "ACTIONS", uid: "actions"},
 ];
 
 const statusOptions = [
-  {name: "Active", uid: "active"},
-  {name: "Paused", uid: "paused"},
-  {name: "Vacation", uid: "vacation"},
+  {name: "In use", uid: "INUSE"},
+  {name: "Returned", uid: "RETURNED"},
 ];
 
 const datas = [
@@ -44,5 +43,6 @@ const datas = [
     actions: "View/Edit"
   },
 ];
+
 
 export {columns, datas, statusOptions};
