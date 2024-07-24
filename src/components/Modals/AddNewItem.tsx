@@ -1,80 +1,59 @@
+import React, { useEffect, useState } from "react";
 import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Input,
+  Select,
+  SelectItem,
+  Avatar,
   Autocomplete,
   AutocompleteItem,
-  Avatar,
-  Button,
   Card,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Radio,
-  RadioGroup,
-  Textarea,
-  useDisclosure,
 } from "@nextui-org/react";
-import { Devices } from "iconsax-react";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import think from "../../../public/images/icon/Thinkin.svg";
-import sorry from "../../../public/images/icon/No data-cuate.svg";
-import { getListEmployee } from "@/services/employee.service";
+
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
-import moment from "moment";
+import { getListEmployee } from "@/services/employee.service";
 import { func_CreateAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
-import { fetchAllItems } from "@/services/item.service";
+import NoImage from "../../../public/images/no_app.jpg";
+import Image from "next/image";
+import think from "../../../public/images/icon/Thinkin.svg";
 
-function AddNewAsset() {
+export default function AddNewItem({ setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
-  const [allUser, setAllUser] = useState([]);
+  const [isSelected, setIsSelected] = useState(false);
   const [isSelectedUser, setIsSelectedUser] = useState(false);
   const [userSelected, setUserSeleted] = useState([]);
-  const [isSelected, setIsSelected] = useState(false);
-  const [inputValues, setInputValues] = useState({});
-  const [itemRemark, setItemRemark] = useState("");
-  const [allItems, setAllItems] = useState([]);
+  const [allCate, setAllCate] = useState([]);
   const [subCate, setSubCate] = useState([]);
+  const [allUser, setAllUser] = useState([]);
+  const [inputValues, setInputValues] = useState({});
   const [cateName, setCateName] = useState("");
-  const [itemCondition, setItemCondition] = useState("");
-  const [itemSolution, setItemSolution] = useState("");
-  const [isItemAvailable, setIsItemAvailable] = useState(true);
+  const [subCategories, setSubCategories] = useState();
+  const [allAssets, setAllAssets] = useState([]);
+  const [isDisabledBtn, setIsDisabledBtn] = useState(false);
 
   const handleInputChange = (property, value) => {
     setInputValues((prevValues) => ({
       ...prevValues,
       [property]: value,
     }));
-    // setSubCategories(inputValues);
+    setSubCategories(inputValues);
   };
 
-  const handleItemChange = (value) => {
+  const handleCategoryChange = (value) => {
     console.log(value);
     setID(value);
-    // setIsItemAvailable(false)
-    // fetchByID(value);
-    setIsSelected(true);
-  };
-
-  const fetchEmployee = () => {
-    getListEmployee().then((res) => {
-      console.log(res.user);
-      setAllUser(res.user);
-    });
-  };
-
-  const handleSelectUser = (userID) => {
-    console.log({ userID });
-    const selectedUser = allUser.find((user) => user.id === userID);
-    console.log(selectedUser);
-    setUserSeleted(selectedUser);
-    setIsSelectedUser(true);
+    fetchByID(value);
   };
 
   const renderInputFields = () => {
@@ -103,18 +82,19 @@ function AddNewAsset() {
         </div>
       </>
     ));
-
+    setIsSelected(true);
     return inputs;
   };
 
   const fetchByID = async (id) => {
     console.log(id);
-    if (id === null) {
-      setIsSelectedUser(false);
-      return null;
+    if(id === null){
+      setIsSelectedUser(false)
+      return null
     }
     try {
       func_GetCategoryByID(id).then((res) => {
+        
         console.log("res", res);
         setCateName(res.categoryName);
         console.log(res.subCategories);
@@ -126,26 +106,64 @@ function AddNewAsset() {
     }
   };
 
-  const handleItemConditionChange = (value) => {
-    console.log(value);
-    setItemCondition(value);
+  const fetchEmployee = () => {
+    getListEmployee().then((res) => {
+      console.log(res.user);
+      setAllUser(res.user);
+    });
   };
 
-  const handleSolutionChange = (value) => {
-    setItemSolution(value);
+  const handleSelectUser = (userID) => {
+    console.log({ userID });
+    const selectedUser = allUser.find((user) => user.id === userID);
+    setUserSeleted(selectedUser);
+    setIsSelectedUser(true);
+    console.log(userSelected);
   };
 
-  const onChangeRemark = (value) => {
-    setItemRemark(value);
+  const handleSave = async () => {
+    const allAss = { categoryId: id, name: cateName, subCategories };
+    console.log("subCate", allAss);
+    setAllAssets((prev) => [...prev, allAss]);
+    setIsDisabledBtn(true);
+    console.log(allAssets);
+    const data = {
+      userId: userSelected.userId,
+      employee_name: userSelected.flnm,
+      team: "B2B",
+      remark: "",
+      department: userSelected.dvsn_NM,
+      company: userSelected.use_INTT_ID,
+      img_url: userSelected.prfl_PHTG,
+      use_INNITID: userSelected.use_INTT_ID,
+      allAssets,
+    };
+    try {
+      await new Promise((resolve) => {
+        func_CreateAsset(data).then((res) => {
+          console.log(res);
+          if (res.status === 200) {
+            toast.success("Added asset successfully!");
+            setOpenMod(false);
+          }
+        });
+        setTimeout(resolve, 2000);
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsDisabledBtn(false);
+    }
+    console.log(data);
   };
 
   useEffect(() => {
-    const fetchItems = () => {
+    const fetchCate = () => {
       try {
-        fetchAllItems().then((res) => {
+        fetchAllCCategory().then((res) => {
           if (res?.status == 200) {
-            setAllItems(res?.data?.payload?.allItem);
-            console.log("aaaa", res?.data?.payload.allItem);
+            setAllCate(res?.data?.payload);
+            console.log("allCate", res?.data?.payload);
           }
         });
       } catch (error) {
@@ -154,66 +172,21 @@ function AddNewAsset() {
       } finally {
       }
     };
-
-    fetchItems();
-    fetchEmployee();
-
-    allItems.every((item) => {
-      if (item.status === "unavailable") {
-        setIsItemAvailable(false);
-      } else {
-        setIsItemAvailable(true);
-      }
-    });
+    fetchCate();
+    // fetchEmployee();
   }, []);
 
-  const btn_save = () => {
-    const startDate = moment().format("YYYYMMDD");
-    const data = {
-      userId: userSelected.userId,
-      employee_name: userSelected.flnm,
-      team: userSelected.dvsn_NM,
-      remark: itemRemark,
-      department: userSelected.dvsn_NM,
-      company: userSelected.use_INTT_ID,
-      img_url: userSelected.prfl_PHTG,
-      use_INNITID: userSelected.use_INTT_ID,
-      problem: itemCondition,
-      start_date: startDate,
-      end_date: "present",
-      item_Id: id,
-      solution: itemSolution,
-      start_date_repair: "",
-      end_date_repair: "",
-    };
-
-    func_CreateAsset(data).then((res) => {
-      console.log({ res });
-      if (res.status === 200) {
-        toast.success("Added new aseets successfully!");
-      }
-    });
-
-    console.log({ data });
-  };
-
-  console.log(allItems);
-  console.log(isItemAvailable);
+  console.log({ allUser });
+  console.log({ allCate });
 
   return (
-    <div className="text-sm">
-      <Button
-        onPress={onOpen}
-        color="primary"
-        variant="light"
-        className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-        style={{ borderColor: "#378CE7" }}
-      >
-        <Devices size="22" color="#378CE7" /> Asset
-      </Button>
+    <div>
       <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={openMod}
+        onOpenChange={() => {
+          setOpenMod(false);
+          setIsSelectedUser(false);
+        }}
         placement="top-center"
         size="xl"
         className="min-h-[650px] min-w-[700px]"
@@ -226,7 +199,7 @@ function AddNewAsset() {
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
-                {allUser?.length < 0 ? (
+                {/* {allUser?.length < 0 ? (
                   <>
                     <div className="w-full flex-col flex items-center justify-center">
                       <Image
@@ -336,31 +309,24 @@ function AddNewAsset() {
                           <>
                             <div className="w-full">
                               <div className="text-md py-1 pl-2 font-medium">
-                                Items
+                                Assets
                               </div>
                               <Autocomplete
-                                label="Select an item"
+                                label="Select an asset"
                                 className="max-w-xs"
                                 scrollShadowProps={{
                                   isEnabled: false,
                                 }}
-                                onSelectionChange={handleItemChange}
+                                onSelectionChange={handleCategoryChange}
                               >
-                                {allItems?.map((item) => {
-                                  return item.allAssets?.map((asset) => (
-                                    <AutocompleteItem
-                                      key={item.id}
-                                      value={item.id}
-                                      className={
-                                        item.status === "unavailable"
-                                          ? "text-[#E4003A] cursor-not-allowed disabled pointer-events-none"
-                                          : ""
-                                      }
-                                    >
-                                      {asset.name}
-                                    </AutocompleteItem>
-                                  ));
-                                })}
+                                {allCate?.map((item) => (
+                                  <AutocompleteItem
+                                    key={item.id}
+                                    value={item.categoryName}
+                                  >
+                                    {item.categoryName}
+                                  </AutocompleteItem>
+                                ))}
                               </Autocomplete>
                             </div>
                           </>
@@ -372,38 +338,7 @@ function AddNewAsset() {
 
                     {isSelectedUser ? (
                       <>
-                        {isItemAvailable ? (
-                          <>
-                            <div className="w-full h-full ">
-                              <div className="w-full h-full flex flex-col justify-center items-center">
-                                <Image
-                                  width={200}
-                                  height={200}
-                                  src={think}
-                                  alt="logo"
-                                  className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
-                                />
-                                <div className="text-gray-400 text-sm">
-                                  Please select an item!
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-full flex-col flex items-center justify-center">
-                              <Image
-                                width={400}
-                                height={400}
-                                src={sorry}
-                                alt="no_app"
-                              />
-                              <div className="text-gray-400">
-                                No item availble!
-                              </div>
-                            </div>
-                          </>
-                        )}
+
                       </>
                     ) : (
                       <>
@@ -425,76 +360,19 @@ function AddNewAsset() {
                     )}
 
                     {isSelected ? (
-                      <>
-                        <div className="flex gap-5 my-2 justify-between w-full">
-                          <div className="text-sm w-full">
-                            <p className="font-medium">{`Item's Condition`}</p>
-                            <RadioGroup
-                              value={itemCondition}
-                              className="py-1 px-2"
-                              size="sm"
-                              onValueChange={handleItemConditionChange}
-                            >
-                              <Radio value="Good">Good</Radio>
-                              <Radio value="Broken">Broken</Radio>
-                            </RadioGroup>
-                          </div>
-                          <div className="text-sm w-full ">
-                            <p className="font-medium">Usage</p>
-                            <RadioGroup
-                              value={itemSolution}
-                              className="py-1 px-2"
-                              size="sm"
-                              onValueChange={handleSolutionChange}
-                            >
-                              <Radio value="New">New</Radio>
-                              <Radio value="Repair">Repair</Radio>
-                            </RadioGroup>
-                          </div>
-                        </div>
-                        {/*<div className=" font-medium text-sm">
-                          Category properties
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
-                          {renderInputFields()}
-                          <div className="items-start  text-sm w-11/12">
-                            <div className=" w-full flex justify-between">
-                              <p className="capitalize pb-1 font-medium ">
-                                Amount
-                              </p>
-                            </div>
-                            <div className=" w-full">
-                              <Input
-                                radius="md"
-                                placeholder={`Enter amount`}
-                                className="w-full "
-                                value="1"
-                                onChange={(e) =>
-                                  handleInputChange(property, e.target.value)
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div> */}
-                        <div className=" w-full h-full">
-                          <p className="capitalize pb-1 text-sm font-medium">
-                            Remark
-                          </p>
-                          <Textarea
-                            value={itemRemark}
-                            placeholder="Enter your description"
-                            className="max-w-xs"
-                            onValueChange={onChangeRemark}
-                          />
-                        </div>
-                      </>
+                      <div className=" mt-2 font-medium text-sm">
+                        Category properties
+                      </div>
                     ) : (
                       <></>
                     )}
+                    <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
+                      {renderInputFields()}
+                    </div>
                   </>
-                )}
+                )} */}
 
-                {/* <div className="w-full">
+                <div className="w-full">
                   <div className="text-md py-1 pl-2 font-medium">
                     Categories
                   </div>
@@ -506,12 +384,12 @@ function AddNewAsset() {
                     scrollShadowProps={{
                       isEnabled: false,
                     }}
-                    onSelectionChange={handleItemChange}
-                    onClear={() => {
-                      setIsSelectedUser(false);
+                    onSelectionChange={handleCategoryChange}
+                    onClear={()=>{
+                      setIsSelectedUser(false)
                     }}
                   >
-                    {allItems?.map((item) => (
+                    {allCate?.map((item) => (
                       <AutocompleteItem key={item.id} value={item.categoryName}>
                         {item.categoryName}
                       </AutocompleteItem>
@@ -549,26 +427,26 @@ function AddNewAsset() {
                       </div>
                     </>
                   )}
-                </div> */}
+                </div>
               </ModalBody>
 
               <ModalFooter>
                 <Button
                   variant="flat"
-                  //   onClick={() => {
-                  //     setIsSelectedUser(false);
-                  //     setSubCate([]);
-                  //     setOpenMod(false);
-                  //   }}
-                  onPress={onClose}
+                  onClick={() => {
+                    setIsSelectedUser(false);
+                    setSubCate([]);
+                    setOpenMod(false);
+                  }}
                 >
                   Cancel
                 </Button>
                 <Button
-                  //   disabled={isDisabledBtn}
+                  disabled={isDisabledBtn}
                   color="primary"
                   onClick={() => {
-                    btn_save();
+                    handleSave();
+                    // onClose();
                   }}
                 >
                   Save
@@ -581,5 +459,3 @@ function AddNewAsset() {
     </div>
   );
 }
-
-export default AddNewAsset;

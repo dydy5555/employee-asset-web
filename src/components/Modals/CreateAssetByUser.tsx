@@ -237,13 +237,13 @@ export default function CreateAssetByUser({ clickUser }) {
 
                     <div className="w-2/5 flex justify-center item-center">
                       <Image
-                        width={150}
-                        height={150}
+                        width={300}
+                        height={300}
                         src={
                           clickUser.prfl_PHTG ||
-                          "https://i.pinimg.com/originals/3a/80/6d/3a806d44cdb143cb707185ce196e0e1d.jpg"
+                          "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
                         }
-                        alt="logo"
+                        alt="profile"
                         className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
                       />
                     </div>

@@ -13,10 +13,10 @@ import {
 } from "@nextui-org/react";
 import { Add, Edit2, Trash } from "iconsax-react";
 import { log } from "console";
-import { func_EditCategory } from "@/services/category.service";
+import { fetchAllCCategory, func_EditCategory } from "@/services/category.service";
 import toast from "react-hot-toast";
 
-export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
+export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCategories, category, isOpen, setOpenEdit }) {
   const { onOpen, onOpenChange } = useDisclosure();
   const [cate, setCate] = useState([]);
   const [subCategoryValues, setSubCategoryValues] = useState([]);
@@ -40,36 +40,21 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
     setInputValues(category.subCategories);
   }, [category]);
 
+
   const handleChangeCateName = (e) => {
     setCategoryName(e.target.value.toLowerCase());
   };
 
   const handleDeleteProperty = (index) => {
-    // console.log(value);
-    // console.log(index);
-    // const newData = [
-    //   ...cateProperty.slice(0, index),
-    //   ...cateProperty.slice(index + 1),
-    // ];
-    // setInputValues(newData)
-    // setCateProperty(newData);
-    // console.log(cateProperty);
     const updatedProperties = cateProperty.filter((_, i) => i !== index);
     setCateProperty(updatedProperties);
-
-    const propertyToRemove = cateProperty[index];
-    setInputValues((prevValues) => {
-      const updatedValues = { ...prevValues };
-      delete updatedValues[propertyToRemove];
-      return updatedValues;
-    });
+    console.log({updatedProperties})
+    // const propertyToRemove = cateProperty[index];
+    // console.log({propertyToRemove})
+    setInputValues(updatedProperties);
   };
 
   const handleInputChange = (value, index) => {
-    // setInputValues((prevValues) => ({
-    //   ...prevValues,
-    //   [index]: value,
-    // }));
     setInputValues((prevValues) => {
       const newValues = [...prevValues];
       newValues[index] = value.toLowerCase().trim();
@@ -78,8 +63,10 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
     console.log(inputValues);
   };
 
-  const handleSaveUpdate = () => {
+  const handleSaveUpdate = async () => {
     // const valueSub = inputValues.filter(value => value !== null || value !== "");
+    console.log("update : ", inputValues);
+
     const propertiesList = inputValues
       .map((input) => input.trim().toLowerCase())
       .filter((value) => value !== "");
@@ -89,11 +76,21 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
     const dataUpdate = { categoryName, subCategories: propertiesList };
     console.log(dataUpdate);
     if (categoryName !== "") {
-      func_EditCategory(category.id, dataUpdate).then(async (res) => {
-        console.log(res?.data?.payload);
+       await func_EditCategory(category.id, dataUpdate);
+        fetchAllCCategory().then((res) => {
+          console.log("kfkdskdfsadsfa ", res)
+          if (res?.status == 200) {
+            setCategoriesFromParent(res?.data?.payload);
+            setTotalSubCategories([])
+            const count = res?.data?.payload.map((data) => {
+              setTotalSubCategories((prev) => [...prev, data.subCategories]);
+            });
+            console.log("count :", count);
+          }
+        });
         setOpenEdit(false);
         toast.success("Updated Successfully!");
-      });
+
     }
   };
 
@@ -101,7 +98,7 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
     <>
       <Modal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        onOpenChange={()=>setOpenEdit(false)}
         className="text-[14px]"
         size="2xl"
       >
@@ -110,6 +107,7 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
             <>
               <ModalHeader className="flex flex-col gap-1 text-[16px] text-center mt-2">
                 Edit Category
+                <hr />
               </ModalHeader>
               <ModalBody className="px-10 text-[14px] ">
                 <div>
@@ -132,7 +130,7 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
                         color="default"
                         content="Add Property"
                         placement="bottom"
-                        className="capitalize"
+                        className="capitalize text-primary text-[12px]"
                       >
                         <Button
                           color="primary"
@@ -172,9 +170,11 @@ export default function CategoryDetail({ category, isOpen, setOpenEdit }) {
 
                             <Button
                               isIconOnly
+                              variant="light"
+                              color="primary"
                               onClick={() => handleDeleteProperty(index)}
                             >
-                              <Trash size="18" color="#FF8A65" />
+                              <Trash size="18" color="#FF0000" />
                             </Button>
                           </div>
                         </div>

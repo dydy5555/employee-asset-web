@@ -12,32 +12,22 @@ import {
   Tab,
   CardBody,
   Card,
-  Select,
-  SelectItem,
   Input,
   Autocomplete,
   AutocompleteItem,
 } from "@nextui-org/react";
-import { Add, Edit, Trash, User, Verify } from "iconsax-react";
-import NoImage from "../../../public/images/no_app.jpg";
-import axios from "axios";
-import { log } from "console";
 import { func_GetCategoryByID } from "@/services/category.service";
 import think from "../../../public/images/icon/Thinkin.svg";
 import Image from "next/image";
 import { func_UpdateAssetUser } from "@/services/assets.service";
 import toast from "react-hot-toast";
 
-export default function ItemDetail({
-  setOpenMod,
-  openMod,
-  itemsUser,
-  empinfo,
-}) {
+export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
   const [allAssets, setAllAssets] = useState([]);
+  const [allCates, setAllCates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
   const [category, setCategory] = useState([]);
@@ -49,17 +39,8 @@ export default function ItemDetail({
   const [inputValues, setInputValues] = useState({});
   const [subCategories, setSubCategories] = useState();
 
-  // const handleInputChange = (property, value) => {
-  //   setInputValues((prevValues) => ({
-  //     ...prevValues,
-  //     [property]: value.toLowerCase(),
-  //   }));
-  //   setSubCategories(inputValues);
-  //   const allAss = { categoryId: id, name: cateName.toLowerCase(), subCategories };
-  //   console.log("subCate", allAss);
-  //   setAllAssets([]);
-  //   setAllAssets((prev) => [...prev, allAss]);
-  // };
+  console.log({ itemsUser });
+
   const handleCategoryChange = (value) => {
     if (value === null) {
       setIsSelected(true);
@@ -70,14 +51,20 @@ export default function ItemDetail({
           const selectedAsset = itemsUser
             .flatMap((user) => user.allAssets)
             .find((asset) => asset.categoryId === value);
-            console.log(selectedAsset)
           setSelectedCategory(selectedAsset);
-          setAllAssets([])
-          setAllAssets(selectedAsset)
-          setCateName(selectedAsset.name)
-          setID(selectedAsset.categoryId)
+          setAllAssets([]);
+          setAllAssets(selectedAsset);
+          setCateName(selectedAsset.name);
+
+          itemsUser.map((user) => {
+            const select = user.allAssets.find(
+              (asset) => asset.categoryId === value
+            );
+            if (select) {
+              setID(user.id);
+            }
+          });
           setIsLoadingCate(false);
-          
         } catch (error) {
           console.error("Error fetching data:", error);
         } finally {
@@ -89,26 +76,16 @@ export default function ItemDetail({
   };
 
   const handleInputChange = (key, value) => {
- 
-    setSelectedCategory(prevState => ({
+    console.log(key, value);
+
+    setSelectedCategory((prevState) => ({
       ...prevState,
       subCategories: {
         ...prevState.subCategories,
-        [key]: value
-      }
+        [key]: value,
+      },
     }));
-    setAllAssets(selectedCategory)
-    console.log({selectedCategory})
-    console.log({allAssets})
   };
-  // const handleCategoryChange = (id) => {
-
-  //   if (id === null) {
-  //     setIsSelected(true);
-  //   }
-  //   setID(id);
-  //   fetchByID(id);
-  // };
 
   const fetchByID = async (id) => {
     console.log(id);
@@ -145,7 +122,7 @@ export default function ItemDetail({
     return Object.keys(selectedCategory.subCategories).map((key) => (
       <div key={key} className="w-full flex flex-col gap-2">
         <div className="w-full flex justify-between">
-          <p className="capitalize pb-1 text-sm font-medium">{key}</p>
+          <p className="capitalize text-sm font-medium">{key}</p>
         </div>
         <div className="w-full">
           <Input
@@ -160,38 +137,6 @@ export default function ItemDetail({
     ));
   };
 
-  // const renderInputFields = () => {
-  //   if (!id) {
-  //     return null;
-  //   }
-  //   if (!subCate) {
-  //     return null;
-  //   }
-  //   console.log(allAssets)
-  //   const inputs = allAssets?.map((property) => (
-  //     <>
-  //     {Object.keys(property.subCategories)?.map((key)=>(
-  //        <div key={key} className="items-start  text-sm ">
-  //         <div className=" w-full flex justify-between">
-  //           <p className="capitalize pb-1 text-sm font-medium ">{key}</p>
-  //         </div>
-  //         <div className=" w-full">
-  //           <Input
-  //             radius="md"
-  //             placeholder={`Enter ${key}`}
-  //             className="w-full text-sm"
-  //             defaultValue={property.subCategories[key] || ""}
-  //             onChange={(e) => handleInputChange(property.subCategories[key], e.target.value)}
-  //           />
-  //         </div>
-  //       </div>
-  //     ))}
-
-  //     </>
-  //   ));
-  //   return inputs;
-  // };
-
   const OnChangeTab = (key) => {
     console.log(key);
     if (key === "edit") {
@@ -202,28 +147,30 @@ export default function ItemDetail({
   };
 
   useEffect(() => {
-    console.log(itemsUser);
-    // const fetchCate = async () => {
-    //   itemsUser?.map((user) => {
-    //     console.log(user);
-    //     setAllAssets([]);
-    //     setAllAssets(user.allAssets);
-    //   });
-    // };
-    // fetchCate();
+    itemsUser.map((res) => {
+      res.allAssetOfUser.map((i) => {
+        setAllCates((prev) => [...prev, i.item]);
+      });
+    });
   }, [itemsUser]);
 
   const subCategoryKeys = Array.from(
     new Set(
       itemsUser.flatMap((user) =>
-        user.allAssets.flatMap((asset) => Object.keys(asset.subCategories))
+        user?.allAssetOfUser.flatMap((i) =>
+          i.item.allAssets.flatMap((j) => Object.keys(j.subCategories))
+        )
       )
     )
   );
 
   const handleSave = () => {
-    console.log(allAssets);
-    console.log(subCategories);
+    const allAss = Array.of({
+      categoryId: selectedCategory.categoryId,
+      name: cateName,
+      subCategories: selectedCategory.subCategories,
+    });
+
     const data = {
       userId: empinfo.userId,
       employee_name: empinfo.flnm,
@@ -233,11 +180,11 @@ export default function ItemDetail({
       company: empinfo.use_INTT_ID,
       img_url: empinfo.prfl_PHTG,
       use_INNITID: empinfo.use_INTT_ID,
-      allAssets,
+      allAssets: allAss,
     };
 
     try {
-      func_UpdateAssetUser(empinfo.userId, empinfo.id, data).then((res) => {
+      func_UpdateAssetUser(empinfo.userId, id, data).then((res) => {
         if (res.status === 200) {
           toast.success("Updated successfully!");
           setSelectedCategory(null);
@@ -251,14 +198,15 @@ export default function ItemDetail({
     console.log({ data });
     setAllAssets([]);
     setIsSelected(true);
-    // setIsLoadingCate(true)
   };
-  // console.log({ empinfo });
+  console.log({ allCates });
   return (
     <div className="flex flex-col gap-2 ">
       <Modal
         isOpen={openMod}
-        onOpenChange={onOpenChange}
+        onOpenChange={() => {
+          setOpenMod(false);
+        }}
         scrollBehavior={scrollBehavior}
         className="min-h-[650px] min-w-[700px]"
       >
@@ -272,48 +220,48 @@ export default function ItemDetail({
               <ModalBody>
                 <div className="flex flex-col gap-5">
                   <div className="flex h-full justify-between  text-sm">
-                    {/* {itemsUser.map((user, index) => ( */}
-                    <>
-                      <div className="grid grid-cols-6 w-3/5 gap-6">
-                        <div className="col-span-2 font-medium flex flex-col justify-center">
-                          <p className="py-1">Employee </p>
-                          <p className="py-1">User ID </p>
-                          <p className="py-1">Company </p>
-                          <p className="py-1">Department </p>
-                          {/* <p className="py-1">Position </p> */}
-                        </div>
+                    {itemsUser.map((empinfo) => (
+                      <>
+                        <div className="grid grid-cols-6 w-3/5 gap-6">
+                          <div className="col-span-2 font-medium flex flex-col justify-center">
+                            <p className="py-1">Employee </p>
+                            <p className="py-1">User ID </p>
+                            <p className="py-1">Company </p>
+                            <p className="py-1">Department </p>
+                            {/* <p className="py-1">Position </p> */}
+                          </div>
 
-                        <div className="col-span-4 flex flex-col justify-center">
-                          <p className="py-1">{empinfo.flnm}</p>
-                          <p className="py-1">{empinfo.userId}</p>
-                          <p className="py-1">
-                            {empinfo.use_INTT_ID &&
-                            empinfo.use_INTT_ID == "UTLZ_590"
-                              ? "KOSIGN"
-                              : "-"}
-                          </p>
-                          <p className="py-1">{empinfo.dvsn_NM}</p>
-                          {/* <p className="py-1">
+                          <div className="col-span-4 flex flex-col justify-center">
+                            <p className="py-1">{empinfo.employee_name}</p>
+                            <p className="py-1">{empinfo.userId}</p>
+                            <p className="py-1">
+                              {empinfo.company && empinfo.company == "UTLZ_590"
+                                ? "KOSIGN"
+                                : "-"}
+                            </p>
+                            <p className="py-1">{empinfo.department}</p>
+                            {/* <p className="py-1">
                               {empinfo.jbcl_NM ? empinfo.jbcl_NM : "-"}
                             </p> */}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="w-2/5 flex justify-center item-center">
-                        <Image
-                          width={150}
-                          height={150}
-                          src={
-                            empinfo.prfl_PHTG
-                              ? empinfo.prfl_PHTG
-                              : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
-                          }
-                          alt={empinfo?.flnm}
-                          className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
-                        />
-                      </div>
-                    </>
-                    {/* ))} */}
+                        <div className="w-2/5 flex justify-center item-center">
+                          <Image
+                            width={150}
+                            height={150}
+                            src={
+                              empinfo.img_url
+                                ? empinfo.img_url
+                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg" ||
+                                  ""
+                            }
+                            alt={empinfo?.employee_name}
+                            className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
+                          />
+                        </div>
+                      </>
+                    ))}
                   </div>
 
                   {/* <div className="border-b-[0.5px] border--100"></div> */}
@@ -328,10 +276,10 @@ export default function ItemDetail({
                       <Tab key="view" title="VIEW" className="w-full">
                         <Card className=" min-h-[300px] overflow-auto custom-scroll">
                           <CardBody className="px-4">
-                            <table className="w-full mt-2  border-collapse text-[14px]">
+                            <table className="w-full text-md border-collapse text-[14px]">
                               <thead>
                                 <tr className="bg-gray-100 py-2  hover:bg-gray-200 hover:cursor-pointer">
-                                  {/* <th
+                                  <th
                                     className="text-center pl-3 py-2"
                                     style={{
                                       borderRadius: "10px 0 0 10px",
@@ -339,11 +287,11 @@ export default function ItemDetail({
                                     }}
                                   >
                                     No
-                                  </th> */}
+                                  </th>
                                   <th
-                                    className="pl-5 text-left font-medium"
+                                    className="pl-5 text-left "
                                     style={{
-                                      borderRadius: "10px 0 0 10px",
+                                      borderRadius: "0px 0 0 0px",
                                       borderColor: "red",
                                     }}
                                   >
@@ -352,14 +300,14 @@ export default function ItemDetail({
                                   {subCategoryKeys.map((key, index) => (
                                     <th
                                       key={index}
-                                      className="p-2 text-center font-medium"
+                                      className="p-2 text-center capitalize"
                                       style={{ borderColor: "red" }}
                                     >
                                       {key}
                                     </th>
                                   ))}
                                   <th
-                                    className="p-2 text-center font-medium"
+                                    className="p-2 text-center "
                                     style={{
                                       borderRadius: "0 10px 10px 0",
                                       borderColor: "red",
@@ -371,34 +319,38 @@ export default function ItemDetail({
                               </thead>
                               <tbody>
                                 {itemsUser.map((user, userIndex) =>
-                                  user.allAssets.map((asset, assetIndex) => (
-                                    <tr
-                                      key={`${userIndex}-${asset.categoryId}`}
-                                      className="py-2"
-                                    >
-                                      {/* <td className="py-2 pl-3 text-center">
-                                        {assetIndex + 1}
-                                      </td> */}
-                                      <td className="py-2 pl-6 capitalize">
-                                        {asset.name}
-                                      </td>
-                                      {subCategoryKeys.map((key, subIndex) => (
+                                  user.allAssetOfUser.map((i, assetIndex) =>
+                                    i.item?.allAssets.map((asset) => (
+                                      <tr
+                                        key={`${userIndex}-${i.categoryId}`}
+                                        className="py-2 border-b"
+                                      >
+                                        <td className="py-2 pl-3 text-center">
+                                          {userIndex + 1}
+                                        </td>
+                                        <td className="py-2 pl-6 capitalize">
+                                          {asset.name}
+                                        </td>
+                                        {subCategoryKeys.map(
+                                          (key, subIndex) => (
+                                            <td
+                                              key={subIndex}
+                                              className="p-2 text-center"
+                                              style={{ borderColor: "red" }}
+                                            >
+                                              {asset.subCategories[key] || ""}
+                                            </td>
+                                          )
+                                        )}
                                         <td
-                                          key={subIndex}
                                           className="p-2 text-center"
                                           style={{ borderColor: "red" }}
                                         >
-                                          {asset.subCategories[key] || ""}
+                                          {i.item.remark}
                                         </td>
-                                      ))}
-                                      <td
-                                        className="p-2 text-center"
-                                        style={{ borderColor: "red" }}
-                                      >
-                                        remark
-                                      </td>
-                                    </tr>
-                                  ))
+                                      </tr>
+                                    ))
+                                  )
                                 )}
                               </tbody>
                             </table>
@@ -418,12 +370,13 @@ export default function ItemDetail({
                                 className="max-w-sm"
                                 onSelectionChange={handleCategoryChange}
                               >
-                                {itemsUser?.map((cate) => {
-                                  return cate.allAssets.map(
+                                {allCates?.map((cate) => {
+                                  return cate.allAssets?.map(
                                     (asset, assetIndex) => (
                                       <AutocompleteItem
                                         key={asset.categoryId}
                                         value={asset.categoryId}
+                                        className="capitalize"
                                       >
                                         {asset.name}
                                       </AutocompleteItem>
@@ -486,6 +439,7 @@ export default function ItemDetail({
                         setSelectedCategory(null);
                         setOpenMod(false);
                         setAllAssets([]);
+                        setAllCates([])
                         setIsSelected(true);
                       }}
                     >
@@ -496,6 +450,7 @@ export default function ItemDetail({
                       className="border-[1px] text-white font-medium border-gray-200"
                       onClick={() => {
                         handleSave();
+                        setAllCates([])
                       }}
                     >
                       Save Change
@@ -508,6 +463,7 @@ export default function ItemDetail({
                     className="border-[1px] border-gray-200"
                     onClick={() => {
                       // setSelectedCategory(null);
+                      setAllCates([])
                       setSubCate([]);
                       setOpenMod(false);
                       setAllAssets([]);

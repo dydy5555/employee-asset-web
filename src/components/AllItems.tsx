@@ -1,17 +1,14 @@
 "use client";
 
-import CategoryDetail from "@/components/Modals/CategoryDetail";
-import ConfirmDeleteCategory from "@/components/Modals/ConfirmDeleteCategory";
-import CreateCategory from "@/components/Modals/CreateCategory";
+import { fetchAllCCategory } from "@/services/category.service";
 import {
-  fetchAllCCategory,
-  func_DeleteCategory,
-} from "@/services/category.service";
-import {
+  Autocomplete,
+  AutocompleteItem,
   Button,
   ButtonGroup,
   Card,
   CardBody,
+  Image,
   Input,
   Spinner,
   Table,
@@ -21,22 +18,39 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { Edit2, Minus, SearchNormal1 } from "iconsax-react";
+import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import NoImage from "../../../../public/images/no_app.jpg";
+import NoImage from "../../public/images/no_app.jpg";
+import AddNewAsset from "./Modals/AddNewItem";
 
-function Categoires() {
-  const [categories, setCategories] = useState([]);
-  const [data, setData] = useState([]);
-  const [totalSubCategories, setTotalSubCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selectedID, setSelectedID] = useState([]);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [openDelete, setOpenDelete] = useState(false);
+export const animals = [
+  {
+    label: "Cat",
+    value: "cat",
+    description: "The second most popular pet in the world",
+  },
+  {
+    label: "Dog",
+    value: "dog",
+    description: "The most popular pet in the world",
+  },
+  {
+    label: "Elephant",
+    value: "elephant",
+    description: "The largest land animal",
+  },
+  { label: "Lion", value: "lion", description: "The king of the jungle" },
+  { label: "Tiger", value: "tiger", description: "The largest cat species" },
+];
+
+function AllItems() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+  const [categories, setCategories] = useState([]);
+  const [totalSubCategories, setTotalSubCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [openMod, setOpenMod] = useState(false);
+
   useEffect(() => {
     fetch();
   }, []);
@@ -75,41 +89,36 @@ function Categoires() {
     largestArrayItem?.length
   );
 
-
   const handleCategoryDetailClick = (category) => {
     setSelectedCategory([]);
-    setOpenEdit(true);
+    // setOpenEdit(true);
     setSelectedCategory(category);
   };
   const handleDelete = (id) => {
-    setSelectedID([]);
-    setOpenDelete(true);
-    setSelectedID(id);
+    // setSelectedID([]);
+    // setOpenDelete(true);
+    // setSelectedID(id);
   };
 
-
-  // const filteredCategories = categories.filter((category) =>
-  //   category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
   const filteredCategories = categories.filter((category) => {
-    const categoryNameMatch = category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const subCategoriesMatch = category.subCategories.some(subCategory =>
+    const categoryNameMatch = category.categoryName
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const subCategoriesMatch = category.subCategories.some((subCategory) =>
       subCategory.toLowerCase().includes(searchQuery.toLowerCase())
     );
     return categoryNameMatch || subCategoriesMatch;
   });
-
   return (
     <>
-      <div className="p-10 mx-auto">
+      <div className="h-full mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4 text-primary">Categories</h1>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <h1 className="text-3xl font-bold mb-4 text-primary">Items</h1>
+          <div className="flex flex-col sm:flex-row gap-4 justify-between">
             <Input
               isClearable
               radius="lg"
-              className="flex-grow w-md"
+              className="flex-grow max-w-sm"
               classNames={{
                 label: "text-black/50 dark:text-white/90",
                 input: [
@@ -135,25 +144,56 @@ function Categoires() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery("")}
             />
-            <CreateCategory
+            {/* <CreateCategory
               setCategoriesFromParent={setCategories}
               setTotalSubCategories={setTotalSubCategories}
-            />
+            /> */}
+            <div className="flex gap-4">
+              <div>
+                <Autocomplete
+                  defaultItems={animals}
+                  label=""
+                  placeholder="Search an animal"
+                  className="max-w-xs"
+                >
+                  {(animal) => (
+                    <AutocompleteItem key={animal.value}>
+                      {animal.label}
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              </div>
+              <Button
+                onClick={() => {
+                  setOpenMod(true);
+                }}
+                color="primary"
+                variant="light"
+                className="border-[0.5px] text-md text-semibold text-[#378CE7]"
+                style={{ borderColor: "#378CE7" }}
+              >
+                <Devices size="22" color="#378CE7" /> Add Item
+              </Button>
+            </div>
           </div>
         </div>
 
-        <Card className="w-full">
+       
           {isLoading ? (
-            <CardBody className="flex items-center justify-center h-96">
+            <div className="flex items-center justify-center h-96">
               <Spinner size="lg" />
-            </CardBody>
+            </div>
           ) : filteredCategories.length > 0 ? (
-            <Table
+            <Card className="p-5 h-full max-h-[750px]">
+              <Table
+              isCompact
+              removeWrapper
               aria-label="Categories table"
               classNames={{
-                th: "bg-default-100 text-default-800 border-b border-divider",
+                th: "bg-default-100 text-default-800  border-divider",
                 td: "border-b border-divider",
               }}
+              className="h-full w-full"
             >
               <TableHeader>
                 <TableColumn>No</TableColumn>
@@ -161,9 +201,9 @@ function Categoires() {
                 {Array.from({ length: maxSubCategories }).map((_, key) => (
                   <TableColumn key={key}>Subcategory {key + 1}</TableColumn>
                 ))}
-                <TableColumn>Actions</TableColumn>
+                <TableColumn className="text-right pr-8">Actions</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody className="">
                 {filteredCategories.map((v, i) => (
                   <TableRow key={v.id}>
                     <TableCell>{i + 1}</TableCell>
@@ -175,8 +215,8 @@ function Categoires() {
                         {v.subCategories[key] || ""}
                       </TableCell>
                     ))}
-                    <TableCell>
-                      <ButtonGroup>
+                    <TableCell className="flex items-center justify-end">
+                      <ButtonGroup className="w-full justify-end">
                         <Button
                           isIconOnly
                           variant="flat"
@@ -199,8 +239,9 @@ function Categoires() {
                 ))}
               </TableBody>
             </Table>
+            </Card>
           ) : (
-            <CardBody className="flex flex-col items-center justify-center h-96 text-center">
+            <div className="flex flex-col items-center justify-center h-96 text-center">
               <Image
                 src={NoImage}
                 alt="No categories"
@@ -210,11 +251,11 @@ function Categoires() {
               <p className="text-sm text-default-400 mt-2">
                 Try adding a new category or adjusting your search.
               </p>
-            </CardBody>
+            </div>
           )}
-        </Card>
+     
 
-        {selectedCategory && (
+        {/* {selectedCategory && (
           <CategoryDetail
             setCategoriesFromParent={setCategories}
             setTotalSubCategories={setTotalSubCategories}
@@ -231,10 +272,11 @@ function Categoires() {
             setOpenDelete={setOpenDelete}
             isOpen={openDelete}
           />
-        )}
+        )} */}
       </div>
+      <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
     </>
   );
 }
 
-export default Categoires;
+export default AllItems;

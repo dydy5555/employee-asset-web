@@ -19,7 +19,7 @@ import {
 import { SearchNormal1 } from "iconsax-react";
 import { ChevronDownIcon } from "../../public/icons/ChevronDownIcon";
 import CreateCategory from "./Modals/CreateCategory";
-import AddNewAsset from "./Modals/AddNewAsset";
+import AddNewAsset from "./Modals/AddNewItem";
 import { columns, asset_user, statusOptions, items } from "../data/data";
 import { capitalize } from "../utils/util";
 import { createContext } from "vm";
@@ -28,53 +28,17 @@ import Image from "next/image";
 import { func_GetByUserID } from "@/services/assets.service";
 import ItemDetail from "./Modals/ItemDetail";
 
-const category = [
-  { key: "laptop", label: "Laptop" },
-  { key: "phone", label: "Phone" },
-  { key: "monitor", label: "Monitor" },
-];
-
 const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
 export const DataContext = createContext();
 
 function AssestByUserList({ clickUser,empInfo }) {
-  const [filterValue, setFilterValue] = React.useState("");
-  const [visibleColumns, setVisibleColumns] = React.useState(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  );
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [userID, setUserID] = useState("");
-  const [page, setPage] = React.useState(1);
 
-  const hasSearchFilter = Boolean(filterValue);
   const [assetUser, setAssetUser] = useState();
-  const [assetProperties, setAssetProperties] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [openMod, setOpenMod] = useState(false);
   const [itemsUser, setItemsUser] = useState([]);
   const [empinfo, setEmplInfo] = useState([]);
-
-  const onRowsPerPageChange = React.useCallback((e) => {
-    setRowsPerPage(Number(e.target.value));
-    setPage(1);
-  }, []);
-
-  const onSearchChange = React.useCallback((value) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue("");
-    }
-  }, []);
-
-  const onClear = React.useCallback(() => {
-    setFilterValue("");
-    setPage(1);
-  }, []);
 
   const subCategoryKeys = [
     ...new Set(
@@ -110,15 +74,12 @@ function AssestByUserList({ clickUser,empInfo }) {
     }, 1000);
   }, [clickUser]);
 
-
-
   const handleRowClick = () => {
     setItemsUser([]);
     setItemsUser(assetUser);
     setEmplInfo(empInfo)
     setOpenMod(true);
   };
-
 
   return (
     <div className="w-full h-full p-5 text-center ">
@@ -187,7 +148,7 @@ function AssestByUserList({ clickUser,empInfo }) {
             </div>
         </>
       )}
-            <ItemDetail
+      <ItemDetail
         setOpenMod={setOpenMod}
         openMod={openMod}
         itemsUser={itemsUser}

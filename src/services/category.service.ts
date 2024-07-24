@@ -8,12 +8,14 @@ export const fetchAllCCategory = async () => {
         accept: "*/*",
       },
     });
-    console.log(response);
+    console.log({response});
     return response;
   } catch (error) {
     return error;
   }
 };
+
+
 export const func_EditCategory = async (id, requestBody) => {
   console.log(id, requestBody);
   try {
