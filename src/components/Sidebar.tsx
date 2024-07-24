@@ -1,19 +1,48 @@
 "use client";
 
-import { Book, Bookmark, Buildings, Category, Document, MonitorMobbile } from "iconsax-react";
+import {
+  Back,
+  Book,
+  Bookmark,
+  Buildings,
+  Category,
+  Document,
+  MonitorMobbile,
+} from "iconsax-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import pic from "../../public/pic.jpg";
+import { getSession } from "@/api/interceptor";
+import { Button } from "@nextui-org/react";
 
 function Sidebar() {
   const pathname = usePathname();
+  const [session, setSession] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
 
+  useEffect(() => {
+    getSession().then((res) => {
+      setSession(res);
+    });
+    if (session.dvsn_NM === "HR") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [isAdmin]);
+
+  console.log(session.dvsn_NM);
+  console.log({ session });
+  console.log({ isAdmin });
+  // console.log({ allUsers });
+  // dvsn_NM: "HR"
   return (
     <div className="w-60 p-0 z-50 shrink-0 md:block h-screen sticky top-0 overflow-hidden">
       <div className="w-full h-full bg-white border-r">
-        <div className="p-4 md:p-6 flex cursor-pointer group items-center gap-2 text-center">
+        <div className="p-4 md:p-6 flex flex-col cursor-pointer group items-center gap-2 text-center">
           {/* <div className="h-10 outline outline-primary w-10 flex items-center bg-gradient-to-br justify-center rounded-full  text-white">
             <Image
               src={pic}
@@ -28,13 +57,42 @@ function Sidebar() {
             <p className="text-[11px] text-gray-500 font-medium">{'Manage BizWeb Platform'}</p>
           </div> */}
 
-          <div className="text-md font-semibold text-[#378CE7] w-full ">
+          {/* <div className="text-md font-semibold text-[#378CE7] w-full ">
             Assets Employee
+          </div> */}
+
+          <div className="text-md font-semibold text-[#378CE7] w-full flex flex-col text-center items-center">
+            <Image
+              src={
+                session?.prfl_PHTG ||
+                "https://i.pinimg.com/originals/6f/57/76/6f57760966a796644b8cfb0fbc449843.png"
+              }
+              alt="User image"
+              width={100}
+              height={100}
+              className="rounded-full p-1 w-[50px] h-[50px]"
+            />
+            {session?.flnm}
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 h-screen">
-          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
+        <div>
+          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+            <Link
+              href="/app/user-assets"
+              className={`flex ${
+                pathname === "/app/user-assets" ? "text-[#378CE7]" : ""
+              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+            >
+              <MonitorMobbile size={20} />
+              Asset
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between h-full ">
+          <div className="flex flex-col gap-1 ">
+            {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-xs">
             <Link
               href="/app"
               className={`flex ${
@@ -45,50 +103,45 @@ function Sidebar() {
               Overview
             </Link>
           </div> */}
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
-            <Link
-              href="/app/employee-assets"
-              className={`flex ${
-                pathname === "/app/employee-assets" ? "text-[#378CE7]" : ""
-              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-            >
-              <Buildings variant="Outline" size={20} />
-              Assets User
-            </Link>
+            <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+              <Link
+                href="/app/employee-assets"
+                className={`flex ${
+                  pathname === "/app/employee-assets" ? "text-[#378CE7]" : ""
+                } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+              >
+                <Buildings variant="Outline" size={20} />
+                Asset
+              </Link>
+            </div>
+            <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+              <Link
+                href={"/app/items"}
+                className={`flex ${
+                  pathname === "/app/items" ? "text-[#378CE7]" : ""
+                } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+              >
+                <MonitorMobbile size={20} />
+                Items
+              </Link>
+            </div>
+            <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
+              <Link
+                href={"/app/all-categories"}
+                className={`flex ${
+                  pathname === "/app/all-categories" ? "text-[#378CE7]" : ""
+                } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
+              >
+                <Category size={20} />
+                Categories
+              </Link>
+            </div>
           </div>
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
-            <Link
-              href={"/app/items"}
-              className={`flex ${
-                pathname === "/app/items" ? "text-[#378CE7]" : ""
-              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-            >
-              <MonitorMobbile size={20} />
-             Items
-            </Link>
+          <div>
+            <Button>
+              <Back size="32" color="#FF8A65" />
+            </Button>
           </div>
-          <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
-            <Link
-              href={"/app/all-categories"}
-              className={`flex ${
-                pathname === "/app/all-categories" ? "text-[#378CE7]" : ""
-              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-            >
-              <Category size={20} />
-              Categories
-            </Link>
-          </div>
-          {/* <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
-            <Link
-              href={"/app/items-history"}
-              className={`flex ${
-                pathname === "/app/items-history" ? "text-[#378CE7]" : ""
-              } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
-            >
-              <Document size={20} />
-              Items History
-            </Link>
-          </div> */}
         </div>
       </div>
     </div>

@@ -27,6 +27,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
   const [allAssets, setAllAssets] = useState([]);
+  const [allCates, setAllCates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
   const [category, setCategory] = useState([]);
@@ -145,12 +146,20 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
     }
   };
 
-  useEffect(() => {}, [itemsUser]);
+  useEffect(() => {
+    itemsUser.map((res) => {
+      res.allAssetOfUser.map((i) => {
+        setAllCates((prev) => [...prev, i.item]);
+      });
+    });
+  }, [itemsUser]);
 
   const subCategoryKeys = Array.from(
     new Set(
       itemsUser.flatMap((user) =>
-        user.allAssets.flatMap((asset) => Object.keys(asset.subCategories))
+        user?.allAssetOfUser.flatMap((i) =>
+          i.item.allAssets.flatMap((j) => Object.keys(j.subCategories))
+        )
       )
     )
   );
@@ -190,7 +199,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
     setAllAssets([]);
     setIsSelected(true);
   };
-  // console.log({ empinfo });
+  console.log({ allCates });
   return (
     <div className="flex flex-col gap-2 ">
       <Modal
@@ -243,8 +252,9 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                             height={150}
                             src={
                               empinfo.img_url
-                                ? ''
-                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
+                                ? empinfo.img_url
+                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg" ||
+                                  ""
                             }
                             alt={empinfo?.employee_name}
                             className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
@@ -266,10 +276,10 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       <Tab key="view" title="VIEW" className="w-full">
                         <Card className=" min-h-[300px] overflow-auto custom-scroll">
                           <CardBody className="px-4">
-                            <table className="w-full mt-2  border-collapse text-[14px]">
+                            <table className="w-full text-md border-collapse text-[14px]">
                               <thead>
                                 <tr className="bg-gray-100 py-2  hover:bg-gray-200 hover:cursor-pointer">
-                                  {/* <th
+                                  <th
                                     className="text-center pl-3 py-2"
                                     style={{
                                       borderRadius: "10px 0 0 10px",
@@ -277,11 +287,11 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                     }}
                                   >
                                     No
-                                  </th> */}
+                                  </th>
                                   <th
-                                    className="pl-5 text-left font-medium"
+                                    className="pl-5 text-left "
                                     style={{
-                                      borderRadius: "10px 0 0 10px",
+                                      borderRadius: "0px 0 0 0px",
                                       borderColor: "red",
                                     }}
                                   >
@@ -290,14 +300,14 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                   {subCategoryKeys.map((key, index) => (
                                     <th
                                       key={index}
-                                      className="p-2 text-center font-medium"
+                                      className="p-2 text-center capitalize"
                                       style={{ borderColor: "red" }}
                                     >
                                       {key}
                                     </th>
                                   ))}
                                   <th
-                                    className="p-2 text-center font-medium"
+                                    className="p-2 text-center "
                                     style={{
                                       borderRadius: "0 10px 10px 0",
                                       borderColor: "red",
@@ -309,34 +319,38 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                               </thead>
                               <tbody>
                                 {itemsUser.map((user, userIndex) =>
-                                  user.allAssets.map((asset, assetIndex) => (
-                                    <tr
-                                      key={`${userIndex}-${asset.categoryId}`}
-                                      className="py-2"
-                                    >
-                                      {/* <td className="py-2 pl-3 text-center">
-                                        {assetIndex + 1}
-                                      </td> */}
-                                      <td className="py-2 pl-6 capitalize">
-                                        {asset.name}
-                                      </td>
-                                      {subCategoryKeys.map((key, subIndex) => (
+                                  user.allAssetOfUser.map((i, assetIndex) =>
+                                    i.item?.allAssets.map((asset) => (
+                                      <tr
+                                        key={`${userIndex}-${i.categoryId}`}
+                                        className="py-2 border-b"
+                                      >
+                                        <td className="py-2 pl-3 text-center">
+                                          {userIndex + 1}
+                                        </td>
+                                        <td className="py-2 pl-6 capitalize">
+                                          {asset.name}
+                                        </td>
+                                        {subCategoryKeys.map(
+                                          (key, subIndex) => (
+                                            <td
+                                              key={subIndex}
+                                              className="p-2 text-center"
+                                              style={{ borderColor: "red" }}
+                                            >
+                                              {asset.subCategories[key] || ""}
+                                            </td>
+                                          )
+                                        )}
                                         <td
-                                          key={subIndex}
                                           className="p-2 text-center"
                                           style={{ borderColor: "red" }}
                                         >
-                                          {asset.subCategories[key] || ""}
+                                          {i.item.remark}
                                         </td>
-                                      ))}
-                                      <td
-                                        className="p-2 text-center"
-                                        style={{ borderColor: "red" }}
-                                      >
-                                        remark
-                                      </td>
-                                    </tr>
-                                  ))
+                                      </tr>
+                                    ))
+                                  )
                                 )}
                               </tbody>
                             </table>
@@ -356,8 +370,8 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                 className="max-w-sm"
                                 onSelectionChange={handleCategoryChange}
                               >
-                                {itemsUser?.map((cate) => {
-                                  return cate.allAssets.map(
+                                {allCates?.map((cate) => {
+                                  return cate.allAssets?.map(
                                     (asset, assetIndex) => (
                                       <AutocompleteItem
                                         key={asset.categoryId}
@@ -425,6 +439,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                         setSelectedCategory(null);
                         setOpenMod(false);
                         setAllAssets([]);
+                        setAllCates([])
                         setIsSelected(true);
                       }}
                     >
@@ -435,6 +450,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       className="border-[1px] text-white font-medium border-gray-200"
                       onClick={() => {
                         handleSave();
+                        setAllCates([])
                       }}
                     >
                       Save Change
@@ -447,6 +463,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                     className="border-[1px] border-gray-200"
                     onClick={() => {
                       // setSelectedCategory(null);
+                      setAllCates([])
                       setSubCate([]);
                       setOpenMod(false);
                       setAllAssets([]);

@@ -10,12 +10,17 @@ export const func_GetItemById = async (id) => {
     }
 };
 
-export const func_GetAllItem = async () => {
+export const fetchAllItems = async () => {
   try {
-    const res = await ihttp1.get(`/api/v1/items/allItems`)
-    return res;
+    const response = await ihttp1.get(`/api/v1/items/allItems`, {
+      headers: {
+        accept: "*/*",
+      },
+    });
+    console.log({response});
+    return response;
   } catch (error) {
-    console.log("Error : ", error);
     return error;
   }
-}
+};
+

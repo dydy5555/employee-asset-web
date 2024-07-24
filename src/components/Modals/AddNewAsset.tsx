@@ -19,11 +19,16 @@ import { Devices } from "iconsax-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import think from "../../../public/images/icon/Thinkin.svg";
+import sorry from "../../../public/images/icon/No data-cuate.svg";
 import { getListEmployee } from "@/services/employee.service";
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
+import moment from "moment";
+import { func_CreateAsset } from "@/services/assets.service";
+import toast from "react-hot-toast";
+import { fetchAllItems } from "@/services/item.service";
 
 function AddNewAsset() {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -33,23 +38,27 @@ function AddNewAsset() {
   const [userSelected, setUserSeleted] = useState([]);
   const [isSelected, setIsSelected] = useState(false);
   const [inputValues, setInputValues] = useState({});
-  const [subCategories, setSubCategories] = useState();
-  const [allCate, setAllCate] = useState([]);
+  const [itemRemark, setItemRemark] = useState("");
+  const [allItems, setAllItems] = useState([]);
   const [subCate, setSubCate] = useState([]);
   const [cateName, setCateName] = useState("");
+  const [itemCondition, setItemCondition] = useState("");
+  const [itemSolution, setItemSolution] = useState("");
+  const [isItemAvailable, setIsItemAvailable] = useState(true);
 
   const handleInputChange = (property, value) => {
     setInputValues((prevValues) => ({
       ...prevValues,
       [property]: value,
     }));
-    setSubCategories(inputValues);
+    // setSubCategories(inputValues);
   };
 
-  const handleCategoryChange = (value) => {
+  const handleItemChange = (value) => {
     console.log(value);
     setID(value);
-    fetchByID(value);
+    // setIsItemAvailable(false)
+    // fetchByID(value);
     setIsSelected(true);
   };
 
@@ -63,9 +72,9 @@ function AddNewAsset() {
   const handleSelectUser = (userID) => {
     console.log({ userID });
     const selectedUser = allUser.find((user) => user.id === userID);
+    console.log(selectedUser);
     setUserSeleted(selectedUser);
     setIsSelectedUser(true);
-    console.log(userSelected);
   };
 
   const renderInputFields = () => {
@@ -117,13 +126,26 @@ function AddNewAsset() {
     }
   };
 
+  const handleItemConditionChange = (value) => {
+    console.log(value);
+    setItemCondition(value);
+  };
+
+  const handleSolutionChange = (value) => {
+    setItemSolution(value);
+  };
+
+  const onChangeRemark = (value) => {
+    setItemRemark(value);
+  };
+
   useEffect(() => {
-    const fetchCate = () => {
+    const fetchItems = () => {
       try {
-        fetchAllCCategory().then((res) => {
+        fetchAllItems().then((res) => {
           if (res?.status == 200) {
-            setAllCate(res?.data?.payload);
-            console.log("allCate", res?.data?.payload);
+            setAllItems(res?.data?.payload?.allItem);
+            console.log("aaaa", res?.data?.payload.allItem);
           }
         });
       } catch (error) {
@@ -132,29 +154,51 @@ function AddNewAsset() {
       } finally {
       }
     };
-    fetchCate();
+
+    fetchItems();
     fetchEmployee();
+
+    allItems.every((item) => {
+      if (item.status === "unavailable") {
+        setIsItemAvailable(false);
+      } else {
+        setIsItemAvailable(true);
+      }
+    });
   }, []);
 
   const btn_save = () => {
+    const startDate = moment().format("YYYYMMDD");
     const data = {
-      userId: "string",
-      employee_name: "string",
-      team: "string",
-      remark: "string",
-      department: "string",
-      company: "string",
-      img_url: "string",
-      use_INNITID: "string",
-      problem: "Good",
-      start_date: "string",
-      end_date: "string",
-      item_Id: "string",
-      solution: "string",
-      start_date_repair: "string",
-      end_date_repair: "string",
+      userId: userSelected.userId,
+      employee_name: userSelected.flnm,
+      team: userSelected.dvsn_NM,
+      remark: itemRemark,
+      department: userSelected.dvsn_NM,
+      company: userSelected.use_INTT_ID,
+      img_url: userSelected.prfl_PHTG,
+      use_INNITID: userSelected.use_INTT_ID,
+      problem: itemCondition,
+      start_date: startDate,
+      end_date: "present",
+      item_Id: id,
+      solution: itemSolution,
+      start_date_repair: "",
+      end_date_repair: "",
     };
+
+    func_CreateAsset(data).then((res) => {
+      console.log({ res });
+      if (res.status === 200) {
+        toast.success("Added new aseets successfully!");
+      }
+    });
+
+    console.log({ data });
   };
+
+  console.log(allItems);
+  console.log(isItemAvailable);
 
   return (
     <div className="text-sm">
@@ -300,16 +344,23 @@ function AddNewAsset() {
                                 scrollShadowProps={{
                                   isEnabled: false,
                                 }}
-                                onSelectionChange={handleCategoryChange}
+                                onSelectionChange={handleItemChange}
                               >
-                                {allCate?.map((item) => (
-                                  <AutocompleteItem
-                                    key={item.id}
-                                    value={item.categoryName}
-                                  >
-                                    {item.categoryName}
-                                  </AutocompleteItem>
-                                ))}
+                                {allItems?.map((item) => {
+                                  return item.allAssets?.map((asset) => (
+                                    <AutocompleteItem
+                                      key={item.id}
+                                      value={item.id}
+                                      className={
+                                        item.status === "unavailable"
+                                          ? "text-[#E4003A] cursor-not-allowed disabled pointer-events-none"
+                                          : ""
+                                      }
+                                    >
+                                      {asset.name}
+                                    </AutocompleteItem>
+                                  ));
+                                })}
                               </Autocomplete>
                             </div>
                           </>
@@ -320,7 +371,40 @@ function AddNewAsset() {
                     </div>
 
                     {isSelectedUser ? (
-                      <></>
+                      <>
+                        {isItemAvailable ? (
+                          <>
+                            <div className="w-full h-full ">
+                              <div className="w-full h-full flex flex-col justify-center items-center">
+                                <Image
+                                  width={200}
+                                  height={200}
+                                  src={think}
+                                  alt="logo"
+                                  className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
+                                />
+                                <div className="text-gray-400 text-sm">
+                                  Please select an item!
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-full flex-col flex items-center justify-center">
+                              <Image
+                                width={400}
+                                height={400}
+                                src={sorry}
+                                alt="no_app"
+                              />
+                              <div className="text-gray-400">
+                                No item availble!
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </>
                     ) : (
                       <>
                         <div className="w-full h-full ">
@@ -345,16 +429,26 @@ function AddNewAsset() {
                         <div className="flex gap-5 my-2 justify-between w-full">
                           <div className="text-sm w-full">
                             <p className="font-medium">{`Item's Condition`}</p>
-                            <RadioGroup className="py-1 px-2" size="sm">
+                            <RadioGroup
+                              value={itemCondition}
+                              className="py-1 px-2"
+                              size="sm"
+                              onValueChange={handleItemConditionChange}
+                            >
                               <Radio value="Good">Good</Radio>
                               <Radio value="Broken">Broken</Radio>
                             </RadioGroup>
                           </div>
                           <div className="text-sm w-full ">
                             <p className="font-medium">Usage</p>
-                            <RadioGroup className="py-1 px-2" size="sm">
-                              <Radio value="variable">Variable</Radio>
-                              <Radio value="invariable">Invariable</Radio>
+                            <RadioGroup
+                              value={itemSolution}
+                              className="py-1 px-2"
+                              size="sm"
+                              onValueChange={handleSolutionChange}
+                            >
+                              <Radio value="New">New</Radio>
+                              <Radio value="Repair">Repair</Radio>
                             </RadioGroup>
                           </div>
                         </div>
@@ -387,8 +481,10 @@ function AddNewAsset() {
                             Remark
                           </p>
                           <Textarea
+                            value={itemRemark}
                             placeholder="Enter your description"
                             className="max-w-xs"
+                            onValueChange={onChangeRemark}
                           />
                         </div>
                       </>
@@ -410,12 +506,12 @@ function AddNewAsset() {
                     scrollShadowProps={{
                       isEnabled: false,
                     }}
-                    onSelectionChange={handleCategoryChange}
+                    onSelectionChange={handleItemChange}
                     onClear={() => {
                       setIsSelectedUser(false);
                     }}
                   >
-                    {allCate?.map((item) => (
+                    {allItems?.map((item) => (
                       <AutocompleteItem key={item.id} value={item.categoryName}>
                         {item.categoryName}
                       </AutocompleteItem>
@@ -471,10 +567,9 @@ function AddNewAsset() {
                 <Button
                   //   disabled={isDisabledBtn}
                   color="primary"
-                  onPress={onClose}
-                  //   onClick={() => {
-                  //     handleSave();
-                  //   }}
+                  onClick={() => {
+                    btn_save();
+                  }}
                 >
                   Save
                 </Button>
