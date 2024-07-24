@@ -1,6 +1,7 @@
 "use client";
 
-import { fetchAllCCategory } from "@/services/category.service";
+import React, { useEffect, useState } from "react";
+import { fetchAllItems } from "@/services/item.service";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -19,10 +20,10 @@ import {
   TableRow,
 } from "@nextui-org/react";
 import { Devices, Edit2, Minus, Monitor, SearchNormal1 } from "iconsax-react";
-import React, { useEffect, useState } from "react";
 import NoImage from "../../public/images/no_app.jpg";
 import AddNewAsset from "./Modals/AddNewItem";
 import ViewHistoryModal from "./Modals/ViewHistoryModal";
+import TableAllItem from "./TableAllItem";
 
 export const animals = [
   {
@@ -47,12 +48,10 @@ export const animals = [
 function AllItems() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [totalSubCategories, setTotalSubCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [openMod, setOpenMod] = useState(false);
-  const [openHistory, setOpenHistory] = useState(false)
-
+  const [openHistory, setOpenHistory] = useState(false);
+  const [selectItem, setSelectItem] = useState([]);
 
   useEffect(() => {
     fetch();
@@ -63,13 +62,11 @@ function AllItems() {
 
     setTimeout(() => {
       try {
-        fetchAllCCategory().then((res) => {
+        fetchAllItems().then((res) => {
+          console.log("all item ", res)
           setIsLoading(true);
           if (res?.status == 200) {
-            setCategories(res?.data?.payload);
-            const count = res?.data?.payload.map((data) => {
-              setTotalSubCategories((prev) => [...prev, data.subCategories]);
-            });
+            setAllItems(res?.data?.payload?.allItem);
             setIsLoading(false);
           }
         });
@@ -83,35 +80,15 @@ function AllItems() {
     }, 1000);
   };
 
-  const largestArrayItem = totalSubCategories.reduce((max, item) => {
-    return item?.length > max?.length ? item : max;
-  }, totalSubCategories[0]);
 
-  const maxSubCategories = Math.max(
-    ...categories.map((category) => category.subCategories?.length),
-    largestArrayItem?.length
-  );
-
-  const handleCategoryDetailClick = (category) => {
-    setSelectedCategory([]);
-    // setOpenEdit(true);
-    setSelectedCategory(category);
-  };
   const handleDelete = (id) => {
     // setSelectedID([]);
     // setOpenDelete(true);
     // setSelectedID(id);
   };
 
-  const filteredCategories = categories.filter((category) => {
-    const categoryNameMatch = category.categoryName
-      ?.toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const subCategoriesMatch = category.subCategories.some((subCategory) =>
-      subCategory.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    return categoryNameMatch || subCategoriesMatch;
-  });
+
+  console.log("AllItem ", allItems)
   return (
     <>
       <div className="h-full mx-auto">
@@ -177,84 +154,34 @@ function AllItems() {
           </div>
         </div>
 
-       
-          {isLoading ? (
-            <div className="flex items-center justify-center h-96">
-              <Spinner size="lg" />
-            </div>
-          ) : filteredCategories.length > 0 ? (
-            <Card className="p-5 h-full max-h-[750px]">
-              <Table
-              isCompact
-              removeWrapper
-              aria-label="Categories table"
-              classNames={{
-                th: "bg-default-100 text-default-800  border-divider",
-                td: "border-b border-divider",
-              }}
-              className="h-full w-full"
-            >
-              <TableHeader>
-                <TableColumn>No</TableColumn>
-                <TableColumn>Category Name</TableColumn>
-                {Array.from({ length: maxSubCategories }).map((_, key) => (
-                  <TableColumn key={key}>Subcategory {key + 1}</TableColumn>
-                ))}
-                <TableColumn className="text-right pr-8">Actions</TableColumn>
-              </TableHeader>
-              <TableBody className="">
-                {filteredCategories.map((v, i) => (
-                  <TableRow key={v.id}>
-                    <TableCell>{i + 1}</TableCell>
-                    <TableCell className="font-medium capitalize">
-                      {v.categoryName}
-                    </TableCell>
-                    {Array.from({ length: maxSubCategories }).map((_, key) => (
-                      <TableCell key={key} className="lowercase">
-                        {v.subCategories[key] || ""}
-                      </TableCell>
-                    ))}
-                    <TableCell className="flex items-center justify-end">
-                      <ButtonGroup className="w-full justify-end">
-                        <Button
-                          isIconOnly
-                          variant="flat"
-                          color="primary"
-                          onClick={() => setOpenHistory(true)}
-                        >
-                          <Edit2 size={18} />
-                        </Button>
-                        <Button
-                          isIconOnly
-                          variant="flat"
-                          color="danger"
-                          onClick={() => handleDelete(v.id)}
-                        >
-                          <Minus size={18} />
-                        </Button>
-                      </ButtonGroup>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            </Card>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-96 text-center">
-              <Image
-                src={NoImage}
-                alt="No categories"
-                className="w-48 h-48 mb-4 opacity-50"
-              />
-              <p className="text-xl text-default-500">No categories found</p>
-              <p className="text-sm text-default-400 mt-2">
-                Try adding a new category or adjusting your search.
-              </p>
-            </div>
-          )}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-96">
+            <Spinner size="lg" />
+          </div>
+        ) : allItems.length > 0 ? ( 
+          <Card className="p-5 h-full max-h-[750px] overflow-y-auto custom-scroll">
+            <TableAllItem data={allItems} handleDelete={handleDelete} setOpenHistory={setOpenHistory} setSelectItem={setSelectItem} />
+          </Card>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-96 text-center">
+            <Image
+              src={NoImage}
+              alt="No items"
+              className="w-48 h-48 mb-4 opacity-50"
+            />
+            <p className="text-xl text-default-500">No items found</p>
+            <p className="text-sm text-default-400 mt-2">
+              Try adding a new item or adjusting your search.
+            </p>
+          </div>
+        )}
       </div>
       <AddNewAsset setOpenMod={setOpenMod} openMod={openMod}></AddNewAsset>
-      <ViewHistoryModal openHistory={openHistory} setOpenHistory={setOpenHistory} />
+      <ViewHistoryModal
+        selectItem={selectItem}
+        openHistory={openHistory}
+        setOpenHistory={setOpenHistory}
+      />
     </>
   );
 }

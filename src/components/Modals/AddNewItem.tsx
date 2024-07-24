@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+"use client";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -14,8 +15,13 @@ import {
   Autocomplete,
   AutocompleteItem,
   Card,
+  Tabs,
+  Tab,
+  DateRangePicker,
+  DatePicker,
 } from "@nextui-org/react";
-
+import { useDropzone } from "react-dropzone";
+import { parseAbsoluteToLocal } from "@internationalized/date";
 import {
   fetchAllCCategory,
   func_GetCategoryByID,
@@ -26,7 +32,17 @@ import toast from "react-hot-toast";
 import NoImage from "../../../public/images/no_app.jpg";
 import Image from "next/image";
 import think from "../../../public/images/icon/Thinkin.svg";
-
+import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined";
+import { API_URL1 } from "@/api/interceptor";
+import axios from "axios";
+import { func_CreateNewitem } from "@/services/item.service";
+import PurchaseAndStockDate from "../PurchaseAndStockDate";
+import QuantityInput from "../QuantityInput";
+import PriceInput from "../PriceInput";
+import RemarkInput from "../RemarkInput";
+import { showErrorToast, showToastSuccess } from "@/services/commonfunc.service";
 export default function AddNewItem({ setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
@@ -41,7 +57,24 @@ export default function AddNewItem({ setOpenMod, openMod }) {
   const [subCategories, setSubCategories] = useState();
   const [allAssets, setAllAssets] = useState([]);
   const [isDisabledBtn, setIsDisabledBtn] = useState(false);
+  const [itemImage, setItemImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [purchaseDate, setPurchaseDate] = useState("");
+  const [stockDate, setStockDate] = useState("");
+  const [price, setPrice] = useState("");
+  const [textNote, setTextNote] = useState("");
 
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    setItemImage(file);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: "image/*",
+    multiple: false,
+  });
   const handleInputChange = (property, value) => {
     setInputValues((prevValues) => ({
       ...prevValues,
@@ -88,13 +121,12 @@ export default function AddNewItem({ setOpenMod, openMod }) {
 
   const fetchByID = async (id) => {
     console.log(id);
-    if(id === null){
-      setIsSelectedUser(false)
-      return null
+    if (id === null) {
+      setIsSelectedUser(false);
+      return null;
     }
     try {
       func_GetCategoryByID(id).then((res) => {
-        
         console.log("res", res);
         setCateName(res.categoryName);
         console.log(res.subCategories);
@@ -106,55 +138,68 @@ export default function AddNewItem({ setOpenMod, openMod }) {
     }
   };
 
-  const fetchEmployee = () => {
-    getListEmployee().then((res) => {
-      console.log(res.user);
-      setAllUser(res.user);
-    });
-  };
-
-  const handleSelectUser = (userID) => {
-    console.log({ userID });
-    const selectedUser = allUser.find((user) => user.id === userID);
-    setUserSeleted(selectedUser);
-    setIsSelectedUser(true);
-    console.log(userSelected);
-  };
-
   const handleSave = async () => {
+    setLoading(true);
+    let arr = [];
     const allAss = { categoryId: id, name: cateName, subCategories };
-    console.log("subCate", allAss);
-    setAllAssets((prev) => [...prev, allAss]);
+    // setAllAssets((prev) => [...prev, allAss]);
+    console.log("allAss", allAss);
+    arr.push(allAss);
     setIsDisabledBtn(true);
-    console.log(allAssets);
-    const data = {
-      userId: userSelected.userId,
-      employee_name: userSelected.flnm,
-      team: "B2B",
-      remark: "",
-      department: userSelected.dvsn_NM,
-      company: userSelected.use_INTT_ID,
-      img_url: userSelected.prfl_PHTG,
-      use_INNITID: userSelected.use_INTT_ID,
-      allAssets,
-    };
+    const formData = new FormData();
+    formData.append("image", itemImage);
     try {
-      await new Promise((resolve) => {
-        func_CreateAsset(data).then((res) => {
-          console.log(res);
-          if (res.status === 200) {
-            toast.success("Added asset successfully!");
-            setOpenMod(false);
-          }
-        });
-        setTimeout(resolve, 2000);
-      });
+      const response = await axios.post(
+        `${API_URL1}/api/v1/images/file`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("File uploaded successfully", response.data);
+      let itemPic;
+      if (itemImage == null || itemImage == "" || itemImage == undefined) {
+        itemPic =
+          "https://img.freepik.com/free-psd/3d-rendering-ui-icon_23-2149182289.jpg?t=st=1721803112~exp=1721806712~hmac=370c1b0651a912ea5d4df4ee7b54fa48ae3c10a3be810a3c6bbb75ecf97f5a86&w=826";
+      } else {
+        itemPic = `${API_URL1}/api/v1/images/getImage?fileName=${response?.data?.payload}`;
+      }
+      const data = {
+        arr,
+        status: "available",
+        problem: "Good",
+        purchase_date: purchaseDate || "",
+        quantity: quantity || null,
+        remain_quantity: 0,
+        unit_price: price || null,
+        stock_date: stockDate || "",
+        img_url: itemPic || "",
+        remark: textNote || "",
+        solution: "",
+        start_date_repair: "",
+        end_date_repair: "",
+      };
+
+      console.log("data before add ", data);
+
+      const res = await func_CreateNewitem(data);
+      console.log({ res });
+
+      if (res.status === 200) {
+        setLoading(false);
+        setOpenMod(false);
+        showToastSuccess("Item created successfully!")
+        handleCloseModal();
+      } else {
+        setLoading(false);
+        showErrorToast("Failed to create item, Please try again!")
+      }
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsDisabledBtn(false);
+      console.error("Error uploading file", error);
+      setLoading(false);
     }
-    console.log(data);
   };
 
   useEffect(() => {
@@ -168,17 +213,36 @@ export default function AddNewItem({ setOpenMod, openMod }) {
         });
       } catch (error) {
         console.error("Error fetching data:", error);
-        // setIsLoading(false);
       } finally {
       }
     };
     fetchCate();
-    // fetchEmployee();
   }, []);
 
-  console.log({ allUser });
-  console.log({ allCate });
-
+  const handleCloseModal = () => {
+    setID(null);
+    setIsSelected(false);
+    setIsSelectedUser(false);
+    setUserSeleted([]); // Note the typo, should be setUserSelected
+    setAllCate([]);
+    setSubCate([]);
+    setAllUser([]);
+    setInputValues({});
+    setCateName("");
+    setSubCategories(undefined); // or setSubCategories([]);
+    setAllAssets([]);
+    setIsDisabledBtn(false);
+    setItemImage(null);
+    setLoading(false);
+    setQuantity(1);
+    setPurchaseDate("");
+    setStockDate("");
+    setPrice("");
+    setTextNote("");
+    
+    setOpenMod(false);
+  };
+  
   return (
     <div>
       <Modal
@@ -188,7 +252,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
           setIsSelectedUser(false);
         }}
         placement="top-center"
-        size="xl"
+        size="5xl"
         className="min-h-[650px] min-w-[700px]"
       >
         <ModalContent>
@@ -199,198 +263,44 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
-                {/* {allUser?.length < 0 ? (
-                  <>
-                    <div className="w-full flex-col flex items-center justify-center">
-                      <Image
-                        width={400}
-                        height={400}
-                        src={NoImage}
-                        alt="no_app"
-                      />
-                      <div className="text-gray-400">No user</div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div>
-                      <div className="flex gap-5 items-center justify-between">
-                        <div className="w-full">
-                          <div className="text-md py-1 pl-2 font-medium">
-                            Users
-                          </div>
-                          <Autocomplete
-                            items={allUser}
-                            label="Select a user"
-                            className="max-w-xs w-full "
-                            classNames={{
-                              label: "group-data-[filled=true]:-translate-y-5",
-                              trigger: "min-h-16",
-                              listboxWrapper: "max-h-[400px]",
-                            }}
-                            listboxProps={{
-                              itemClasses: {
-                                base: [
-                                  "rounded-md",
-                                  "text-default-500",
-                                  "transition-opacity",
-                                  "data-[hover=true]:text-foreground",
-                                  "data-[hover=true]:bg-default-100",
-                                  "dark:data-[hover=true]:bg-default-50",
-                                  "data-[selectable=true]:focus:bg-default-50",
-                                  "data-[pressed=true]:opacity-70",
-                                  "data-[focus-visible=true]:ring-default-500",
-                                ],
-                              },
-                            }}
-                            popoverProps={{
-                              classNames: {
-                                base: "before:bg-default-200",
-                                content:
-                                  "p-0 border-small border-divider bg-background",
-                              },
-                            }}
-                            renderValue={(items) => {
-                              setIsSelectedUser(true);
-                              return items.map((item) => (
-                                <div
-                                  key={item.key}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Avatar
-                                    alt={item.data.userId}
-                                    className="flex-shrink-0"
-                                    size="sm"
-                                    src={
-                                      item.data.prfl_PHTG ||
-                                      "https://i.pinimg.com/originals/1b/0a/46/1b0a46e65b98612baa606d0c9af5f715.jpg"
-                                    }
-                                  />
-                                  <div className="flex flex-col">
-                                    <span>{item.data.flnm}</span>
-                                  </div>
-                                </div>
-                              ));
-                            }}
-                            onSelectionChange={handleSelectUser}
-                            onClear={() => [setIsSelectedUser(false)]}
-                          >
-                            {(user) => (
-                              <AutocompleteItem
-                                key={user.id}
-                                textValue={user.flnm}
-                                className="capitalize"
-                              >
-                                <div className="flex gap-2 items-center">
-                                  <Image
-                                    alt={user.userId}
-                                    className=" w-[40px] h-[40px] object-cover rounded-full p-[0.5px] border border-gray-100"
-                                    width={40}
-                                    height={40}
-                                    src={
-                                      user.prfl_PHTG ||
-                                      "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
-                                    }
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="text-small">
-                                      {user.flnm}
-                                    </span>
-                                    <span className="text-tiny text-default-400">
-                                      {user.userId}
-                                    </span>
-                                  </div>
-                                </div>
-                              </AutocompleteItem>
-                            )}
-                          </Autocomplete>
-                        </div>
-                        {isSelectedUser ? (
-                          <>
-                            <div className="w-full">
-                              <div className="text-md py-1 pl-2 font-medium">
-                                Assets
-                              </div>
-                              <Autocomplete
-                                label="Select an asset"
-                                className="max-w-xs"
-                                scrollShadowProps={{
-                                  isEnabled: false,
-                                }}
-                                onSelectionChange={handleCategoryChange}
-                              >
-                                {allCate?.map((item) => (
-                                  <AutocompleteItem
-                                    key={item.id}
-                                    value={item.categoryName}
-                                  >
-                                    {item.categoryName}
-                                  </AutocompleteItem>
-                                ))}
-                              </Autocomplete>
-                            </div>
-                          </>
-                        ) : (
-                          <></>
-                        )}
-                      </div>
-                    </div>
-
-                    {isSelectedUser ? (
-                      <>
-
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-full h-full ">
-                          <div className="w-full h-full flex flex-col justify-center items-center">
-                            <Image
-                              width={200}
-                              height={200}
-                              src={think}
-                              alt="logo"
-                              className="w-[350px] h-[350px] p-10 object-cover rounded-full dark:block "
-                            />
-                            <div className="text-gray-400 text-sm">
-                              Please select a user!
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    )}
-
-                    {isSelected ? (
-                      <div className=" mt-2 font-medium text-sm">
-                        Category properties
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                    <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
-                      {renderInputFields()}
-                    </div>
-                  </>
-                )} */}
-
                 <div className="w-full">
-                  <div className="text-md py-1 pl-2 font-medium">
-                    Categories
-                  </div>
+                  <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
+                    <div className="mb-2 flex justify-start items-center gap-1">
+                      <span>
+                        Please choose a category for the new item from the list
+                        below.
+                      </span>
+                    </div>
+                  </label>
                   <Autocomplete
                     label="Categories"
                     placeholder="Search an category"
                     className="max-w-xs"
                     radius="lg"
+                    variant="flat"
+                    color="primary"
                     scrollShadowProps={{
                       isEnabled: false,
                     }}
                     onSelectionChange={handleCategoryChange}
-                    onClear={()=>{
-                      setIsSelectedUser(false)
-                    }}
+                    // onClear={() => {
+                    //   setIsSelectedUser(false);
+                    // }}
                   >
                     {allCate?.map((item) => (
-                      <AutocompleteItem key={item.id} value={item.categoryName}>
+                      <AutocompleteItem
+                        className="capitalize"
+                        color="primary"
+                        variant="flat"
+                        key={item.id}
+                        value={item.categoryName}
+                        startContent={
+                          <LabelOutlinedIcon
+                            fontSize="small"
+                            className="text-primary"
+                          />
+                        }
+                      >
                         {item.categoryName}
                       </AutocompleteItem>
                     ))}
@@ -400,14 +310,156 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                 <div>
                   {isSelectedUser ? (
                     <>
-                      <div className=" mt-2 font-medium text-md">
-                        Category properties
-                      </div>
-                      <Card className="p-5 mt-3 min-h-[350px]">
-                        <div className="grid grid-cols-2 gap-6 max-h-[300px]  overflow-auto custom-scroll w-full h-full">
-                          {renderInputFields()}
-                        </div>
-                      </Card>
+                      <hr />
+                      <br />
+                      <Tabs aria-label="Options">
+                        <Tab
+                          key="properties"
+                          title={
+                            <label className="block text-sm font-medium text-body-color dark:text-white">
+                              <div className="flex justify-start items-center gap-1 text-primary">
+                                <CategoryOutlinedIcon
+                                  fontSize="small"
+                                  className=""
+                                />
+                                <span>Category properties</span>
+                              </div>
+                            </label>
+                          }
+                        >
+                          <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
+                            <div className="mb-2 flex justify-start items-center gap-1">
+                              <span>
+                                Provide the specifications and details of the
+                                new asset being allocated to the employee, such
+                                as item name, description, purchase date, stock
+                                date, quantity, price per unit, image, status
+                                and remark.
+                              </span>
+                            </div>
+                          </label>
+                          <Card className="p-5 mt-3 min-h-[400px]">
+                            <div className="grid grid-cols-2 gap-6 max-h-[400px]  overflow-auto custom-scroll w-full h-full">
+                              {renderInputFields()}
+                            </div>
+                          </Card>
+                        </Tab>
+                        <Tab
+                          key="picture"
+                          title={
+                            <label className="block text-sm font-medium text-body-color dark:text-white">
+                              <div className="flex justify-start items-center gap-1 text-primary">
+                                <InsertPhotoOutlinedIcon
+                                  fontSize="small"
+                                  className=""
+                                />
+                                <span>Detail & Picture</span>
+                              </div>
+                            </label>
+                          }
+                        >
+                          <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
+                            <div className="mb-2 flex justify-start items-center gap-1">
+                              <span>
+                                Provide the specifications and details of the
+                                new asset being allocated to the employee, such
+                                as item name, description, purchase date, stock
+                                date, quantity, price per unit, images status
+                                and remark.
+                              </span>
+                            </div>
+                          </label>
+                          <Card className="p-5 mt-3 min-h-[400px]">
+                            <div className="grid grid-cols-2 gap-6 max-h-[400px]  overflow-auto custom-scroll w-full h-full">
+                              {/* More detail */}
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-2 justify-center items-center">
+                                  {/* Quatity */}
+                                  <QuantityInput
+                                    quantity={quantity}
+                                    setQuantity={setQuantity}
+                                  />
+                                  {/* Price per unit */}
+                                  <PriceInput
+                                    price={price}
+                                    setPrice={setPrice}
+                                  />
+                                </div>
+                                {/* purchase date and stock date */}
+                                <PurchaseAndStockDate
+                                  setPurchaseDate={setPurchaseDate}
+                                  setStockDate={setStockDate}
+                                />
+                                {/* remark */}
+                                <RemarkInput
+                                  textNote={textNote}
+                                  setTextNote={setTextNote}
+                                />
+                              </div>
+                              <div className="mb-8">
+                                <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
+                                  <div className="mb-2 flex justify-start items-center gap-1">
+                                    <span>Item picture</span>
+                                  </div>
+                                </label>
+                                <div
+                                  {...getRootProps()}
+                                  className={`dark:hover:bg-bray-800 flex h-67 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600 ${
+                                    isDragActive
+                                      ? "border-primary"
+                                      : "border-gray-300"
+                                  }`}
+                                >
+                                  <input {...getInputProps()} />
+                                  {itemImage ? (
+                                    <div className="relative h-full w-full">
+                                      <Image
+                                        src={URL.createObjectURL(itemImage)}
+                                        alt="Item preview"
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="rounded-lg"
+                                      />
+                                      <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                                        <p className="text-center text-white">
+                                          Click or drag to replace
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center pb-6 pt-5">
+                                      <svg
+                                        className="mb-4 h-8 w-8 text-gray-500 dark:text-gray-400"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 20 16"
+                                      >
+                                        <path
+                                          stroke="currentColor"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                        />
+                                      </svg>
+                                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                        <span className="font-semibold">
+                                          Click to upload
+                                        </span>{" "}
+                                        or drag and drop
+                                      </p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        SVG, PNG, JPG or GIF (MAX. 800x400px)
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </Tab>
+                      </Tabs>
                     </>
                   ) : (
                     <>
@@ -434,9 +486,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                 <Button
                   variant="flat"
                   onClick={() => {
-                    setIsSelectedUser(false);
-                    setSubCate([]);
-                    setOpenMod(false);
+                    handleCloseModal()
                   }}
                 >
                   Cancel
@@ -449,7 +499,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                     // onClose();
                   }}
                 >
-                  Save
+                  {loading ? <div className="custom-loader"></div> : "Save"}
                 </Button>
               </ModalFooter>
             </>

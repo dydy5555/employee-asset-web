@@ -24,3 +24,19 @@ export const fetchAllItems = async () => {
   }
 };
 
+
+export const func_CreateNewitem = async (requestBody) => {
+  console.log(requestBody);
+  try {
+    const res = await ihttp1.post(`/api/v1/items`, requestBody, {
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log("Error : ", error);
+    return error;
+  }
+};

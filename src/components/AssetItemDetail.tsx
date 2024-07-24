@@ -22,13 +22,13 @@ import { PlusIcon } from "../../public/icons/PlusIcon";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import MoreOutlinedIcon from "@mui/icons-material/MoreOutlined";
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-const AssetItemDetail = ({}) => {
+const AssetItemDetail = ({ itemId }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = () => {
       setLoading(true);
-      func_GetItemById("6698dabe868b2579766a6178").then((res) => {
+      func_GetItemById(itemId).then((res) => {
         console.log(res?.data?.payload);
         setData(res?.data?.payload);
         setLoading(false);
@@ -37,27 +37,7 @@ const AssetItemDetail = ({}) => {
 
     fetchData();
   }, []);
-  const payload = {
-    id: "6698dabe868b2579766a6178",
-    allAssets: [
-      {
-        categoryId: "6698da71868b2579766a6177",
-        name: "Monitor A",
-        subCategories: {
-          name: "Dell-3440",
-          logo: "",
-          model: "",
-        },
-      },
-    ],
-    status: null,
-    purchase_date: null,
-    quantity: null,
-    unit_price: null,
-    stock_date: null,
-    img_url: null,
-    remark: null,
-  };
+
 
   return (
     <>
@@ -66,8 +46,8 @@ const AssetItemDetail = ({}) => {
           isBlurred
           isZoomed
           width={800}
-          alt="item photot"
-          src="https://img.freepik.com/free-vector/computer_53876-35112.jpg?w=826&t=st=1721622939~exp=1721623539~hmac=7e2dfa91dceb96080e217ce8a3069bb487c749c41eda86b985944b312ff377cc"
+          alt="item photo"
+          src={data?.img_url}
         />
         {loading ? (
           <div className="w-full rounded-md customShadow h-[44vh] flex justify-center items-center">
@@ -201,7 +181,7 @@ const AssetItemDetail = ({}) => {
                           remark:
                         </h1>
                         <h1 className="font-normal text-gray-500 text-[14px]">
-                          This item is only for CEO and Sokhen
+                         {data?.remark}
                         </h1>
                       </div>
                     </div>

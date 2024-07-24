@@ -54,7 +54,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   // "actions",
 ];
 
-export default function TableItemHistory() {
+export default function TableItemHistory({ selectItem }) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState(
@@ -71,12 +71,14 @@ export default function TableItemHistory() {
   // fetch data
   const [datas, setDatas] = React.useState([]);
   React.useEffect(() => {
-    func_GetItemHistoryByItemId("6698dabe868b2579766a6178").then((res) => {
+    console.log("selectItem ", selectItem)
+    func_GetItemHistoryByItemId(selectItem).then((res) => {
       console.log({ res });
       if (res?.status == 200) {
         setDatas(res.data.payload);
       }
     });
+    // setDatas([...datas, selectItem])
   }, []);
 
   console.log({ datas });
@@ -274,7 +276,6 @@ export default function TableItemHistory() {
     setPage(1);
   }, []);
 
-  console.log("statusFilter", statusFilter);
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -406,7 +407,7 @@ export default function TableItemHistory() {
             </div>
           }
         >
-          <AssetItemDetail />
+          <AssetItemDetail itemId={selectItem} />
         </Tab>
         <Tab
           key="history"
