@@ -34,7 +34,7 @@ import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
-import { func_GetByUserID } from "@/services/assets.service";
+import { fetchAllEmployeeAssets, func_GetByUserID } from "@/services/assets.service";
 import CreateAssetByUser from "./Modals/CreateAssetByUser";
 import CreateCategory from "./Modals/CreateCategory";
 import { fetchAllCCategory } from "@/services/category.service";
@@ -65,6 +65,7 @@ function ListUsers() {
   const [asset_user, setAssetUser] = useState([]);
   const [allCate, setAllCate] = useState([]);
   const [openMod, setOpenMod] = useState(false);
+  const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -110,7 +111,7 @@ function ListUsers() {
   const fitlerUsers = async (form: any) => {
     try {
       const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTY5OTIxNywiaWF0IjoxNzIxNjEyODE3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.fYo51MXnghhPoNfSZWXSG73QnpX9MTuER_zbqLu9COdMzERaf0Ggu-Q6xGzUFLjyTnwvIjTqckUNfzaXjPxMoA"; // Replace with your actual JWT token
+        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTc4NjAzOCwiaWF0IjoxNzIxNjk5NjM4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.VTkmerXHwRGKtyFtC026Sv2PalBPG3u7ziyGryRgZxzX5xCn32G-i0se1yFTrftOk7thexK-R6YtUTM2tpBOGA"; // Replace with your actual JWT token
       const headers = {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -196,7 +197,7 @@ function ListUsers() {
       // console.log("get department", data.payload);
       try {
         const token =
-          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTY5OTIxNywiaWF0IjoxNzIxNjEyODE3LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.fYo51MXnghhPoNfSZWXSG73QnpX9MTuER_zbqLu9COdMzERaf0Ggu-Q6xGzUFLjyTnwvIjTqckUNfzaXjPxMoA"; // Replace with your actual JWT token
+          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTc4NjAzOCwiaWF0IjoxNzIxNjk5NjM4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.VTkmerXHwRGKtyFtC026Sv2PalBPG3u7ziyGryRgZxzX5xCn32G-i0se1yFTrftOk7thexK-R6YtUTM2tpBOGA"; // Replace with your actual JWT token
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -209,7 +210,7 @@ function ListUsers() {
           }
         );
         const data = await res.json();
-        // console.log("all department", data.payload);
+        console.log("all department", data.payload);
 
         // const permissionData = await fetchSessionAndPermission();
         // if (permissionData?.permission !== "SUPER_ADMIN") {
@@ -355,19 +356,28 @@ function ListUsers() {
 
   useEffect(() => {
     // getAllUsers();
+    const fetchAssetUser = ()=>{
+      fetchAllEmployeeAssets().then((res) => {
+        console.log(res);
+        if (res?.status == 200) {
+          setAllEmployeeAssets(res?.data?.payload);
+        }
+      });
+    }
+    fetchAssetUser()
   }, []);
 
-  const filteredUser = asset_user.filter((user) =>
-    user?.flnm?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUser = allEmployeeAssets.filter((user) =>
+    user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // console.log(lUser)
+console.log(filteredUser)
+  console.log(allEmployeeAssets)
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
         {/* Side 1 */}
-        <div className="flex flex-col w-full">
-          <div className="flex py-5 gap-5">
+        <div className="flex   flex-col w-full">
+          <div className="flex p-5 gap-5">
             <div className="w-full">
               {/* Search */}
               <Input
@@ -554,7 +564,6 @@ function ListUsers() {
               </>
             ) : (
               <>
-                <div className="flex flex-col gap-5  p-5">
                   {/* <div className="flex justify-between items-end">
                     <div className="flex w-full gap-5 py-4 justify-end">
                       <CreateCategory />
@@ -573,10 +582,9 @@ function ListUsers() {
                     </div>
                   </div> */}
 
-                  <div className="">
-                    <ItemCards />
+                  <div className="p-5">
+                    <ItemCards allEmployeeAssets={filteredUser}/>
                   </div>
-                </div>
               </>
             )}
           </div>
