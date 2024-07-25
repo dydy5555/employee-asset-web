@@ -15,191 +15,138 @@ import {
   Input,
   Autocomplete,
   AutocompleteItem,
+  Chip,
 } from "@nextui-org/react";
-import { func_GetCategoryByID } from "@/services/category.service";
-import think from "../../../public/images/icon/Thinkin.svg";
 import Image from "next/image";
-import { func_UpdateAssetUser } from "@/services/assets.service";
+import { fun_AddAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
+import { fetchAllItems, fun_UpdateItem } from "@/services/item.service";
+import RemoveItemFromUser from "./RemoveItemFromUser";
 
-export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
   const [allAssets, setAllAssets] = useState([]);
-  const [allCates, setAllCates] = useState([]);
+  const [allCates, setAllCates] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isSelected, setIsSelected] = useState(true);
-  const [category, setCategory] = useState([]);
-  const [isEdit, setIsEdit] = useState(false);
-  const [id, setID] = useState("");
-  const [isLoadingCate, setIsLoadingCate] = useState(false);
-  const [subCate, setSubCate] = useState([]);
-  const [cateName, setCateName] = useState("");
-  const [inputValues, setInputValues] = useState({});
-  const [subCategories, setSubCategories] = useState();
+  const [allItems, setAllItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState([]);
+  const [itemQty, setItemQty] = useState("");
+  const [openDel, setOpenDel] = useState(false);
+  const [sendId, setSendId] = useState({});
+  const [user, setUser] = useState({});
 
   console.log({ itemsUser });
+  console.log({ allItems });
 
-  const handleCategoryChange = (value) => {
-    if (value === null) {
-      setIsSelected(true);
-    } else {
-      setIsLoadingCate(true);
-      setTimeout(() => {
-        try {
-          const selectedAsset = itemsUser
-            .flatMap((user) => user.allAssets)
-            .find((asset) => asset.categoryId === value);
-          setSelectedCategory(selectedAsset);
-          setAllAssets([]);
-          setAllAssets(selectedAsset);
-          setCateName(selectedAsset.name);
-
-          itemsUser.map((user) => {
-            const select = user.allAssets.find(
-              (asset) => asset.categoryId === value
-            );
-            if (select) {
-              setID(user.id);
-            }
-          });
-          setIsLoadingCate(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setIsLoadingCate(false);
-          setIsSelected(false);
-        }
-      }, 2000);
-    }
+  const handleItemChange = (value) => {
+    console.log(value);
+    const foundItem = allItems.find((item) => item.id === value);
+    console.log(foundItem);
+    setSelectedItem(foundItem);
   };
 
-  const handleInputChange = (key, value) => {
-    console.log(key, value);
-
-    setSelectedCategory((prevState) => ({
-      ...prevState,
-      subCategories: {
-        ...prevState.subCategories,
-        [key]: value,
-      },
-    }));
+  const handleDeleteItem = async (id, userId, use_INNITID, itemId) => {
+    const idDel = { id, userId, use_INNITID, itemId};
+    setSendId(idDel);
+    setOpenDel(true);
   };
 
-  const fetchByID = async (id) => {
-    console.log(id);
-    if (id === null) {
-      setIsSelected(true);
-    } else {
-      setIsLoadingCate(true);
-      setTimeout(() => {
-        try {
-          func_GetCategoryByID(id).then((res) => {
-            setIsLoadingCate(true);
-            setIsSelected(false);
-            // console.log("res", res);
-            setCateName(res.categoryName.toLowerCase());
-            console.log(res);
-            setSubCate(res.subCategories);
-            setInputValues(res.subCategories);
-            setIsLoadingCate(false);
-          });
-          setIsLoadingCate(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
-          setIsLoadingCate(false);
-          // setIsSelected(false);
-        }
-      }, 2000);
-    }
-  };
-
-  const renderInputFields = () => {
-    if (!selectedCategory) return null;
-
-    return Object.keys(selectedCategory.subCategories).map((key) => (
-      <div key={key} className="w-full flex flex-col gap-2">
-        <div className="w-full flex justify-between">
-          <p className="capitalize text-sm font-medium">{key}</p>
-        </div>
-        <div className="w-full">
-          <Input
-            radius="md"
-            placeholder={`Enter ${key}`}
-            className="w-full text-sm"
-            defaultValue={selectedCategory.subCategories[key] || ""}
-            onChange={(e) => handleInputChange(key, e.target.value)}
-          />
-        </div>
-      </div>
-    ));
-  };
-
-  const OnChangeTab = (key) => {
-    console.log(key);
-    if (key === "edit") {
-      setIsEdit(true);
-    } else {
-      setIsEdit(false);
-    }
+  const handleChangeQty = (value) => {
+    setItemQty(value);
   };
 
   useEffect(() => {
     itemsUser.map((res) => {
+      setUser(res);
       res.allAssetOfUser.map((i) => {
-        setAllCates((prev) => [...prev, i.item]);
+        setAllCates(i);
       });
     });
+
+    const fetchItems = () => {
+      try {
+        fetchAllItems().then((res) => {
+          if (res?.status == 200) {
+            setAllItems([]);
+            setAllItems(res?.data?.payload?.allItem);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+      }
+    };
+
+    fetchItems();
   }, [itemsUser]);
 
   const subCategoryKeys = Array.from(
     new Set(
       itemsUser.flatMap((user) =>
         user?.allAssetOfUser.flatMap((i) =>
-          i.item.allAssets.flatMap((j) => Object.keys(j.subCategories))
+          i.item.allAssets?.flatMap((j) => Object.keys(j.subCategories))
         )
       )
     )
   );
 
   const handleSave = () => {
-    const allAss = Array.of({
-      categoryId: selectedCategory.categoryId,
-      name: cateName,
-      subCategories: selectedCategory.subCategories,
-    });
+    const mainQty = selectedItem.quantity;
+    let newQty = mainQty - Number(itemQty);
 
-    const data = {
-      userId: empinfo.userId,
-      employee_name: empinfo.flnm,
-      team: empinfo.dvsn_NM,
-      remark: empinfo.remark || "",
-      department: empinfo.dvsn_NM,
-      company: empinfo.use_INTT_ID,
-      img_url: empinfo.prfl_PHTG,
-      use_INNITID: empinfo.use_INTT_ID,
-      allAssets: allAss,
+    const dataForItem = {
+      allAssets: selectedItem.allAssets,
+      status: selectedItem.status,
+      problem: selectedItem.problem,
+      purchase_date: selectedItem.purchase_date,
+      quantity: newQty,
+      remain_quantity: selectedItem.remain_quantity,
+      unit_price: selectedItem.unit_price,
+      stock_date: selectedItem.stock_date,
+      img_url: selectedItem.img_url,
+      remark: selectedItem.remark,
+      solution: selectedItem.solution,
+      start_date_repair: selectedItem.start_date_repair,
+      end_date_repair: selectedItem.end_date_repair,
     };
 
     try {
-      func_UpdateAssetUser(empinfo.userId, id, data).then((res) => {
+      fun_UpdateItem(selectedItem.id, dataForItem).then((res) => {
+        console.log("dataForItem", res);
+      });
+    } catch (error) {
+      console.log("Error ::: ", error);
+    }
+
+    const dataSave = {
+      userId: user.userId,
+      employee_name: user.employee_name,
+      team: user.team,
+      remark: selectedItem.remark,
+      department: user.team,
+      company: user.company,
+      img_url: selectedItem.img_url,
+      use_INNITID: user.use_INNITID,
+      start_date: allCates.start_date,
+      end_date: allCates.end_date,
+      item_Id: selectedItem.id,
+      quantity: itemQty,
+    };
+
+    try {
+      fun_AddAsset(dataSave).then((res) => {
+        console.log({ res });
         if (res.status === 200) {
           toast.success("Updated successfully!");
-          setSelectedCategory(null);
-          setOpenMod(false);
         }
       });
     } catch (error) {
       console.log("Erorr ::: ", error);
     }
-
-    console.log({ data });
-    setAllAssets([]);
-    setIsSelected(true);
   };
-  console.log({ allCates });
+
   return (
     <div className="flex flex-col gap-2 ">
       <Modal
@@ -271,7 +218,6 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       aria-label="Options"
                       className="w-full"
                       fullWidth="true"
-                      onSelectionChange={OnChangeTab}
                     >
                       <Tab key="view" title="VIEW" className="w-full">
                         <Card className=" min-h-[300px] overflow-auto custom-scroll">
@@ -297,7 +243,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                   >
                                     Category Name
                                   </th>
-                                  {subCategoryKeys.map((key, index) => (
+                                  {subCategoryKeys?.map((key, index) => (
                                     <th
                                       key={index}
                                       className="p-2 text-center capitalize"
@@ -320,7 +266,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                               <tbody>
                                 {itemsUser.map((user, userIndex) =>
                                   user.allAssetOfUser.map((i, assetIndex) =>
-                                    i.item?.allAssets.map((asset) => (
+                                    i.item?.allAssets?.map((asset) => (
                                       <tr
                                         key={`${userIndex}-${i.categoryId}`}
                                         className="py-2 border-b"
@@ -338,7 +284,7 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                                               className="p-2 text-center"
                                               style={{ borderColor: "red" }}
                                             >
-                                              {asset.subCategories[key] || ""}
+                                              {asset?.subCategories[key] || ""}
                                             </td>
                                           )
                                         )}
@@ -361,65 +307,94 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                       <Tab key="edit" title="EDIT" className="w-full">
                         <Card className=" min-h-[300px] px-3 py-2 text-sm">
                           <CardBody>
-                            <div className="w-3/6 ">
-                              <p className="font-medium pb-2">
-                                Please choose a category{" "}
-                              </p>
-                              <Autocomplete
-                                placeholder="Laptop, Monitor, Keyboad ,..."
-                                className="max-w-sm"
-                                onSelectionChange={handleCategoryChange}
-                              >
-                                {allCates?.map((cate) => {
-                                  return cate.allAssets?.map(
-                                    (asset, assetIndex) => (
-                                      <AutocompleteItem
-                                        key={asset.categoryId}
-                                        value={asset.categoryId}
-                                        className="capitalize"
-                                      >
-                                        {asset.name}
-                                      </AutocompleteItem>
-                                    )
-                                  );
-                                })}
-                              </Autocomplete>
-                            </div>
-
-                            <div className="mt-4">
-                              {isLoadingCate ? (
-                                <div className="flex justify-center items-center w-full h-[175px]">
-                                  <button className="custom-loader"></button>
-                                </div>
-                              ) : (
-                                <>
-                                  {isSelected ? (
-                                    <div className="w-full h-full flex justify-center items-center">
-                                      <Image
-                                        width={200}
-                                        height={200}
-                                        src={think}
-                                        alt="logo"
-                                        className="w-[175px] h-[175px] object-cover rounded-full dark:block "
-                                      />
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {isLoadingCate ? (
-                                        <div className="flex justify-center items-center w-full h-[175px]">
-                                          <button className="custom-loader"></button>
-                                        </div>
-                                      ) : (
-                                        <>
-                                          <div className="grid grid-cols-2 gap-6 -z-1 max-h-[300px] pt-2  overflow-auto custom-scroll w-full h-full">
-                                            {renderInputFields()}
+                            <div className="flex h-full flex-col gap-5">
+                              <div>
+                                <p className="font-medium pb-2">Item's user</p>
+                                <div className="w-full flex gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
+                                  {itemsUser.map((allAsset) =>
+                                    allAsset.allAssetOfUser?.map((items) =>
+                                      items.item?.allAssets?.map(
+                                        (asset, assetIndex) => (
+                                          <div className="flex">
+                                            <Chip
+                                              radius="md"
+                                              variant="flat"
+                                              size="lg"
+                                              key={asset.categoryId}
+                                              className="capitalize  "
+                                              onClose={() => {
+                                                handleDeleteItem(
+                                                  items.id,
+                                                  allAsset.userId,
+                                                  allAsset.use_INNITID,
+                                                  items.item.id
+                                                );
+                                              }}
+                                            >
+                                              {asset.name}
+                                            </Chip>
                                           </div>
-                                        </>
-                                      )}
-                                    </>
+                                        )
+                                      )
+                                    )
                                   )}
-                                </>
-                              )}
+                                </div>
+                              </div>
+
+                              <div className="flex mt-2 gap-5 items-center">
+                                <div>
+                                  <p className="font-medium pb-2">
+                                    Add New Item{" "}
+                                  </p>
+                                  <Autocomplete
+                                    label="Select an item"
+                                    className="max-w-xs"
+                                    scrollShadowProps={{
+                                      isEnabled: false,
+                                    }}
+                                    onSelectionChange={handleItemChange}
+                                  >
+                                    {allItems?.map((item) => {
+                                      return item.allAssets?.map((asset) => (
+                                        <AutocompleteItem
+                                          key={item.id}
+                                          value={item.id}
+                                          className={
+                                            item.status === "unavailable"
+                                              ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
+                                              : ""
+                                          }
+                                          endContent={
+                                            <div>{item.quantity}</div>
+                                          }
+                                        >
+                                          {asset.name}
+                                        </AutocompleteItem>
+                                      ));
+                                    })}
+                                  </Autocomplete>
+                                </div>
+
+                                <div className="flex flex-col justify-center h-full">
+                                  <p className="font-medium pb-2">Quantity</p>
+                                  <Input
+                                    type="number"
+                                    onValueChange={handleChangeQty}
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <Button
+                                  color="primary"
+                                  className="border-[1px] text-white font-medium border-gray-200"
+                                  onClick={() => {
+                                    handleSave();
+                                  }}
+                                >
+                                  Add
+                                </Button>
+                              </div>
                             </div>
                           </CardBody>
                         </Card>
@@ -429,55 +404,33 @@ export default function ItemDetail({ setOpenMod, openMod, itemsUser }) {
                 </div>
               </ModalBody>
               <ModalFooter>
-                {isEdit ? (
-                  <>
-                    <Button
-                      color="default"
-                      variant="light"
-                      className="border-[1px] border-gray-200"
-                      onClick={() => {
-                        setSelectedCategory(null);
-                        setOpenMod(false);
-                        setAllAssets([]);
-                        setAllCates([])
-                        setIsSelected(true);
-                      }}
-                    >
-                      Close
-                    </Button>
-                    <Button
-                      color="primary"
-                      className="border-[1px] text-white font-medium border-gray-200"
-                      onClick={() => {
-                        handleSave();
-                        setAllCates([])
-                      }}
-                    >
-                      Save Change
-                    </Button>
-                  </>
-                ) : (
+                <>
                   <Button
                     color="default"
                     variant="light"
                     className="border-[1px] border-gray-200"
                     onClick={() => {
-                      // setSelectedCategory(null);
-                      setAllCates([])
-                      setSubCate([]);
+                      setSelectedCategory(null);
                       setOpenMod(false);
                       setAllAssets([]);
+                      setAllCates([]);
                       setIsSelected(true);
                     }}
                   >
                     Close
                   </Button>
-                )}
+                </>
               </ModalFooter>
             </>
           )}
         </ModalContent>
       </Modal>
+      <RemoveItemFromUser
+        openDel={openDel}
+        setOpenDel={setOpenDel}
+        sendId={sendId}
+        allItems={allItems}
+      />
     </div>
   );
 }

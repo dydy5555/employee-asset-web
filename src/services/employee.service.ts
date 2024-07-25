@@ -1,29 +1,29 @@
 import ihttp from "@/api/interceptor";
 
-export const getListEmployee = async () => {
+export const getListEmployee = async (formData) => {
   try {
-    const token =
-      "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTc4NjAzOCwiaWF0IjoxNzIxNjk5NjM4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.VTkmerXHwRGKtyFtC026Sv2PalBPG3u7ziyGryRgZxzX5xCn32G-i0se1yFTrftOk7thexK-R6YtUTM2tpBOGA"; // Replace with your actual JWT token
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-    const formTemp = {
-      comId: "UTLZ_590",
-      appId: "string",
-      status: "ALL",
-    };
+  
+    const response = await ihttp.post(
+      "https://bizweb.kosign.dev/api/v1/empl/filter",
+      formData
+    );
+    console.log({ response });
 
-    const res = await fetch("https://bizweb.kosign.dev/api/v1/empl/filter", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(formTemp),
-    });
-    const data = await res.json();
-
-    console.log("All user", data.payload);
-    return data.payload;
+    return response;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getListDeparment = async (com_cd) => {
+  try {
+    const response = await ihttp.get(
+      `https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`
+    );
+    console.log({ response });
+
+    return response;
+  } catch (error) {
+    console.log("There is an error ::: ", error);
   }
 };

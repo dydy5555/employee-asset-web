@@ -12,7 +12,7 @@ import {
   Card,
 } from "@nextui-org/react";
 
-import ItemDetail from "./Modals/ItemDetail";
+import AssetDetail from "./Modals/AssetDetail";
 
 export default function ItemCards({ allEmployeeAssets }) {
   const [allAssets, setAllAssets] = useState([]);
@@ -95,11 +95,11 @@ export default function ItemCards({ allEmployeeAssets }) {
           </Table>
         </Card>
       </div>
-      <ItemDetail
+      <AssetDetail
         setOpenMod={setOpenMod}
         openMod={openMod}
         itemsUser={itemsUser}
-      ></ItemDetail>
+      ></AssetDetail>
     </>
   );
 }

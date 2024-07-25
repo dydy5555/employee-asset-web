@@ -30,10 +30,10 @@ import { func_CreateAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
 import { fetchAllItems } from "@/services/item.service";
 
-function AddNewAsset() {
+function AddNewAsset({ allUser }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
-  const [allUser, setAllUser] = useState([]);
+  // const [allUser, setAllUser] = useState([]);
   const [isSelectedUser, setIsSelectedUser] = useState(false);
   const [userSelected, setUserSeleted] = useState([]);
   const [isSelected, setIsSelected] = useState(false);
@@ -63,10 +63,10 @@ function AddNewAsset() {
   };
 
   const fetchEmployee = () => {
-    getListEmployee().then((res) => {
-      console.log(res.user);
-      setAllUser(res.user);
-    });
+    // getListEmployee().then((res) => {
+    //   console.log(res.data?.payload?.user);
+    //   setAllUser(res.data?.payload?.user);
+    // });
   };
 
   const handleSelectUser = (userID) => {
@@ -145,7 +145,7 @@ function AddNewAsset() {
         fetchAllItems().then((res) => {
           if (res?.status == 200) {
             setAllItems(res?.data?.payload?.allItem);
-            console.log("aaaa", res?.data?.payload.allItem);
+            // console.log("aaaa", res?.data?.payload.allItem);
           }
         });
       } catch (error) {
@@ -178,13 +178,10 @@ function AddNewAsset() {
       company: userSelected.use_INTT_ID,
       img_url: userSelected.prfl_PHTG,
       use_INNITID: userSelected.use_INTT_ID,
-      problem: itemCondition,
       start_date: startDate,
       end_date: "present",
       item_Id: id,
-      solution: itemSolution,
-      start_date_repair: "",
-      end_date_repair: "",
+      quantity: 0,
     };
 
     func_CreateAsset(data).then((res) => {
@@ -197,8 +194,8 @@ function AddNewAsset() {
     console.log({ data });
   };
 
-  console.log(allItems);
-  console.log(isItemAvailable);
+  // console.log(allItems);
+  // console.log(allUser);
 
   return (
     <div className="text-sm">
@@ -222,7 +219,7 @@ function AddNewAsset() {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
-                <h1 className="text-center text-[#378CE7]">Add New Items</h1>
+                <h1 className="text-center text-[#378CE7]">Add New Item</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
@@ -353,7 +350,7 @@ function AddNewAsset() {
                                       value={item.id}
                                       className={
                                         item.status === "unavailable"
-                                          ? "text-[#E4003A] cursor-not-allowed disabled pointer-events-none"
+                                          ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
                                           : ""
                                       }
                                     >

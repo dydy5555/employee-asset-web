@@ -103,3 +103,19 @@ export const getByUserAndCompany = async (userId, use_INNITID) => {
     return error;
   }
 };
+
+
+export const fun_AddAsset= async(data)=>{
+  try {
+    const response = await ihttp1.post(`/api/v1/assets`,data,{
+      headers: {
+        accept: "*/*",
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log({response});
+    return response;
+  } catch (error) {
+    return error;
+  }
+}

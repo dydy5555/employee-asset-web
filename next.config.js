@@ -15,13 +15,22 @@ const nextConfig = {
 // next.config.js
 
   images: {
-    domains: ['localhost', 'platform.bizplay.co.kr'],
+    // domains: ['localhost', 'platform.bizplay.co.kr'],
+    // remotePatterns: [
+    //   {
+    //     protocol: 'https',
+    //     hostname: 'platform.bizplay.co.kr',
+    //     port: '',
+    //     pathname: '/wecloud3/**',
+    //   },
+    // ],
+    domains: imageDomains,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'platform.bizplay.co.kr',
+        protocol: "https",
+        hostname: '**',
         port: '',
-        pathname: '/wecloud3/**',
+        pathname: '**',
       },
     ],
   },

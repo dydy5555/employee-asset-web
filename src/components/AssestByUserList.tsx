@@ -26,7 +26,7 @@ import { createContext } from "vm";
 import NoImage from "../../public/images/no_app.jpg";
 import Image from "next/image";
 import { func_GetByUserID } from "@/services/assets.service";
-import ItemDetail from "./Modals/ItemDetail";
+import AssetDetail from "./Modals/AssetDetail";
 
 const INITIAL_VISIBLE_COLUMNS = ["asset_type", "asset_name", "type", "action"];
 
@@ -148,12 +148,12 @@ function AssestByUserList({ clickUser,empInfo }) {
             </div>
         </>
       )}
-      <ItemDetail
+      <AssetDetail
         setOpenMod={setOpenMod}
         openMod={openMod}
         itemsUser={itemsUser}
         empinfo={empinfo}
-      ></ItemDetail>
+      ></AssetDetail>
     </div>
     
   );

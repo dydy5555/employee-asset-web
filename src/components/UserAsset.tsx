@@ -14,7 +14,7 @@ function UserAsset() {
     new Set(
       items.flatMap((user) =>
         user?.allAssetOfUser.flatMap((i) =>
-          i.item.allAssets.flatMap((j) => Object.keys(j.subCategories))
+          i.item.allAssets?.flatMap((j) => Object.keys(j.subCategories))
         )
       )
     )
@@ -134,8 +134,8 @@ function UserAsset() {
                 </thead>
                 <tbody>
                   {items.map((user, userIndex) =>
-                    user.allAssetOfUser.map((i, assetIndex) =>
-                      i.item?.allAssets.map((asset) => (
+                    user.allAssetOfUser?.map((i, assetIndex) =>
+                      i.item?.allAssets?.map((asset) => (
                         <tr
                           key={`${userIndex}-${i.categoryId}`}
                           className="py-2 border-b"
