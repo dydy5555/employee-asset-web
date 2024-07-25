@@ -54,7 +54,7 @@ export default function ConfirmDelete({id, userId}) {
                   </div>
                   <p className="text-center">
                     Are you sure you want <br /> to delete this{" "}
-                    <b>asset's user</b>?
+                    <b>asset{"'"}s user</b>?
                   </p>
                 </div>
               </ModalBody>

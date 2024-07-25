@@ -45,7 +45,7 @@ const sampleData = {
   date: "2024-07-19T13:41:23.7313187",
 };
 
-export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
+export default function ViewHistoryModal({ selectItem, openHistory, setOpenHistory }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [itemHistory, setItemHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +86,7 @@ export default function ViewHistoryModal({ openHistory, setOpenHistory }) {
               </ModalHeader>
               <ModalBody className="overflow-y-auto custom-scroll">
                 <div className="py-0 px-5">
-                  <TableItemHistory />
+                  <TableItemHistory selectItem={selectItem} />
                 </div>
               </ModalBody>
               <ModalFooter>
