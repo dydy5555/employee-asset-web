@@ -43,7 +43,8 @@ import QuantityInput from "../QuantityInput";
 import PriceInput from "../PriceInput";
 import RemarkInput from "../RemarkInput";
 import { showErrorToast, showToastSuccess } from "@/services/commonfunc.service";
-export default function AddNewItem({ setOpenMod, openMod }) {
+import AskToSaveItem from "./AskToSaveItem";
+export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [id, setID] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
@@ -55,7 +56,6 @@ export default function AddNewItem({ setOpenMod, openMod }) {
   const [inputValues, setInputValues] = useState({});
   const [cateName, setCateName] = useState("");
   const [subCategories, setSubCategories] = useState();
-  const [allAssets, setAllAssets] = useState([]);
   const [isDisabledBtn, setIsDisabledBtn] = useState(false);
   const [itemImage, setItemImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
   const [stockDate, setStockDate] = useState("");
   const [price, setPrice] = useState("");
   const [textNote, setTextNote] = useState("");
-
+  const [openAskToSave, setOpenAskToSave] = useState(false);
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     setItemImage(file);
@@ -75,14 +75,18 @@ export default function AddNewItem({ setOpenMod, openMod }) {
     accept: "image/*",
     multiple: false,
   });
+
   const handleInputChange = (property, value) => {
-    setInputValues((prevValues) => ({
+    setInputValues((prevValues) => {
+      const newValues = { ...prevValues, [property]: value };
+      console.log("New inputValues: ", newValues);
+      return newValues;
+    });
+    setSubCategories((prevValues) => ({
       ...prevValues,
       [property]: value,
     }));
-    setSubCategories(inputValues);
   };
-
   const handleCategoryChange = (value) => {
     console.log(value);
     setID(value);
@@ -140,11 +144,11 @@ export default function AddNewItem({ setOpenMod, openMod }) {
 
   const handleSave = async () => {
     setLoading(true);
-    let arr = [];
+    let allAssets = [];
     const allAss = { categoryId: id, name: cateName, subCategories };
     // setAllAssets((prev) => [...prev, allAss]);
     console.log("allAss", allAss);
-    arr.push(allAss);
+    allAssets.push(allAss);
     setIsDisabledBtn(true);
     const formData = new FormData();
     formData.append("image", itemImage);
@@ -167,12 +171,12 @@ export default function AddNewItem({ setOpenMod, openMod }) {
         itemPic = `${API_URL1}/api/v1/images/getImage?fileName=${response?.data?.payload}`;
       }
       const data = {
-        arr,
+        allAssets,
         status: "available",
         problem: "Good",
         purchase_date: purchaseDate || "",
         quantity: quantity || null,
-        remain_quantity: 0,
+        remain_quantity: quantity || null,
         unit_price: price || null,
         stock_date: stockDate || "",
         img_url: itemPic || "",
@@ -181,7 +185,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
         start_date_repair: "",
         end_date_repair: "",
       };
-
+      console.log("textNote: " , textNote)
       console.log("data before add ", data);
 
       const res = await func_CreateNewitem(data);
@@ -191,6 +195,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
         setLoading(false);
         setOpenMod(false);
         showToastSuccess("Item created successfully!")
+        onItemCreated();
         handleCloseModal();
       } else {
         setLoading(false);
@@ -224,13 +229,13 @@ export default function AddNewItem({ setOpenMod, openMod }) {
     setIsSelected(false);
     setIsSelectedUser(false);
     setUserSeleted([]); // Note the typo, should be setUserSelected
-    setAllCate([]);
+    // setAllCate([]);
     setSubCate([]);
     setAllUser([]);
     setInputValues({});
     setCateName("");
-    setSubCategories(undefined); // or setSubCategories([]);
-    setAllAssets([]);
+    // setSubCategories(undefined); // or setSubCategories([]);
+    // setAllAssets([]);
     setIsDisabledBtn(false);
     setItemImage(null);
     setLoading(false);
@@ -239,7 +244,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
     setStockDate("");
     setPrice("");
     setTextNote("");
-    
+
     setOpenMod(false);
   };
   
@@ -248,21 +253,21 @@ export default function AddNewItem({ setOpenMod, openMod }) {
       <Modal
         isOpen={openMod}
         onOpenChange={() => {
-          setOpenMod(false);
-          setIsSelectedUser(false);
+          handleCloseModal()
         }}
         placement="top-center"
         size="5xl"
-        className="min-h-[650px] min-w-[700px]"
+        className="h-[800px] min-w-[700px]"
+        isDismissable={false}
       >
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
+              <ModalHeader className="flex flex-col w-full h-fit gap-1 mt-2">
                 <h1 className="text-center text-[#378CE7]">Add New Items</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
-              <ModalBody className="px-8 w-full h-full py-0 ">
+              <ModalBody className="px-8 w-full h-fit py-0 ">
                 <div className="w-full">
                   <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
                     <div className="mb-2 flex justify-start items-center gap-1">
@@ -373,7 +378,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                             <div className="grid grid-cols-2 gap-6 max-h-[400px]  overflow-auto custom-scroll w-full h-full">
                               {/* More detail */}
                               <div className="space-y-3">
-                                <div className="grid grid-cols-2 justify-center items-center">
+                                <div className="grid grid-cols-2 justify-center items-start">
                                   {/* Quatity */}
                                   <QuantityInput
                                     quantity={quantity}
@@ -404,7 +409,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                                 </label>
                                 <div
                                   {...getRootProps()}
-                                  className={`dark:hover:bg-bray-800 flex h-67 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600 ${
+                                  className={`dark:hover:bg-bray-800 flex h-[19rem] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed bg-gray-50 transition-all duration-300 ease-in-out hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600 ${
                                     isDragActive
                                       ? "border-primary"
                                       : "border-gray-300"
@@ -495,7 +500,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
                   disabled={isDisabledBtn}
                   color="primary"
                   onClick={() => {
-                    handleSave();
+                    setOpenAskToSave(true);
                     // onClose();
                   }}
                 >
@@ -506,6 +511,7 @@ export default function AddNewItem({ setOpenMod, openMod }) {
           )}
         </ModalContent>
       </Modal>
+      <AskToSaveItem openAskToSave={openAskToSave} setOpenAskToSave={setOpenAskToSave} handleSave={handleSave} />
     </div>
   );
 }

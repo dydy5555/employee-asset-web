@@ -26,9 +26,6 @@ const nextConfig = {
     typescript: {
       ignoreBuildErrors: true,
     },
-    rules: {
-      "no-console": "off",
-      },
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx'],
   };

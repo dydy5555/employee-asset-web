@@ -41,7 +41,7 @@ const AssetItemDetail = ({ itemId }) => {
 
   return (
     <>
-      <div className="flex justify-start items-start gap-5 w-full">
+      <div className="grid grid-cols-2 justify-start items-start gap-5 w-full">
         <Image
           isBlurred
           isZoomed
@@ -140,7 +140,7 @@ const AssetItemDetail = ({ itemId }) => {
                         variant="flat"
                         color={"primary"}
                       >
-                        remain: 1
+                        remain: {data?.remain_quantity}
                       </Chip>
                     </h1>
                   </div>

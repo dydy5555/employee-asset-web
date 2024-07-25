@@ -31,8 +31,46 @@ export const formatDateTime = (dateTimeString) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
+export const formatDateTimeFull = (dateTimeString) => {
+  const year = dateTimeString.substring(0, 4);
+  const month = dateTimeString.substring(4, 6);
+  const day = dateTimeString.substring(6, 8);
+
+  return `${year}-${month}-${day}`;
+};
+
 
 export const formatDateForUi = (dateString) => {
+  const year = dateString?.substring(0, 4);
+  const month = dateString?.substring(4, 6);
+  const day = dateString?.substring(6, 8);
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const monthName = monthNames[parseInt(month) - 1];
+
+  const formattedDate = `${parseInt(day)} ${monthName}, ${year}`;
+
+  const formattedDateTime = `${formattedDate}`;
+
+  return formattedDateTime;
+};
+
+
+export const formatDateForUiFull = (dateString) => {
   const year = dateString?.substring(0, 4);
   const month = dateString?.substring(4, 6);
   const day = dateString?.substring(6, 8);

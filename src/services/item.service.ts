@@ -40,3 +40,19 @@ export const func_CreateNewitem = async (requestBody) => {
     return error;
   }
 };
+
+
+export const func_DeleteItem = async (itemId) => {
+  try {
+    const res = await ihttp1.delete(`/api/v1/items/${itemId}`, {
+      headers: {
+        accept: "*/*",
+        "Content-Type": "application/json",
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log("Error : ", error);
+    return error;
+  }
+};

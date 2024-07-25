@@ -4,6 +4,7 @@ import { Textarea } from "@nextui-org/react";
 import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
 export default function RemarkInput({ textNote, setTextNote }) {
   const onchangeNote = (e) => {
+    console.log("remark ", e.target.value);
     setTextNote(e.target.value);
   };
   return (
