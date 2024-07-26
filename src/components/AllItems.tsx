@@ -9,7 +9,6 @@ import {
   Card,
   DatePicker,
   DateRangePicker,
-  Image,
   Input,
   Select,
   SelectItem,
@@ -18,7 +17,7 @@ import {
   Tabs,
 } from "@nextui-org/react";
 import { Devices, SearchNormal1 } from "iconsax-react";
-import NoImage from "../../public/images/no_app.jpg";
+import NoImage from "../../public/images/no_app.jpg"
 import AddNewAsset from "./Modals/AddNewItem";
 import ViewHistoryModal from "./Modals/ViewHistoryModal";
 import TableAllItem from "./TableAllItem";
@@ -26,6 +25,7 @@ import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import { fetchAllCCategory } from "@/services/category.service";
 import FilterListRoundedIcon from "@mui/icons-material/FilterListRounded";
 import ExportReport from "./ExportReport";
+import Image from "next/image";
 
 function AllItems() {
   const [isLoading, setIsLoading] = useState(false);

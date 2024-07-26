@@ -47,6 +47,7 @@ import AddNewItem from "./Modals/AddNewItem";
 import ConfirmDelete from "./Modals/ConfirmDeleteUser";
 import AddNewAsset from "./Modals/AddNewAsset";
 import { getListDeparment, getListEmployee } from "@/services/employee.service";
+import { fetchAllItems } from "@/services/item.service";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -68,6 +69,7 @@ function ListUsers() {
   const [company, setCompany] = useState([]);
   const [asset_user, setAssetUser] = useState([]);
   const [allCate, setAllCate] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [sortedAssets, setSortedAssets] = useState([]);
@@ -101,10 +103,13 @@ function ListUsers() {
     };
 
     const getAllCate = () => {
-      fetchAllCCategory().then((res) => {
-        // console.log(res);s
-        setAllCate(res.data.payload);
-      });
+      // fetchAllCCategory().then((res) => {
+      //   setAllCate(res.data.payload);
+      // });
+      fetchAllItems().then((res)=>{
+        console.log("fetchAllItems", res);
+        setAllItems(res?.data?.payload?.allItem);
+      })
     };
 
     fetchData();
@@ -459,7 +464,7 @@ function ListUsers() {
                         <Note size="28" color="#4A6CF7" />
                       </div>
                       <div className="flex gap-2 ">
-                        <span> {allCate.length} </span>
+                        <span> {allItems.length} </span>
                         <p className=""> Total Assets </p>
                       </div>
                     </div>

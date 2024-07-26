@@ -180,10 +180,10 @@ function Categoires() {
                       <Link href={`${UI_URL}/app/items`}>
                         <Chip
                           startContent={
-                            <CategoryOutlinedIcon fontSize="small" />
+                            <CategoryOutlinedIcon fontSize="small" className="text-center" />
                           }
                           variant="flat"
-                          color="success"
+                          color={v.countItem == 0 ? "danger" : "success"}
                           className="cursor-pointer"
                         >
                           {v.countItem}
