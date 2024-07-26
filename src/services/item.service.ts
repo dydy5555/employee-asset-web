@@ -26,6 +26,7 @@ export const fetchAllItems = async () => {
 
 export const fun_UpdateItem = async(id,data)=>{
   console.log(id)
+  console.log(data)
   try {
     const response = await ihttp1.put(`/api/v1/items/${id}`,data,{
       headers: {
