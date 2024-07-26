@@ -34,15 +34,19 @@ import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
-import { fetchAllEmployeeAssets, func_GetByUserID } from "@/services/assets.service";
+import {
+  fetchAllEmployeeAssets,
+  func_GetByUserID,
+} from "@/services/assets.service";
 import CreateAssetByUser from "./Modals/CreateAssetByUser";
 import CreateCategory from "./Modals/CreateCategory";
 import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
 import AddNewItem from "./Modals/AddNewItem";
-import ConfirmDelete from "./Modals/ConfirmDelete";
+import ConfirmDelete from "./Modals/ConfirmDeleteUser";
 import AddNewAsset from "./Modals/AddNewAsset";
+import { getListDeparment, getListEmployee } from "@/services/employee.service";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -66,6 +70,7 @@ function ListUsers() {
   const [allCate, setAllCate] = useState([]);
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
+  const [sortedAssets, setSortedAssets] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -97,7 +102,7 @@ function ListUsers() {
 
     const getAllCate = () => {
       fetchAllCCategory().then((res) => {
-        console.log(res);
+        // console.log(res);s
         setAllCate(res.data.payload);
       });
     };
@@ -110,36 +115,16 @@ function ListUsers() {
 
   const fitlerUsers = async (form: any) => {
     try {
-      const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTc4NjAzOCwiaWF0IjoxNzIxNjk5NjM4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.VTkmerXHwRGKtyFtC026Sv2PalBPG3u7ziyGryRgZxzX5xCn32G-i0se1yFTrftOk7thexK-R6YtUTM2tpBOGA"; // Replace with your actual JWT token
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-
       const formTemp = {
         comId: "UTLZ_590",
         appId: "string",
         status: "ALL",
       };
 
-      const res = await fetch("https://bizweb.kosign.dev/api/v1/empl/filter", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(formTemp),
+      getListEmployee(formTemp).then((res) => {
+        // console.log(res.data?.payload);
+        setAssetUser(res.data?.payload?.user);
       });
-
-      // console.log("all user", res);
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      // console.log("Filtered Users", data.payload);
-      setAssetUser(data?.payload.user);
-
-      return data.payload; // Return the filtered users data
     } catch (error) {
       console.error("Error fetching filtered users", error.message);
       if (error.response) {
@@ -191,36 +176,22 @@ function ListUsers() {
 
   const listDepartment = async (com_cd: any) => {
     localStorage.setItem("com_id", com_cd);
+    console.log(com_cd);
     if (com_cd != "") {
-      // let listDep = await fetch(`https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`)
-      // let data = await listDep.json();
-      // console.log("get department", data.payload);
       try {
-        const token =
-          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTc4NjAzOCwiaWF0IjoxNzIxNjk5NjM4LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.VTkmerXHwRGKtyFtC026Sv2PalBPG3u7ziyGryRgZxzX5xCn32G-i0se1yFTrftOk7thexK-R6YtUTM2tpBOGA"; // Replace with your actual JWT token
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-
-        const res = await fetch(
-          `https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`,
-          {
-            headers,
-          }
-        );
-        const data = await res.json();
-        console.log("all department", data.payload);
-
-        // const permissionData = await fetchSessionAndPermission();
-        // if (permissionData?.permission !== "SUPER_ADMIN") {
-        //   const filteredCompanies = data.payload.filter(
-        //     (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
-        //   );
-        //   setDep(filteredCompanies);
-        // } else {
-        setDep(data.payload);
-        // }
+        getListDeparment(com_cd).then(async (res) => {
+          console.log({ res });
+          setDep(res.data.payload);
+          // const permissionData = await fetchSessionAndPermission();
+          // if (permissionData?.permission !== "SUPER_ADMIN") {
+          //   const filteredCompanies = res.data.payload.filter(
+          //     (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
+          //   );
+          //   setDep(filteredCompanies);
+          // } else {
+          //   setDep(res.data.payload);
+          // }
+        });
       } catch (error) {
         console.log("error");
       }
@@ -319,20 +290,20 @@ function ListUsers() {
     }
   };
 
-  const handleDep = async (value: any) => {
-    let key = value?.currentKey || "";
-    setSelectedDep(key);
-    const form: any = {
-      type: "admin",
-      useInttId: saveComCd,
-      appId: "1",
-      dvsn_NM: key,
-    };
-    let res = await fitlerUsers(form);
-    if (res && res.data && res.data.payload) {
-      setLUser(res.data.payload);
-    }
-  };
+  // const handleDep = async (value: any) => {
+  //   let key = value?.currentKey || "";
+  //   setSelectedDep(key);
+  //   const form: any = {
+  //     type: "admin",
+  //     useInttId: saveComCd,
+  //     appId: "1",
+  //     dvsn_NM: key,
+  //   };
+  //   let res = await fitlerUsers(form);
+  //   if (res && res.data && res.data.payload) {
+  //     setLUser(res.data.payload);
+  //   }
+  // };
 
   const getAllUsers = async () => {
     try {
@@ -353,25 +324,37 @@ function ListUsers() {
       console.log("Data fetch error", error);
     }
   };
-
-  useEffect(() => {
-    // getAllUsers();
-    const fetchAssetUser = ()=>{
+    const fetchAssetUser = () => {
       fetchAllEmployeeAssets().then((res) => {
         console.log(res);
         if (res?.status == 200) {
           setAllEmployeeAssets(res?.data?.payload);
         }
       });
-    }
-    fetchAssetUser()
+    };
+  useEffect(() => {
+    // getAllUsers();
+
+    fetchAssetUser();
   }, []);
+
+  const toChild = ()=>{
+    fetchAssetUser();
+  }
+
+  const handleDep = (value) => {
+    console.log(value)
+    setSelectedDep(value);
+    const filteredAssets = asset_user.filter(asset => asset.dvsn_NM === value);
+    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
+  };
+
 
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-console.log(filteredUser)
-  console.log(allEmployeeAssets)
+  console.log(filteredUser);
+  console.log({asset_user});
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
@@ -430,15 +413,15 @@ console.log(filteredUser)
               <div className="flex w-full gap-5 justify-start">
                 {/* <CreateCategory /> */}
 
-                <AddNewAsset></AddNewAsset>
+                <AddNewAsset allUser={asset_user} toChild={toChild} />
               </div>
             </div>
             <>
               <div className="flex w-full justify-end gap-5">
-                <div className="min-w-[200px] min-h-[130px]">
-                  <Card className=" h-full flex items-start justify-end px-3 py-4">
-                    <div className=" font-medium p-3">
-                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                <div className="">
+                  <Card className=" h-full min-w-[200px] max-h-[80px] min-h-[80px] flex items-start justify-end px-2">
+                    <div className="flex gap-3 items-center font-medium p-3">
+                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <svg
                           className="fill-primary dark:fill-white "
                           width="22"
@@ -461,7 +444,7 @@ console.log(filteredUser)
                           />
                         </svg>
                       </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2">
                         <span> {asset_user.length} </span>
                         <p className="">Total Employees </p>
                       </div>
@@ -469,13 +452,13 @@ console.log(filteredUser)
                   </Card>
                 </div>
 
-                <div className="min-w-[200px] min-h-[130px]">
-                  <Card className="flex h-full items-start justify-end px-3 py-4">
-                    <div className=" font-medium p-3">
-                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                <div className="">
+                  <Card className="flex h-full min-w-[200px] max-h-[80px] min-h-[80px] items-start justify-end px-2">
+                    <div className="flex gap-3 items-center font-medium p-3">
+                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <Note size="28" color="#4A6CF7" />
                       </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 ">
                         <span> {allCate.length} </span>
                         <p className=""> Total Assets </p>
                       </div>
@@ -485,7 +468,7 @@ console.log(filteredUser)
               </div>
             </>
           </div>
-
+  
           <div className=" overflow-hidden">
             {clickUser ? (
               <>
@@ -564,7 +547,7 @@ console.log(filteredUser)
               </>
             ) : (
               <>
-                  {/* <div className="flex justify-between items-end">
+                {/* <div className="flex justify-between items-end">
                     <div className="flex w-full gap-5 py-4 justify-end">
                       <CreateCategory />
 
@@ -582,9 +565,9 @@ console.log(filteredUser)
                     </div>
                   </div> */}
 
-                  <div className="p-5">
-                    <ItemCards allEmployeeAssets={filteredUser}/>
-                  </div>
+                <div className="p-5">
+                  <ItemCards toChild={toChild} allEmployeeAssets={allEmployeeAssets} asset_user={asset_user} />
+                </div>
               </>
             )}
           </div>

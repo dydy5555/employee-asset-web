@@ -86,8 +86,6 @@ export const func_DeleteAssetUser = async (userId, id) => {
 
 //role user
 export const getByUserAndCompany = async (userId, use_INNITID) => {
-  console.log(userId);
-  console.log(use_INNITID);
   try {
     const res = await ihttp1.get(
       `/api/v1/assets/user/${userId}/${use_INNITID}`,
@@ -103,3 +101,19 @@ export const getByUserAndCompany = async (userId, use_INNITID) => {
     return error;
   }
 };
+
+
+export const fun_AddAsset= async(data)=>{
+  try {
+    const response = await ihttp1.post(`/api/v1/assets`,data,{
+      headers: {
+        accept: "*/*",
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log({response});
+    return response;
+  } catch (error) {
+    return error;
+  }
+}
