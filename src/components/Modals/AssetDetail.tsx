@@ -44,6 +44,7 @@ export default function AssetDetail({
   const [user, setUser] = useState({});
   const [getUser, setGetUser] = useState({});
   const [quantity, setQuantity] = useState("");
+  const [tempUser, setTempUser] = useState({});
   console.log({ itemsUser });
   console.log({ allItems });
 
@@ -61,28 +62,12 @@ export default function AssetDetail({
     setOpenDel(true);
   };
 
-  const handleChangeQty = (value) => {
-    setQuantity(value);
-  };
-
-  const decrement = () => {
-    if (quantity > 1) {
-      setQuantity((prevQuantity) => prevQuantity - 1);
-    }
-  };
-
-  const increment = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1);
-  };
-
-  const handleChange = (event) => {
-    const value = parseInt(event.target.value, 10);
-    if (!isNaN(value) && value >= 1) {
-      setQuantity(value);
-    }
-  };
-  useEffect(() => {}, [itemsUser]);
-
+  useEffect(() => {
+    itemsUser?.map((res) => {
+      setTempUser(res);
+    });
+  }, [itemsUser]);
+  console.log({ tempUser });
   useEffect(() => {
     setGetUser(itemsUser);
     itemsUser.map((res) => {
@@ -121,23 +106,13 @@ export default function AssetDetail({
   );
 
   const handleSave = () => {
-    const mainQty = selectedItem.remain_quantity;
-    let newQty = mainQty - Number(quantity);
-    let newStt = "";
-
-    if (selectedItem.remain_quantity === quantity) {
-      newStt = "unavailable";
-    } else {
-      newStt = selectedItem.status;
-    }
-
     const dataForItem = {
       allAssets: selectedItem.allAssets,
-      status: newStt,
+      status: "unavailable",
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
       quantity: selectedItem.quantity,
-      remain_quantity: newQty,
+      remain_quantity: selectedItem.remain_quantity,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,
@@ -147,23 +122,17 @@ export default function AssetDetail({
       end_date_repair: selectedItem.end_date_repair,
     };
 
-    try {
-      fun_UpdateItem(selectedItem.id, dataForItem).then((res) => {
-        console.log("dataForItem", res);
-      });
-    } catch (error) {
-      console.log("Error ::: ", error);
-    }
+    console.log({dataForItem})
 
     const dataSave = {
-      userId: getUser.userId,
-      employee_name: getUser.employee_name,
-      team: getUser.team,
+      userId: tempUser.userId,
+      employee_name: tempUser.employee_name,
+      team: tempUser.team,
       remark: selectedItem.remark,
-      department: getUser.team,
-      company: getUser.company,
-      img_url: getUser.img_url,
-      use_INNITID: getUser.use_INNITID,
+      department: tempUser.team,
+      company: tempUser.company,
+      img_url: tempUser.img_url,
+      use_INNITID: tempUser.use_INNITID,
       start_date: allCates.start_date,
       end_date: allCates.end_date,
       item_Id: selectedItem.id,
@@ -171,6 +140,9 @@ export default function AssetDetail({
     };
 
     try {
+      fun_UpdateItem(selectedItem.id, dataForItem).then((res) => {
+        console.log("dataForItem", res);
+      });
       fun_AddAsset(dataSave).then((res) => {
         console.log({ res });
         if (res.status === 200) {
@@ -182,8 +154,21 @@ export default function AssetDetail({
         }
       });
     } catch (error) {
-      console.log("Erorr ::: ", error);
+      console.log("Error ::: ", error);
     }
+
+    // try {
+    //   fun_AddAsset(dataSave).then((res) => {
+    //     console.log({ res });
+    //     if (res.status === 200) {
+    //       toast.success("Updated successfully!");
+    //       handleRowClick(user.userId, user.use_INNITID);
+    //       toChild();
+    //     }
+    //   });
+    // } catch (error) {
+    //   console.log("Erorr ::: ", error);
+    // }
   };
 
   // const addNewAsset = (userId, newAsset) => {
@@ -369,12 +354,12 @@ export default function AssetDetail({
                             <div className="flex h-full flex-col gap-5">
                               <div>
                                 <p className="font-medium pb-2">Item's user</p>
-                                <div className="w-full flex gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
+                                <div className="w-full  flex flex-wrap gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
                                   {itemsUser.map((allAsset) =>
                                     allAsset.allAssetOfUser?.map((items) =>
                                       items.item?.allAssets?.map(
                                         (asset, assetIndex) => (
-                                          <div className="flex">
+                                          <div className="">
                                             <Chip
                                               radius="md"
                                               variant="flat"
@@ -420,13 +405,12 @@ export default function AssetDetail({
                                           key={item.id}
                                           value={item.id}
                                           className={
-                                            item.status === "unavailable" ||
-                                            item.remain_quantity <= 0
+                                            item.status === "unavailable" 
                                               ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
                                               : ""
                                           }
                                           endContent={
-                                            <div>{item.remain_quantity}</div>
+                                            <div>{}</div>
                                           }
                                         >
                                           {asset.name}
