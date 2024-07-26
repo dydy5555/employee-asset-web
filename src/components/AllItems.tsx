@@ -7,11 +7,15 @@ import {
   AutocompleteItem,
   Button,
   Card,
+  DatePicker,
+  DateRangePicker,
   Image,
   Input,
   Select,
   SelectItem,
   Spinner,
+  Tab,
+  Tabs,
 } from "@nextui-org/react";
 import { Devices, SearchNormal1 } from "iconsax-react";
 import NoImage from "../../public/images/no_app.jpg";
@@ -21,6 +25,7 @@ import TableAllItem from "./TableAllItem";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import { fetchAllCCategory } from "@/services/category.service";
 import FilterListRoundedIcon from "@mui/icons-material/FilterListRounded";
+import ExportReport from "./ExportReport";
 
 function AllItems() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +36,9 @@ function AllItems() {
   const [selectItem, setSelectItem] = useState(null);
   const [allCate, setAllCate] = useState([]);
   const [filterQuery, setFilterQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
@@ -56,7 +64,7 @@ function AllItems() {
 
   const handleCategoryChange = (value) => {
     const selectValue = value.values().next().value;
-    console.log('Handle category change ', selectValue);
+    console.log("Handle category change ", selectValue);
     if (selectValue !== filterQuery) {
       setFilterQuery(selectValue);
     }
@@ -74,42 +82,84 @@ function AllItems() {
       .finally(() => setIsLoading(false));
   };
 
+  const handleChangeDate = (e) => {
+    const { start, end } = e;
+
+    const formatDateString = (dateObj) => {
+      const year = dateObj.year;
+      const month = String(dateObj.month).padStart(2, "0");
+      const day = String(dateObj.day).padStart(2, "0");
+      return `${year}${month}${day}`;
+    };
+
+    const formattedStartDate = formatDateString(start);
+    const formattedEndDate = formatDateString(end);
+    setStartDate(formattedStartDate);
+    setEndDate(formattedEndDate);
+  };
   return (
     <>
       <div className="h-full mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4 text-primary">All Items</h1>
           <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <Input
-              isClearable
-              radius="lg"
-              className="flex-grow max-w-sm"
-              classNames={{
-                label: "text-black/50 dark:text-white/90",
-                input: [
-                  "bg-transparent",
-                  "text-black/90 dark:text-white/90",
-                  "placeholder:text-default-700/50 dark:placeholder:text-white/60",
-                ],
-                inputWrapper: [
-                  "shadow-sm",
-                  "bg-default-100",
-                  "dark:bg-default-50",
-                  "hover:bg-default-200",
-                  "dark:hover:bg-default-100",
-                  "group-data-[focused=true]:bg-default-100",
-                  "dark:group-data-[focused=true]:bg-default-50",
-                ],
-              }}
-              placeholder="Type to search categories name, sub categories..."
-              startContent={
-                <SearchNormal1 size={20} className="text-default-400" />
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onClear={() => setSearchQuery("")}
-            />
+            <div className="flex justify-start items-center gap-2">
+              <Input
+                isClearable
+                radius="lg"
+                className="flex-grow max-w-sm"
+                classNames={{
+                  label: "text-black/50 dark:text-white/90",
+                  input: [
+                    "bg-transparent",
+                    "text-black/90 dark:text-white/90",
+                    "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+                  ],
+                  inputWrapper: [
+                    "shadow-sm",
+                    "bg-default-100",
+                    "dark:bg-default-50",
+                    "hover:bg-default-200",
+                    "dark:hover:bg-default-100",
+                    "group-data-[focused=true]:bg-default-100",
+                    "dark:group-data-[focused=true]:bg-default-50",
+                  ],
+                }}
+                placeholder="Type to search categories name, sub categories..."
+                startContent={
+                  <SearchNormal1 size={20} className="text-default-400" />
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onClear={() => setSearchQuery("")}
+              />
+              <DateRangePicker
+                variant="flat"
+                color="primary"
+                fullWidth
+                hideTimeZone
+                size="md"
+                // label="Start date - End date"
+                // value={date}
+                // defaultValue={date}
+                onChange={handleChangeDate}
+                className="w-fit"
+              />
+            </div>
+
             <div className="flex gap-4">
+              <div>
+                <Tabs
+                  color="primary"
+                  // variant="flat"
+                  aria-label="Tabs sizes"
+                  onSelectionChange={setStatusFilter}
+                >
+                  <Tab key="all" title="All" />
+                  <Tab key="available" title="Available" />
+                  <Tab key="unavailable" title="Unavailable" />
+                </Tabs>
+              </div>
               <div>
                 <Select
                   placeholder="Filter by Category"
@@ -143,12 +193,14 @@ function AllItems() {
               <Button
                 onClick={() => setOpenMod(true)}
                 color="primary"
-                variant="light"
-                className="border-[0.5px] text-md text-semibold text-[#378CE7]"
+                variant="flat"
+                size="md"
+                className="border-[0.5px] text-md text-semibold text-primary"
                 style={{ borderColor: "#378CE7" }}
               >
-                <Devices size="22" color="#378CE7" /> Add Item
+                <Devices size="20" color="#378CE7" /> Add Item
               </Button>
+              <ExportReport allItems={allItems} />
             </div>
           </div>
         </div>
@@ -166,6 +218,9 @@ function AllItems() {
               searchQuery={searchQuery}
               filterQuery={filterQuery}
               onItemCreated={handleItemCreated}
+              statusFilter={statusFilter}
+              startDate={startDate}
+              endDate={endDate}
             />
           </Card>
         ) : (

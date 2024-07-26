@@ -10,10 +10,15 @@ import {
   ButtonGroup,
   Button,
   Pagination,
+  Chip,
 } from "@nextui-org/react";
 import { Edit2, Minus } from "iconsax-react";
 import Image from "next/image";
 import AskToDelete from "./Modals/AskToDelete";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import NoImage from "../../public/images/no_app.jpg";
+import { formatDateForUi } from "@/services/commonfunc.service";
 
 const getAllSubCategoryKeys = (allItems) => {
   const keysSet = new Set();
@@ -31,7 +36,10 @@ export default function TableAllItem({
   setSelectItem,
   searchQuery,
   filterQuery,
-  onItemCreated
+  onItemCreated,
+  statusFilter,
+  startDate,
+  endDate
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
@@ -49,14 +57,22 @@ export default function TableAllItem({
             item.allAssets[0]?.subCategories[key]?.toLowerCase() || "";
           return subCategoryValue.includes(searchQuery.toLowerCase());
         });
-
+  
       const matchesFilter = filterQuery
         ? categoryName.includes(filterQuery.toLowerCase())
         : true;
-
-      return matchesSearch && matchesFilter;
+  
+      const matchesStatus =
+        statusFilter === "all" || item.status === statusFilter;
+  
+      const matchesPurchaseDate = startDate && endDate
+        ? item.purchase_date >= startDate && item.purchase_date <= endDate
+        : true;
+  
+      return matchesSearch && matchesFilter && matchesStatus && matchesPurchaseDate;
     });
-  }, [data, searchQuery, filterQuery, subCategoryKeys]);
+  }, [data, searchQuery, filterQuery, subCategoryKeys, statusFilter, startDate, endDate]);
+  
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -85,88 +101,137 @@ export default function TableAllItem({
 
   return (
     <>
-      <Table
-        isHeaderSticky
-        isCompact
-        removeWrapper
-        aria-label="Assets table"
-        classNames={{
-          th: "bg-default-100 text-default-800 border-divider",
-          td: "border-b border-divider",
-        }}
-        className="h-full w-full"
-      >
-        <TableHeader>
-          <TableColumn>No</TableColumn>
-          <TableColumn>Image</TableColumn>
-          <TableColumn>Category name</TableColumn>
-          {subCategoryKeys.map((key) => (
-            <TableColumn key={key}>{key}</TableColumn>
-          ))}
-          <TableColumn>Quantity</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody>
-          {currentItems.map((item, i) => (
-            <TableRow key={item.id}>
-              <TableCell>{(currentPage - 1) * itemsPerPage + i + 1}</TableCell>
-              <TableCell>
-                {item.img_url ? (
-                  <Image
-                    width={50}
-                    height={50}
-                    src={item.img_url}
-                    alt="Asset Image"
-                    className="w-16 h-16 object-cover"
-                  />
-                ) : (
-                  "N/A"
-                )}
-              </TableCell>
-              <TableCell>{item?.allAssets[0]?.name}</TableCell>
-              {subCategoryKeys.map((key) => (
-                <TableCell key={key} className="lowercase">
-                  {item.allAssets.length > 0 &&
-                  item.allAssets[0].subCategories[key]
-                    ? item.allAssets[0].subCategories[key]
-                    : ""}
+      {currentItems.length > 0 ? (
+        <Table
+          isHeaderSticky
+          isCompact
+          isStriped
+          removeWrapper
+          aria-label="Assets table"
+          classNames={{
+            th: "bg-default-100 text-default-800 border-divider",
+            td: "border-b border-divider",
+          }}
+          className="h-full w-full"
+        >
+          <TableHeader>
+            <TableColumn>No</TableColumn>
+            <TableColumn>Image</TableColumn>
+            <TableColumn>Category name</TableColumn>
+            {subCategoryKeys.map((key) => (
+              <TableColumn key={key}>{key}</TableColumn>
+            ))}
+            <TableColumn>Purchase Date</TableColumn>
+            {/* <TableColumn>Remain</TableColumn> */}
+            <TableColumn>Status</TableColumn>
+            <TableColumn>Actions</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {currentItems.map((item, i) => (
+              <TableRow key={item.id}>
+                <TableCell className="border">
+                  {(currentPage - 1) * itemsPerPage + i + 1}
                 </TableCell>
-              ))}
-              <TableCell>{item.quantity ?? "N/A"}</TableCell>
-              <TableCell>
-                <ButtonGroup className="w-full justify-start items-center">
-                  <Button
-                    isIconOnly
-                    variant="flat"
+                <TableCell className="border">
+                  {item.img_url ? (
+                    <Image
+                      width={50}
+                      height={50}
+                      src={item.img_url}
+                      alt="Asset Image"
+                      className="w-16 h-16 object-cover"
+                    />
+                  ) : (
+                    "N/A"
+                  )}
+                </TableCell>
+                <TableCell className="border">
+                  {item?.allAssets[0]?.name}
+                </TableCell>
+                {subCategoryKeys.map((key) => (
+                  <TableCell key={key} className="lowercase border">
+                    {item.allAssets.length > 0 &&
+                    item.allAssets[0].subCategories[key]
+                      ? item.allAssets[0].subCategories[key]
+                      : ""}
+                  </TableCell>
+                ))}
+                <TableCell className="border">
+                  {formatDateForUi(item.purchase_date) ?? "N/A"}
+                </TableCell>
+                {/* <TableCell className="border">
+                  <Chip
                     color="primary"
-                    onClick={() => handleOpenDetail(item?.id)}
-                  >
-                    <Edit2 size={18} />
-                  </Button>
-                  <Button
-                    isIconOnly
                     variant="flat"
-                    color="danger"
-                    onClick={() => {
-                      setSelectedID(item?.id), setOpenAskDelete(true);
-                    }}
+                    className={`font-semibold ${
+                      item.remain_quantity == 0 ? "text-danger" : "text-success"
+                    }`}
                   >
-                    <Minus size={18} />
-                  </Button>
-                </ButtonGroup>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Pagination
-        className="flex justify-center items-center"
-        total={totalPages}
-        initialPage={1}
-        page={currentPage}
-        showControls
-        onChange={(page) => setCurrentPage(page)}
-      />
+                    {item.remain_quantity ?? "N/A"}
+                  </Chip>
+                </TableCell> */}
+                <TableCell className="border">
+                  <Chip
+                    className="text-[12px]"
+                    variant="flat"
+                    color={
+                      item?.status === "unavailable" ? "danger" : "success"
+                    }
+                  >
+                    {item?.status || "N/A"}
+                  </Chip>
+                </TableCell>
+                <TableCell className="border">
+                  <ButtonGroup className="w-full justify-start items-center">
+                    <Button
+                      isIconOnly
+                      variant="flat"
+                      color="primary"
+                      onClick={() => handleOpenDetail(item?.id)}
+                    >
+                      <Edit2 size={18} />
+                    </Button>
+                    <Button
+                      isIconOnly
+                      variant="flat"
+                      color="danger"
+                      onClick={() => {
+                        setSelectedID(item?.id), setOpenAskDelete(true);
+                      }}
+                    >
+                      <Minus size={18} />
+                    </Button>
+                  </ButtonGroup>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <Image
+            src={NoImage}
+            alt="No items"
+            width={100}
+            height={100}
+            className="w-48 h-48 mb-4 opacity-50"
+          />
+          <p className="text-xl text-default-500">No items found</p>
+          <p className="text-sm text-default-400 mt-2">
+            Try adding a new item or adjusting your search.
+          </p>
+        </div>
+      )}
+      {currentItems.length > 0 && (
+        <Pagination
+          className="flex justify-center items-center"
+          total={totalPages}
+          initialPage={1}
+          page={currentPage}
+          showControls
+          onChange={(page) => setCurrentPage(page)}
+        />
+      )}
       <AskToDelete
         openAskDelete={openAskDelete}
         setOpenAskDelete={setOpenAskDelete}

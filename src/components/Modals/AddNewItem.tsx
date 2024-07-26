@@ -24,6 +24,7 @@ import { useDropzone } from "react-dropzone";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import {
   fetchAllCCategory,
+  func_EditCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
 import { getListEmployee } from "@/services/employee.service";
@@ -65,6 +66,7 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
   const [price, setPrice] = useState("");
   const [textNote, setTextNote] = useState("");
   const [openAskToSave, setOpenAskToSave] = useState(false);
+  const [countItems, setCountItems] = useState(0);
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     setItemImage(file);
@@ -136,6 +138,7 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
         console.log(res.subCategories);
         setSubCate(res.subCategories);
         setIsSelectedUser(true);
+        setCountItems(res.countItem);
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -187,7 +190,15 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
       };
       console.log("textNote: " , textNote)
       console.log("data before add ", data);
-
+      
+      const updateCountItem = {
+        categoryName: cateName,
+        subCategories: subCate,
+        countItem: countItems + 1,
+      }
+      console.log("data before update ", updateCountItem);
+      const rescate = await func_EditCategory(id, updateCountItem);
+      console.log("rescate: ", rescate)
       const res = await func_CreateNewitem(data);
       console.log({ res });
 
@@ -200,6 +211,7 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
       } else {
         setLoading(false);
         showErrorToast("Failed to create item, Please try again!")
+        handleCloseModal();
       }
     } catch (error) {
       console.error("Error uploading file", error);
