@@ -115,18 +115,18 @@ function AddNewAsset({ allUser, toChild }) {
     let newQty = mainQty - Number(quantity);
     let newStt = "";
 
-    if (selectedItem.remain_quantity === quantity) {
-      newStt = "unavailable";
-    } else {
-      newStt = selectedItem.status;
-    }
+    // if (selectedItem.remain_quantity === quantity) {
+    //   newStt = "unavailable";
+    // } else {
+    //   newStt = selectedItem.status;
+    // }
     const dataForItem = {
       allAssets: selectedItem.allAssets,
-      status: newStt,
+      status: 'unavailable',
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
       quantity: selectedItem.quantity,
-      remain_quantity: newQty,
+      remain_quantity: selectedItem.remain_quantity,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,

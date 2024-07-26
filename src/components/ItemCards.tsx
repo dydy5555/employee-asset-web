@@ -131,7 +131,7 @@ export default function ItemCards({ allEmployeeAssets, toChild, asset_user }) {
                     <TableCell className="">{user.department}</TableCell>
                     <TableCell className="">{user.use_INTT_ID ? user.use_INTT_ID : "KOSIGN"}</TableCell>
                     <TableCell className="text-center">
-                      {user?.total_asset}
+                      {user?.allAssetOfUser?.length}
                       {/* {handleGetUserAsset(user?.userId, user?.use_INTT_ID)} */}
                     </TableCell>
                     <TableCell className="items-end flex justify-end">
