@@ -44,7 +44,7 @@ import { fetchAllCCategory } from "@/services/category.service";
 import Image from "next/image";
 import ChartThree from "./Charts/ChartThree";
 import AddNewItem from "./Modals/AddNewItem";
-import ConfirmDelete from "./Modals/ConfirmDelete";
+import ConfirmDelete from "./Modals/ConfirmDeleteUser";
 import AddNewAsset from "./Modals/AddNewAsset";
 import { getListDeparment, getListEmployee } from "@/services/employee.service";
 
@@ -70,6 +70,7 @@ function ListUsers() {
   const [allCate, setAllCate] = useState([]);
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
+  const [sortedAssets, setSortedAssets] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -289,20 +290,20 @@ function ListUsers() {
     }
   };
 
-  const handleDep = async (value: any) => {
-    let key = value?.currentKey || "";
-    setSelectedDep(key);
-    const form: any = {
-      type: "admin",
-      useInttId: saveComCd,
-      appId: "1",
-      dvsn_NM: key,
-    };
-    let res = await fitlerUsers(form);
-    if (res && res.data && res.data.payload) {
-      setLUser(res.data.payload);
-    }
-  };
+  // const handleDep = async (value: any) => {
+  //   let key = value?.currentKey || "";
+  //   setSelectedDep(key);
+  //   const form: any = {
+  //     type: "admin",
+  //     useInttId: saveComCd,
+  //     appId: "1",
+  //     dvsn_NM: key,
+  //   };
+  //   let res = await fitlerUsers(form);
+  //   if (res && res.data && res.data.payload) {
+  //     setLUser(res.data.payload);
+  //   }
+  // };
 
   const getAllUsers = async () => {
     try {
@@ -323,9 +324,6 @@ function ListUsers() {
       console.log("Data fetch error", error);
     }
   };
-
-  useEffect(() => {
-    // getAllUsers();
     const fetchAssetUser = () => {
       fetchAllEmployeeAssets().then((res) => {
         console.log(res);
@@ -334,14 +332,29 @@ function ListUsers() {
         }
       });
     };
+  useEffect(() => {
+    // getAllUsers();
+
     fetchAssetUser();
   }, []);
+
+  const toChild = ()=>{
+    fetchAssetUser();
+  }
+
+  const handleDep = (value) => {
+    console.log(value)
+    setSelectedDep(value);
+    const filteredAssets = asset_user.filter(asset => asset.dvsn_NM === value);
+    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
+  };
+
 
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  // console.log(filteredUser);
-  // console.log(asset_user);
+  console.log(filteredUser);
+  console.log({asset_user});
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
@@ -400,15 +413,15 @@ function ListUsers() {
               <div className="flex w-full gap-5 justify-start">
                 {/* <CreateCategory /> */}
 
-                <AddNewAsset allUser={asset_user} />
+                <AddNewAsset allUser={asset_user} toChild={toChild} />
               </div>
             </div>
             <>
               <div className="flex w-full justify-end gap-5">
-                <div className="min-w-[200px] min-h-[130px]">
-                  <Card className=" h-full flex items-start justify-end px-3 py-4">
-                    <div className=" font-medium p-3">
-                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                <div className="">
+                  <Card className=" h-full min-w-[200px] max-h-[80px] min-h-[80px] flex items-start justify-end px-2">
+                    <div className="flex gap-3 items-center font-medium p-3">
+                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <svg
                           className="fill-primary dark:fill-white "
                           width="22"
@@ -431,7 +444,7 @@ function ListUsers() {
                           />
                         </svg>
                       </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2">
                         <span> {asset_user.length} </span>
                         <p className="">Total Employees </p>
                       </div>
@@ -439,13 +452,13 @@ function ListUsers() {
                   </Card>
                 </div>
 
-                <div className="min-w-[200px] min-h-[130px]">
-                  <Card className="flex h-full items-start justify-end px-3 py-4">
-                    <div className=" font-medium p-3">
-                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center mb-3">
+                <div className="">
+                  <Card className="flex h-full min-w-[200px] max-h-[80px] min-h-[80px] items-start justify-end px-2">
+                    <div className="flex gap-3 items-center font-medium p-3">
+                      <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <Note size="28" color="#4A6CF7" />
                       </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 ">
                         <span> {allCate.length} </span>
                         <p className=""> Total Assets </p>
                       </div>
@@ -553,7 +566,7 @@ function ListUsers() {
                   </div> */}
 
                 <div className="p-5">
-                  <ItemCards allEmployeeAssets={filteredUser} />
+                  <ItemCards toChild={toChild} allEmployeeAssets={allEmployeeAssets} asset_user={asset_user} />
                 </div>
               </>
             )}

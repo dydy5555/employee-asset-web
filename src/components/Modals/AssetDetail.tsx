@@ -23,7 +23,13 @@ import toast from "react-hot-toast";
 import { fetchAllItems, fun_UpdateItem } from "@/services/item.service";
 import RemoveItemFromUser from "./RemoveItemFromUser";
 
-export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
+export default function AssetDetail({
+  setOpenMod,
+  openMod,
+  itemsUser,
+  toChild,
+  handleRowClick,
+}) {
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
   const [allAssets, setAllAssets] = useState([]);
@@ -32,11 +38,12 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
   const [isSelected, setIsSelected] = useState(true);
   const [allItems, setAllItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState([]);
-  const [itemQty, setItemQty] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
   const [openDel, setOpenDel] = useState(false);
   const [sendId, setSendId] = useState({});
   const [user, setUser] = useState({});
-
+  const [getUser, setGetUser] = useState({});
+  const [quantity, setQuantity] = useState("");
   console.log({ itemsUser });
   console.log({ allItems });
 
@@ -44,23 +51,43 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
     console.log(value);
     const foundItem = allItems.find((item) => item.id === value);
     console.log(foundItem);
+    setSelectedUserId(foundItem?.userId);
     setSelectedItem(foundItem);
   };
 
-  const handleDeleteItem = async (id, userId, use_INNITID, itemId) => {
-    const idDel = { id, userId, use_INNITID, itemId};
+  const handleDeleteItem = async (id, userId, use_INNITID, itemId, qty) => {
+    const idDel = { id, userId, use_INNITID, itemId, qty };
     setSendId(idDel);
     setOpenDel(true);
   };
 
   const handleChangeQty = (value) => {
-    setItemQty(value);
+    setQuantity(value);
   };
 
+  const decrement = () => {
+    if (quantity > 1) {
+      setQuantity((prevQuantity) => prevQuantity - 1);
+    }
+  };
+
+  const increment = () => {
+    setQuantity((prevQuantity) => prevQuantity + 1);
+  };
+
+  const handleChange = (event) => {
+    const value = parseInt(event.target.value, 10);
+    if (!isNaN(value) && value >= 1) {
+      setQuantity(value);
+    }
+  };
+  useEffect(() => {}, [itemsUser]);
+
   useEffect(() => {
+    setGetUser(itemsUser);
     itemsUser.map((res) => {
       setUser(res);
-      res.allAssetOfUser.map((i) => {
+      res.allAssetOfUser?.map((i) => {
         setAllCates(i);
       });
     });
@@ -78,31 +105,39 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
       } finally {
       }
     };
-
     fetchItems();
   }, [itemsUser]);
+
+  console.log(getUser);
 
   const subCategoryKeys = Array.from(
     new Set(
       itemsUser.flatMap((user) =>
-        user?.allAssetOfUser.flatMap((i) =>
-          i.item.allAssets?.flatMap((j) => Object.keys(j.subCategories))
+        user?.allAssetOfUser?.flatMap((i) =>
+          i.item?.allAssets?.flatMap((j) => Object.keys(j.subCategories))
         )
       )
     )
   );
 
   const handleSave = () => {
-    const mainQty = selectedItem.quantity;
-    let newQty = mainQty - Number(itemQty);
+    const mainQty = selectedItem.remain_quantity;
+    let newQty = mainQty - Number(quantity);
+    let newStt = "";
+
+    if (selectedItem.remain_quantity === quantity) {
+      newStt = "unavailable";
+    } else {
+      newStt = selectedItem.status;
+    }
 
     const dataForItem = {
       allAssets: selectedItem.allAssets,
-      status: selectedItem.status,
+      status: newStt,
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
-      quantity: newQty,
-      remain_quantity: selectedItem.remain_quantity,
+      quantity: selectedItem.quantity,
+      remain_quantity: newQty,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,
@@ -121,18 +156,18 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
     }
 
     const dataSave = {
-      userId: user.userId,
-      employee_name: user.employee_name,
-      team: user.team,
+      userId: getUser.userId,
+      employee_name: getUser.employee_name,
+      team: getUser.team,
       remark: selectedItem.remark,
-      department: user.team,
-      company: user.company,
-      img_url: selectedItem.img_url,
-      use_INNITID: user.use_INNITID,
+      department: getUser.team,
+      company: getUser.company,
+      img_url: getUser.img_url,
+      use_INNITID: getUser.use_INNITID,
       start_date: allCates.start_date,
       end_date: allCates.end_date,
       item_Id: selectedItem.id,
-      quantity: itemQty,
+      quantity: quantity,
     };
 
     try {
@@ -140,12 +175,37 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
         console.log({ res });
         if (res.status === 200) {
           toast.success("Updated successfully!");
+          // console.log("ksksksks ", selectedUserId, selectedItem)
+          // addNewAsset("selok", selectedItem)
+          handleRowClick(user.userId, user.use_INNITID);
+          toChild();
         }
       });
     } catch (error) {
       console.log("Erorr ::: ", error);
     }
   };
+
+  // const addNewAsset = (userId, newAsset) => {
+  //   console.log("ksksksks sf ", newAsset)
+  //   setItemsUser(prevData => {
+  //     return prevData.map(user => {
+  //       if (user.userId === userId) {
+  //         return {
+  //           ...user,
+  //           allAssetOfUser: [...user.allAssetOfUser, newAsset]
+  //         };
+  //       }
+  //       return user;
+  //     });
+  //   });
+  // };
+
+  // console.log("itemsusernew ", itemsUser)
+  // const handleTest = () => {
+  //   const test = addNewAsset("selok", selectedItem)
+  //   console.log("ksksksks ", test)
+  // }
 
   return (
     <div className="flex flex-col gap-2 ">
@@ -167,7 +227,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
               <ModalBody>
                 <div className="flex flex-col gap-5">
                   <div className="flex h-full justify-between  text-sm">
-                    {itemsUser.map((empinfo) => (
+                    {getUser.map((empinfo) => (
                       <>
                         <div className="grid grid-cols-6 w-3/5 gap-6">
                           <div className="col-span-2 font-medium flex flex-col justify-center">
@@ -200,8 +260,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                             src={
                               empinfo.img_url
                                 ? empinfo.img_url
-                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg" ||
-                                  ""
+                                : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
                             }
                             alt={empinfo?.employee_name}
                             className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
@@ -265,7 +324,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                               </thead>
                               <tbody>
                                 {itemsUser.map((user, userIndex) =>
-                                  user.allAssetOfUser.map((i, assetIndex) =>
+                                  user?.allAssetOfUser.map((i, assetIndex) =>
                                     i.item?.allAssets?.map((asset) => (
                                       <tr
                                         key={`${userIndex}-${i.categoryId}`}
@@ -327,7 +386,8 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                                                   items.id,
                                                   allAsset.userId,
                                                   allAsset.use_INNITID,
-                                                  items.item.id
+                                                  items.item.id,
+                                                  items.quantity
                                                 );
                                               }}
                                             >
@@ -341,7 +401,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                                 </div>
                               </div>
 
-                              <div className="flex mt-2 gap-5 items-center">
+                              <div className="flex mt-2 gap-5 items-end">
                                 <div>
                                   <p className="font-medium pb-2">
                                     Add New Item{" "}
@@ -360,12 +420,13 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                                           key={item.id}
                                           value={item.id}
                                           className={
-                                            item.status === "unavailable"
+                                            item.status === "unavailable" ||
+                                            item.remain_quantity <= 0
                                               ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
                                               : ""
                                           }
                                           endContent={
-                                            <div>{item.quantity}</div>
+                                            <div>{item.remain_quantity}</div>
                                           }
                                         >
                                           {asset.name}
@@ -375,25 +436,56 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                                   </Autocomplete>
                                 </div>
 
-                                <div className="flex flex-col justify-center h-full">
-                                  <p className="font-medium pb-2">Quantity</p>
-                                  <Input
-                                    type="number"
-                                    onValueChange={handleChangeQty}
-                                  />
+                                <div className="mt-17">
+                                  <Button
+                                    color="primary"
+                                    className="border-[1px] text-white font-medium border-gray-200"
+                                    onClick={() => {
+                                      handleSave();
+                                    }}
+                                  >
+                                    Add
+                                  </Button>
                                 </div>
-                              </div>
 
-                              <div>
-                                <Button
-                                  color="primary"
-                                  className="border-[1px] text-white font-medium border-gray-200"
-                                  onClick={() => {
-                                    handleSave();
-                                  }}
-                                >
-                                  Add
-                                </Button>
+                                {/* qty */}
+                                {/* <div className="w-full">
+                                  <label className="block text-[14.4px] font-medium  dark:text-white">
+                                    <div className="mb-2 flex justify-start pb-1 items-center gap-1">
+                                      <span className="capitalize text-sm font-medium">
+                                        Quantity
+                                      </span>
+                                    </div>
+                                  </label>
+                                  <div className="flex justify-center items-center">
+                                    <Button
+                                      isIconOnly
+                                      onClick={decrement}
+                                      className="bg-white border border-gray-300 rounded-full w-8 h-8 flex items-center justify-center"
+                                    >
+                                      <span className="text-xl">-</span>
+                                    </Button>
+                                    <Input
+                                      type="text"
+                                      value={quantity}
+                                      onChange={handleChange}
+                                      className="w-20 mx-2 text-center "
+                                      classNames={{
+                                        input: "text-center",
+                                        inputWrapper:
+                                          "bg-transparent border border-[#DFF5FF]",
+                                      }}
+                                    />
+                                    <Button
+                                      isIconOnly
+                                      onClick={increment}
+                                      className="bg-white border border-gray-300 rounded-full w-8 h-8 flex items-center justify-center"
+                                    >
+                                      <span className="text-xl">+</span>
+                                    </Button>
+                                  </div>
+                                </div>
+                                 */}
                               </div>
                             </div>
                           </CardBody>
@@ -415,6 +507,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
                       setAllAssets([]);
                       setAllCates([]);
                       setIsSelected(true);
+                      toChild();
                     }}
                   >
                     Close
@@ -426,6 +519,7 @@ export default function AssetDetail({ setOpenMod, openMod, itemsUser }) {
         </ModalContent>
       </Modal>
       <RemoveItemFromUser
+        handleRowClick={handleRowClick}
         openDel={openDel}
         setOpenDel={setOpenDel}
         sendId={sendId}

@@ -10,27 +10,30 @@ function UserAsset() {
   const [session, setSession] = useState({});
   const [items, setItems] = useState([]);
 
-  const subCategoryKeys = Array.from(
-    new Set(
-      items.flatMap((user) =>
-        user?.allAssetOfUser.flatMap((i) =>
-          i.item.allAssets?.flatMap((j) => Object.keys(j.subCategories))
-        )
-      )
-    )
-  );
+  
 
   useEffect(() => {
     getSession().then((res) => {
       setSession(res);
       getByUserAndCompany(res.userId, res.use_intt_id).then((res) => {
-        console.log(res);
         setItems(res?.data.payload);
+        console.log(res?.data.payload);
       });
     });
   }, []);
-  console.log(session);
+
   console.log({ items });
+
+  const subCategoryKeys = Array.from(
+    new Set(
+      items?.allAssetOfUser?.flatMap((user) =>
+          user.item?.allAssets?.flatMap((j) => Object.keys(j.subCategories))
+        )
+      )
+  );
+  // user?.item.allAssets?.flatMap((i) =>
+  console.log(session);
+ 
   console.log({ subCategoryKeys });
 
   return (
@@ -112,7 +115,7 @@ function UserAsset() {
                     >
                       Category Name
                     </th>
-                    {subCategoryKeys.map((key, index) => (
+                    {subCategoryKeys?.map((key, index) => (
                       <th
                         key={index}
                         className="p-2 text-center capitalize"
@@ -133,8 +136,8 @@ function UserAsset() {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((user, userIndex) =>
-                    user.allAssetOfUser?.map((i, assetIndex) =>
+                  {items?.map((user, userIndex) =>
+                    user?.allAssetOfUser?.map((i, assetIndex) =>
                       i.item?.allAssets?.map((asset) => (
                         <tr
                           key={`${userIndex}-${i.categoryId}`}

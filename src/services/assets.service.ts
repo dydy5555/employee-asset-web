@@ -86,8 +86,6 @@ export const func_DeleteAssetUser = async (userId, id) => {
 
 //role user
 export const getByUserAndCompany = async (userId, use_INNITID) => {
-  console.log(userId);
-  console.log(use_INNITID);
   try {
     const res = await ihttp1.get(
       `/api/v1/assets/user/${userId}/${use_INNITID}`,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   ModalContent,
@@ -10,30 +10,41 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import { Minus } from "iconsax-react";
-import { deleteItemById } from "@/services/item.service";
 import toast from "react-hot-toast";
+import { deleteUser } from "@/services/assetUser.service";
 
-export default function ConfirmDelete({id, userId}) {
+export default function ConfirmDeleteUser({
+  toChild,
+  setOpenDelete,
+  openDelete,
+  sendId,
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  console.log(id, userId)
+  console.log(sendId);
+  console.log(openDelete);
+
+  useEffect(() => {}, []);
+
   const deleteBtn = () => {
-    // func_DeleteAssetUser(id, usereId).then((res)=>{
-    //   if(res.status === 200){
-    //     toast.success("Delete succecfully!")
-    //   }
-    // })
+    deleteUser(sendId.userId, sendId.use_INNITID).then((res) => {
+      if (res.status === 200) {
+        toast.success("Delete succecfully!");
+        toChild();
+        setOpenDelete(false);
+      }
+    });
   };
 
   return (
     <>
       {/* <Button style={{all: 'unset'}} onClick={onOpen}>Open Modal</Button> */}
-      <Button onPress={onOpen} isIconOnly variant="flat" color="danger">
-        <Minus size={18} />
-      </Button>
+
       <Modal
         className="z-40 "
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={openDelete}
+        onOpenChange={() => {
+          setOpenDelete(false);
+        }}
         isDismissable={false}
         isKeyboardDismissDisabled={true}
       >
@@ -53,20 +64,22 @@ export default function ConfirmDelete({id, userId}) {
                     />
                   </div>
                   <p className="text-center">
-                    Are you sure you want <br /> to delete this{" "}
-                    <b>asset{"'"}s user</b>?
+                    Are you sure you want to delete this user?
                   </p>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button
+                  color="danger"
+                  variant="light"
+                  onClick={() => setOpenDelete(false)}
+                >
                   Close
                 </Button>
                 <Button
                   color="primary"
                   onClick={() => {
                     deleteBtn();
-                    onClose();
                   }}
                 >
                   Action

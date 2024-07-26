@@ -1,3 +1,5 @@
+import { deleteItem } from "@/services/assetUser.service";
+import { fun_UpdateItem } from "@/services/item.service";
 import {
   Button,
   Modal,
@@ -9,30 +11,73 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import React, { useEffect } from "react";
+import toast from "react-hot-toast";
 
-function RemoveItemFromUser({openDel, setOpenDel,sendId,allItems}) {
+function RemoveItemFromUser({openDel, setOpenDel,sendId,allItems,handleRowClick}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  
-  console.log(allItems)
-  console.log(sendId)
- 
 
   const handleDeleteItem = async () => {
-    
-    // console.log(id);
+    const foundItem = allItems.find((item) => item.id === sendId.itemId);
+
+    const mainQty = foundItem.remain_quantity;
+    let newQty = mainQty + Number(sendId.qty);
+    let newStt = "";
+
+    if (foundItem.remain_quantity === sendId.qty) {
+      newStt = "unavailable";
+    } else {
+      newStt = foundItem.status;
+    }
+
+    const dataForItem = {
+      allAssets: foundItem.allAssets,
+      status: newStt,
+      problem: foundItem.problem,
+      purchase_date: foundItem.purchase_date,
+      quantity: foundItem.quantity,
+      remain_quantity: newQty,
+      unit_price: foundItem.unit_price,
+      stock_date: foundItem.stock_date,
+      img_url: foundItem.img_url,
+      remark: foundItem.remark,
+      solution: foundItem.solution,
+      start_date_repair: foundItem.start_date_repair,
+      end_date_repair: foundItem.end_date_repair,
+    };
+
+    try {
+      fun_UpdateItem(foundItem.id, dataForItem).then((res) => {
+        console.log("Update Item ::: ", res);
+      });
+    } catch (error) {
+      console.log("Error ::: ", error);
+    }
+
+
+    try{
+      deleteItem(sendId.id,sendId.userId,sendId.use_INNITID).then((res)=>{
+        console.log(res)
+        if(res.status === 200){
+          console.log("Deleted success : ",res)
+          toast.success("Deleted Successfullt!")
+          setOpenDel(false)
+          handleRowClick(sendId.userId,sendId.use_INNITID)
+        }
+      })
+    }catch(error){
+      console.log("Error ::: ", error)
+    }
     // console.log(userId);
     // console.log(use_INNITID);
     // (id, userId,use_INNITID)
     // deleteItem()
-    setOpenDel(false)
+    // setOpenDel(false)
 
   };
 
   useEffect(()=>{
-    const foundItem = allItems.find((item) => item.id === sendId.itemId);
-    console.log(foundItem);
-    console.log(foundItem?.quantity);
-  },[allItems])
+    
+  },[])
 
   return (
     <div>
