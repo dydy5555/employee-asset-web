@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalContent,
@@ -14,16 +14,38 @@ import {
   showErrorToast,
   showToastSuccess,
 } from "@/services/commonfunc.service";
+import {
+  func_EditCategory,
+  func_GetCategoryByID,
+} from "@/services/category.service";
 import { func_DeleteItem } from "@/services/item.service";
 
 export default function AskToDelete({
   openAskDelete,
   setOpenAskDelete,
   itemId,
-  onItemCreated
+  selectedCategory,
+  onItemCreated,
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isLoading, setIsLoading] = useState(false);
+  const [countItem, setCountItem] = useState(null);
+  const [cateName, setCateName] = useState(null);
+  const [subCate, setSubCate] = useState([]);
+
+
+  useEffect(() => {
+    const fetchCategory = () => {
+      func_GetCategoryByID(selectedCategory).then((res) => {
+        console.log("ressssssssss ", res, selectedCategory)
+          setCateName(res?.categoryName)
+          setSubCate(res?.subCategories)
+          setCountItem(res?.countItem);
+      });
+    };
+    fetchCategory();
+  }, [selectedCategory]);
+
   const handleDeleteItem = () => {
     setIsLoading(true);
     try {
@@ -31,6 +53,12 @@ export default function AskToDelete({
         console.log("Delete item res: ", res);
         if (res.status === 200) {
           showToastSuccess("Item deleted succecfully!");
+          const updateCateData = {
+            categoryName: cateName,
+            subCategories: subCate,
+            countItem: countItem - 1,
+          }
+          func_EditCategory(selectedCategory, updateCateData);
           setOpenAskDelete(false);
           setIsLoading(false);
           onItemCreated();

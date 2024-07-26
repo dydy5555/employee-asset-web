@@ -46,6 +46,7 @@ export default function TableAllItem({
   const subCategoryKeys = useMemo(() => getAllSubCategoryKeys(data), [data]);
   const [openAskDelete, setOpenAskDelete] = useState(false);
   const [selectedID, setSelectedID] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const filteredItems = useMemo(() => {
     return data.filter((item) => {
@@ -196,7 +197,7 @@ export default function TableAllItem({
                       variant="flat"
                       color="danger"
                       onClick={() => {
-                        setSelectedID(item?.id), setOpenAskDelete(true);
+                        setSelectedID(item?.id), setOpenAskDelete(true), setSelectedCategory(item?.allAssets[0]?.categoryId);
                       }}
                     >
                       <Minus size={18} />
@@ -236,6 +237,7 @@ export default function TableAllItem({
         openAskDelete={openAskDelete}
         setOpenAskDelete={setOpenAskDelete}
         itemId={selectedID}
+        selectedCategory={selectedCategory}
         onItemCreated={onItemCreated}
       />
     </>
