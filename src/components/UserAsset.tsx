@@ -16,8 +16,8 @@ function UserAsset() {
     getSession().then((res) => {
       setSession(res);
       getByUserAndCompany(res.userId, res.use_intt_id).then((res) => {
+        console.log(res?.data);
         setItems(res?.data.payload);
-        console.log(res?.data.payload);
       });
     });
   }, []);
@@ -32,7 +32,7 @@ function UserAsset() {
       )
   );
   // user?.item.allAssets?.flatMap((i) =>
-  console.log(session);
+  // console.log(session);
  
   console.log({ subCategoryKeys });
 
