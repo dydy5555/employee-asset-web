@@ -105,8 +105,8 @@ async function responseErrorInterceptor({ status, code, ...err }: AxiosError) {
 
 ihttp.interceptors.request.use(requestInterceptor);
 ihttp.interceptors.response.use(responseInterceptor, responseErrorInterceptor);
-// ihttp1.interceptors.request.use(requestInterceptor);
-// ihttp1.interceptors.response.use(responseInterceptor, responseErrorInterceptor);
+ihttp1.interceptors.request.use(requestInterceptor);
+ihttp1.interceptors.response.use(responseInterceptor, responseErrorInterceptor);
 
 export const ihttpFormData = axios.create({
   baseURL: API_URL,
