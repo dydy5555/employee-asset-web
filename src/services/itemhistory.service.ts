@@ -14,3 +14,18 @@ export const func_GetItemHistoryByItemId = async (id) => {
       return error;
     }
 };
+
+
+export const func_CreateHistoryItem = async (dataItemHistory) => {
+  try {
+    const res = await ihttp1.post(`/api/v1/item-histories/add-history`, dataItemHistory,{
+      headers: {
+        accept: "*/*",
+      },
+    })
+    return res;
+  } catch (error) {
+    console.log("Error : ", error);
+    return error;
+  }
+};

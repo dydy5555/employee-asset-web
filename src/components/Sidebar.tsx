@@ -76,7 +76,7 @@ function Sidebar() {
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href="/app/user-assets"
@@ -88,7 +88,7 @@ function Sidebar() {
               Asset
             </Link>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex flex-col justify-between h-full ">
           <div className="flex flex-col gap-1 ">

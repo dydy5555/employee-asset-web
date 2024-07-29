@@ -22,6 +22,8 @@ import { fun_AddAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
 import { fetchAllItems, fun_UpdateItem } from "@/services/item.service";
 import RemoveItemFromUser from "./RemoveItemFromUser";
+import { func_CreateHistoryItem } from "@/services/itemhistory.service";
+import moment from "moment";
 
 export default function AssetDetail({
   setOpenMod,
@@ -29,6 +31,7 @@ export default function AssetDetail({
   itemsUser,
   toChild,
   handleRowClick,
+  haveItems
 }) {
   const [scrollBehavior, setScrollBehavior] =
     React.useState<ModalProps["scrollBehavior"]>("inside");
@@ -104,6 +107,7 @@ export default function AssetDetail({
       )
     )
   );
+  const startDate = moment().format("YYYYMMDD");
 
   const handleSave = () => {
     const dataForItem = {
@@ -111,8 +115,8 @@ export default function AssetDetail({
       status: "unavailable",
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
-      quantity: selectedItem.quantity,
-      remain_quantity: selectedItem.remain_quantity,
+      quantity: selectedItem.quantity -1,
+      remain_quantity: selectedItem.remain_quantity -1,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,
@@ -136,7 +140,7 @@ export default function AssetDetail({
       start_date: allCates.start_date,
       end_date: allCates.end_date,
       item_Id: selectedItem.id,
-      quantity: quantity,
+      quantity: 1,
     };
 
     try {
@@ -151,46 +155,34 @@ export default function AssetDetail({
           // addNewAsset("selok", selectedItem)
           handleRowClick(user.userId, user.use_INNITID);
           toChild();
+          const dataItemHistory = {
+            itemId: selectedItem.id,
+            employeeId: tempUser.flnm,
+            userProfile: tempUser.dvsn_NM,
+            useInttId: tempUser.use_INTT_ID,
+            description: selectedItem.remark,
+            givenQuantity: 1,
+            givenDate: startDate,
+            returnedDate: null,
+            givenBy: "sokhen",
+            receivedBy: tempUser.flnm,
+            condition: "Good",
+            status: "INUSE"
+          };
+          func_CreateHistoryItem(dataItemHistory).then((res) => {
+            console.log({ res });
+            if (res.status === 200) {
+              showToastSuccess("History have been saved!");
+            }
+          })
         }
       });
     } catch (error) {
       console.log("Error ::: ", error);
     }
 
-    // try {
-    //   fun_AddAsset(dataSave).then((res) => {
-    //     console.log({ res });
-    //     if (res.status === 200) {
-    //       toast.success("Updated successfully!");
-    //       handleRowClick(user.userId, user.use_INNITID);
-    //       toChild();
-    //     }
-    //   });
-    // } catch (error) {
-    //   console.log("Erorr ::: ", error);
-    // }
   };
 
-  // const addNewAsset = (userId, newAsset) => {
-  //   console.log("ksksksks sf ", newAsset)
-  //   setItemsUser(prevData => {
-  //     return prevData.map(user => {
-  //       if (user.userId === userId) {
-  //         return {
-  //           ...user,
-  //           allAssetOfUser: [...user.allAssetOfUser, newAsset]
-  //         };
-  //       }
-  //       return user;
-  //     });
-  //   });
-  // };
-
-  // console.log("itemsusernew ", itemsUser)
-  // const handleTest = () => {
-  //   const test = addNewAsset("selok", selectedItem)
-  //   console.log("ksksksks ", test)
-  // }
 
   return (
     <div className="flex flex-col gap-2 ">
@@ -353,13 +345,13 @@ export default function AssetDetail({
                           <CardBody>
                             <div className="flex h-full flex-col gap-5">
                               <div>
-                                <p className="font-medium pb-2">Item's user</p>
+                                <p className="font-medium pb-2">Item{"'"}s user</p>
                                 <div className="w-full  flex flex-wrap gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
                                   {itemsUser.map((allAsset) =>
                                     allAsset.allAssetOfUser?.map((items) =>
                                       items.item?.allAssets?.map(
                                         (asset, assetIndex) => (
-                                          <div className="">
+                                          <div key={assetIndex} className="">
                                             <Chip
                                               radius="md"
                                               variant="flat"
@@ -431,45 +423,6 @@ export default function AssetDetail({
                                     Add
                                   </Button>
                                 </div>
-
-                                {/* qty */}
-                                {/* <div className="w-full">
-                                  <label className="block text-[14.4px] font-medium  dark:text-white">
-                                    <div className="mb-2 flex justify-start pb-1 items-center gap-1">
-                                      <span className="capitalize text-sm font-medium">
-                                        Quantity
-                                      </span>
-                                    </div>
-                                  </label>
-                                  <div className="flex justify-center items-center">
-                                    <Button
-                                      isIconOnly
-                                      onClick={decrement}
-                                      className="bg-white border border-gray-300 rounded-full w-8 h-8 flex items-center justify-center"
-                                    >
-                                      <span className="text-xl">-</span>
-                                    </Button>
-                                    <Input
-                                      type="text"
-                                      value={quantity}
-                                      onChange={handleChange}
-                                      className="w-20 mx-2 text-center "
-                                      classNames={{
-                                        input: "text-center",
-                                        inputWrapper:
-                                          "bg-transparent border border-[#DFF5FF]",
-                                      }}
-                                    />
-                                    <Button
-                                      isIconOnly
-                                      onClick={increment}
-                                      className="bg-white border border-gray-300 rounded-full w-8 h-8 flex items-center justify-center"
-                                    >
-                                      <span className="text-xl">+</span>
-                                    </Button>
-                                  </div>
-                                </div>
-                                 */}
                               </div>
                             </div>
                           </CardBody>

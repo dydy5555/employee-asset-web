@@ -14,6 +14,20 @@ export const fetchAllEmployeeAssets = async () => {
   }
 };
 
+export const fetchAllEmplByComWithAssset = async (useInttId) => {
+  try {
+    const response = await ihttp1.get(`/api/v1/employeess/${useInttId}`, {
+      headers: {
+        accept: "*/*",
+      },
+    });
+    console.log(response);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const fetchAllEmployeeByCom = async (use_INNITID) => {
   try {
     const response = await ihttp1.get(`/api/v1/employeess/${use_INNITID}`, {

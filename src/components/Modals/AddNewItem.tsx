@@ -36,7 +36,7 @@ import think from "../../../public/images/icon/Thinkin.svg";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined";
-import { API_URL1 } from "@/api/interceptor";
+import { API_URL1, ihttpFormData } from "@/api/interceptor";
 import axios from "axios";
 import { func_CreateNewitem } from "@/services/item.service";
 import PurchaseAndStockDate from "../PurchaseAndStockDate";
@@ -156,7 +156,7 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
     const formData = new FormData();
     formData.append("image", itemImage);
     try {
-      const response = await axios.post(
+      const response = await ihttpFormData.post(
         `${API_URL1}/api/v1/images/file`,
         formData,
         {
@@ -178,8 +178,10 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
         status: "available",
         problem: "Good",
         purchase_date: purchaseDate || "",
-        quantity: quantity || null,
-        remain_quantity: quantity || null,
+        // quantity: quantity || null,
+        // remain_quantity: quantity || null,
+        quantity: 1,
+        remain_quantity: 1,
         unit_price: price || null,
         stock_date: stockDate || "",
         img_url: itemPic || "",

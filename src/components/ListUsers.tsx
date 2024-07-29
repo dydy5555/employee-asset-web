@@ -35,6 +35,8 @@ import AssestByUserList from "./AssestByUserList";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
 import {
+  fetchAllEmplByCom,
+  fetchAllEmplByComWithAssset,
   fetchAllEmployeeAssets,
   func_GetByUserID,
 } from "@/services/assets.service";
@@ -73,6 +75,11 @@ function ListUsers() {
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [sortedAssets, setSortedAssets] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAssetUser();
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -81,9 +88,6 @@ function ListUsers() {
         setLUser(cachedData);
       } else {
         try {
-          // const permissionData = await fetchSessionAndPermission();
-          // setPermission(permissionData);
-          // await companyList(permissionData);
           await companyList();
           const form: any = {
             type: "admin",
@@ -91,9 +95,9 @@ function ListUsers() {
             appId: "",
             dvsn_NM: "",
           };
-          const data = await fitlerUsers(form); // Note: data is already parsed JSON
-          // console.log("data",data)
-          setLUser(data); // Assuming data is already data.payload
+          const data = await fitlerUsers(form);
+
+          setLUser(data);
           setCachedData(data);
           setLoading(false);
         } catch (error) {
@@ -103,13 +107,10 @@ function ListUsers() {
     };
 
     const getAllCate = () => {
-      // fetchAllCCategory().then((res) => {
-      //   setAllCate(res.data.payload);
-      // });
-      fetchAllItems().then((res)=>{
+      fetchAllItems().then((res) => {
         console.log("fetchAllItems", res);
         setAllItems(res?.data?.payload?.allItem);
-      })
+      });
     };
 
     fetchData();
@@ -127,7 +128,6 @@ function ListUsers() {
       };
 
       getListEmployee(formTemp).then((res) => {
-        // console.log(res.data?.payload);
         setAssetUser(res.data?.payload?.user);
       });
     } catch (error) {
@@ -146,12 +146,6 @@ function ListUsers() {
       );
       const data = await listCompanies.json();
       console.log("All data ", data.payload);
-
-      // if (permissionData.permission !== "SUPER_ADMIN") {
-      // const filteredCompanies =data.payload.filter(
-      //   (company: { com_cd: any }) =>
-      //     company.com_cd === permissionData.user.use_INTT_ID
-      // );
       const filteredCompanies = data.payload;
       setCompanyData(filteredCompanies);
       setSaveComCd(
@@ -160,20 +154,6 @@ function ListUsers() {
       await listDepartment(
         filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
       );
-      // }
-      // else {
-      //   setCompanyData(data.payload);
-      //   setSaveComCd(
-      //     data.payload.length > 0
-      //       ?data.payload[0].com_cd
-      //       : null
-      //   );
-      //   await listDepartment(
-      //     data.payload.length > 0
-      //       ? data.payload[0].com_cd
-      //       : null
-      //   );
-      // }
     } catch (error) {
       console.error("Error fetching company list:", error);
     }
@@ -187,15 +167,6 @@ function ListUsers() {
         getListDeparment(com_cd).then(async (res) => {
           console.log({ res });
           setDep(res.data.payload);
-          // const permissionData = await fetchSessionAndPermission();
-          // if (permissionData?.permission !== "SUPER_ADMIN") {
-          //   const filteredCompanies = res.data.payload.filter(
-          //     (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
-          //   );
-          //   setDep(filteredCompanies);
-          // } else {
-          //   setDep(res.data.payload);
-          // }
         });
       } catch (error) {
         console.log("error");
@@ -232,10 +203,6 @@ function ListUsers() {
       setFilterValue("");
     }
   }, []);
-
-  // const filteredUsers = lUser.filter((user: any) =>
-  //   user.flnm.toLowerCase().includes(filterValue.toLowerCase())
-  // );
 
   const handleClickToggle = (cardClick: any) => {
     const updatedCards = cards.map((c) => {
@@ -294,72 +261,41 @@ function ListUsers() {
       setLUser(res.data.payload);
     }
   };
-
-  // const handleDep = async (value: any) => {
-  //   let key = value?.currentKey || "";
-  //   setSelectedDep(key);
-  //   const form: any = {
-  //     type: "admin",
-  //     useInttId: saveComCd,
-  //     appId: "1",
-  //     dvsn_NM: key,
-  //   };
-  //   let res = await fitlerUsers(form);
-  //   if (res && res.data && res.data.payload) {
-  //     setLUser(res.data.payload);
-  //   }
-  // };
-
-  const getAllUsers = async () => {
+  const fetchAssetUser = () => {
+    setIsLoading(true);
     try {
-      const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTA5MzY5NiwiaWF0IjoxNzIxMDA3Mjk2LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.2NlCn6YyRRr5cl905dABjdXEvT6JuosIqwQi376N6aosA9tUevUKGVv3P3gKmmWKUUrpMeoXKjjpvrWbInJPkA"; // Replace with your actual JWT token
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-
-      const res = await fetch("https://bizweb.kosign.dev/api/v1/auth", {
-        headers,
-      });
-      const data = await res.json();
-
-      // console.log("All Company", data.payload);
-    } catch (error) {
-      console.log("Data fetch error", error);
-    }
-  };
-    const fetchAssetUser = () => {
-      fetchAllEmployeeAssets().then((res) => {
+      fetchAllEmplByComWithAssset("UTLZ_590").then((res) => {
         console.log(res);
         if (res?.status == 200) {
           setAllEmployeeAssets(res?.data?.payload);
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
         }
       });
-    };
-  useEffect(() => {
-    // getAllUsers();
-
-    fetchAssetUser();
-  }, []);
-
-  const toChild = ()=>{
-    fetchAssetUser();
-  }
-
-  const handleDep = (value) => {
-    console.log(value)
-    setSelectedDep(value);
-    const filteredAssets = asset_user.filter(asset => asset.dvsn_NM === value);
-    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
+    } catch (e) {
+      console.log("Error fetching asset user", e);
+    }
   };
 
+  const toChild = () => {
+    fetchAssetUser();
+  };
+
+  const handleDep = (value) => {
+    console.log(value);
+    setSelectedDep(value);
+    const filteredAssets = asset_user.filter(
+      (asset) => asset.dvsn_NM === value
+    );
+    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
+  };
 
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   console.log(filteredUser);
-  console.log({asset_user});
+  console.log({ asset_user });
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
@@ -473,7 +409,7 @@ function ListUsers() {
               </div>
             </>
           </div>
-  
+
           <div className=" overflow-hidden">
             {clickUser ? (
               <>
@@ -552,81 +488,18 @@ function ListUsers() {
               </>
             ) : (
               <>
-                {/* <div className="flex justify-between items-end">
-                    <div className="flex w-full gap-5 py-4 justify-end">
-                      <CreateCategory />
-
-                      <Button
-                        onClick={() => {
-                          setOpenMod(true);
-                        }}
-                        color="primary"
-                        variant="light"
-                        className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-                        style={{ borderColor: "#378CE7" }}
-                      >
-                        <Devices size="22" color="#378CE7" /> Asset
-                      </Button>
-                    </div>
-                  </div> */}
-
                 <div className="p-5">
-                  <ItemCards toChild={toChild} allEmployeeAssets={allEmployeeAssets} asset_user={asset_user} />
+                  <ItemCards
+                    toChild={toChild}
+                    allEmployeeAssets={allEmployeeAssets}
+                    asset_user={asset_user}
+                    isLoading={isLoading}
+                    searchQuery={searchQuery}
+                  />
                 </div>
               </>
             )}
           </div>
-
-          {/* User Map */}
-          {/* <div className="border w-[100%] max-h-[700px] min-h-[700px] custom-scroll rounded-lg overflow-auto h-full">
-            <div className="p-2 h-full">
-              {filteredUser.length > 0 ? (
-                filteredUser?.map((user) => (
-                  <div
-                    key={user.userId}
-                    className={`cursor-pointer flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg ${
-                      activeUserId === user.userId
-                        ? "border-l-[6px] border-primary bg-gray-100 rounded-md"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setActiveUserId(user?.id), clickOnEachUser(user);
-                    }}
-                  >
-                    <div className="flex gap-2 items-center ">
-                      <Image
-                        src={
-                          user?.prfl_PHTG
-                            ? user?.prfl_PHTG
-                            : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
-                        }
-                        alt={user?.userId}
-                        width={35}
-                        height={35}
-                        className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-sm">{user.flnm}</span>
-                        <span className="text-xs text-gray-400">
-                          {user.userId}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex justify-center h-full items-center">
-                  <Image
-                    src={NoImage}
-                    alt="No data"
-                    width={500}
-                    height={500}
-                    className="w-[300px] h-[250px] object-cover"
-                  />
-                </div>
-              )}
-            </div>
-          </div> */}
         </div>
         {/* Side 2 */}
       </div>
