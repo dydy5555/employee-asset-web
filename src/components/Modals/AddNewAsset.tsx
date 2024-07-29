@@ -30,6 +30,7 @@ import { func_CreateAsset } from "@/services/assets.service";
 import toast from "react-hot-toast";
 import { fetchAllItems, fun_UpdateItem } from "@/services/item.service";
 import { showToastSuccess } from "@/services/commonfunc.service";
+import { func_CreateHistoryItem } from "@/services/itemhistory.service";
 
 function AddNewAsset({ allUser, toChild }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -83,14 +84,6 @@ function AddNewAsset({ allUser, toChild }) {
     };
 
     fetchItems();
-
-    // allItems.every((item) => {
-    //   if (item.status === "unavailable") {
-    //     setIsItemAvailable(false);
-    //   } else {
-    //     setIsItemAvailable(true);
-    //   }
-    // });
   }, []);
 
   const decrement = () => {
@@ -114,19 +107,13 @@ function AddNewAsset({ allUser, toChild }) {
     const mainQty = selectedItem.remain_quantity;
     let newQty = mainQty - Number(quantity);
     let newStt = "";
-
-    // if (selectedItem.remain_quantity === quantity) {
-    //   newStt = "unavailable";
-    // } else {
-    //   newStt = selectedItem.status;
-    // }
     const dataForItem = {
       allAssets: selectedItem.allAssets,
       status: 'unavailable',
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
-      quantity: selectedItem.quantity,
-      remain_quantity: selectedItem.remain_quantity,
+      quantity: selectedItem.quantity - 1,
+      remain_quantity: selectedItem.remain_quantity -1,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,
@@ -158,7 +145,7 @@ function AddNewAsset({ allUser, toChild }) {
       start_date: startDate,
       end_date: "present",
       item_Id: id,
-      quantity: quantity,
+      quantity: 1,
     };
 
     func_CreateAsset(data).then((res) => {
@@ -168,6 +155,27 @@ function AddNewAsset({ allUser, toChild }) {
         toChild();
       }
     });
+    const dataItemHistory = {
+      itemId: selectedItem.id,
+      employeeId: userSelected.flnm,
+      userProfile: userSelected.dvsn_NM,
+      useInttId: userSelected.use_INTT_ID,
+      description: itemRemark,
+      givenQuantity: 1,
+      givenDate: startDate,
+      returnedDate: null,
+      givenBy: "sokhen",
+      receivedBy: userSelected.flnm,
+      condition: "Good",
+      status: "INUSE"
+    };
+
+    func_CreateHistoryItem(dataItemHistory).then((res) => {
+      console.log({ res });
+      if (res.status === 200) {
+        showToastSuccess("History have been saved!");
+      }
+    })
 
     console.log({ data });
   };
@@ -197,7 +205,7 @@ function AddNewAsset({ allUser, toChild }) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
-                <h1 className="text-center text-[#378CE7]">Add New Item</h1>
+                <h1 className="text-center text-[#378CE7]">Add new asset</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
@@ -336,9 +344,9 @@ function AddNewAsset({ allUser, toChild }) {
                                       ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
                                       : ""
                                   }
-                                  endContent={<div>{item.remain_quantity}</div>}
+                                  // endContent={<div>{item.remain_quantity}</div>}
                                 >
-                                  {asset.name}
+                                  {asset.subCategories?.name || "N/A"}
                                 </AutocompleteItem>
                               ));
                             })}

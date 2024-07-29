@@ -35,6 +35,8 @@ import AssestByUserList from "./AssestByUserList";
 import { log } from "console";
 import { fetchSessionAndPermission } from "@/api/interceptor";
 import {
+  fetchAllEmplByCom,
+  fetchAllEmplByComWithAssset,
   fetchAllEmployeeAssets,
   func_GetByUserID,
 } from "@/services/assets.service";
@@ -73,6 +75,11 @@ function ListUsers() {
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [sortedAssets, setSortedAssets] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchAssetUser();
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -81,9 +88,6 @@ function ListUsers() {
         setLUser(cachedData);
       } else {
         try {
-          // const permissionData = await fetchSessionAndPermission();
-          // setPermission(permissionData);
-          // await companyList(permissionData);
           await companyList();
           const form: any = {
             type: "admin",
@@ -91,9 +95,9 @@ function ListUsers() {
             appId: "",
             dvsn_NM: "",
           };
-          const data = await fitlerUsers(form); // Note: data is already parsed JSON
-          // console.log("data",data)
-          setLUser(data); // Assuming data is already data.payload
+          const data = await fitlerUsers(form);
+
+          setLUser(data);
           setCachedData(data);
           setLoading(false);
         } catch (error) {
@@ -107,7 +111,6 @@ function ListUsers() {
       //   setAllCate(res.data.payload);
       // });
       fetchAllItems().then((res) => {
-        console.log("fetchAllItems", res);
         setAllItems(res?.data?.payload?.allItem);
       });
     };
@@ -127,7 +130,6 @@ function ListUsers() {
       };
 
       getListEmployee(formTemp).then((res) => {
-        // console.log(res.data?.payload);
         setAssetUser(res.data?.payload?.user);
       });
     } catch (error) {
@@ -145,13 +147,6 @@ function ListUsers() {
         "https://bizweb-adm.kosign.dev/api/v1/companies/allCompanies"
       );
       const data = await listCompanies.json();
-      console.log("All data ", data.payload);
-
-      // if (permissionData.permission !== "SUPER_ADMIN") {
-      // const filteredCompanies =data.payload.filter(
-      //   (company: { com_cd: any }) =>
-      //     company.com_cd === permissionData.user.use_INTT_ID
-      // );
       const filteredCompanies = data.payload;
       setCompanyData(filteredCompanies);
       setSaveComCd(
@@ -160,20 +155,6 @@ function ListUsers() {
       await listDepartment(
         filteredCompanies.length > 0 ? filteredCompanies[0].com_cd : null
       );
-      // }
-      // else {
-      //   setCompanyData(data.payload);
-      //   setSaveComCd(
-      //     data.payload.length > 0
-      //       ?data.payload[0].com_cd
-      //       : null
-      //   );
-      //   await listDepartment(
-      //     data.payload.length > 0
-      //       ? data.payload[0].com_cd
-      //       : null
-      //   );
-      // }
     } catch (error) {
       console.error("Error fetching company list:", error);
     }
@@ -181,21 +162,10 @@ function ListUsers() {
 
   const listDepartment = async (com_cd: any) => {
     localStorage.setItem("com_id", com_cd);
-    console.log(com_cd);
     if (com_cd != "") {
       try {
         getListDeparment(com_cd).then(async (res) => {
-          console.log({ res });
           setDep(res.data.payload);
-          // const permissionData = await fetchSessionAndPermission();
-          // if (permissionData?.permission !== "SUPER_ADMIN") {
-          //   const filteredCompanies = res.data.payload.filter(
-          //     (dep: { name: any }) => dep.name === permissionData?.user.dvsn_NM
-          //   );
-          //   setDep(filteredCompanies);
-          // } else {
-          //   setDep(res.data.payload);
-          // }
         });
       } catch (error) {
         console.log("error");
@@ -232,10 +202,6 @@ function ListUsers() {
       setFilterValue("");
     }
   }, []);
-
-  // const filteredUsers = lUser.filter((user: any) =>
-  //   user.flnm.toLowerCase().includes(filterValue.toLowerCase())
-  // );
 
   const handleClickToggle = (cardClick: any) => {
     const updatedCards = cards.map((c) => {
@@ -294,62 +260,29 @@ function ListUsers() {
       setLUser(res.data.payload);
     }
   };
-
-  // const handleDep = async (value: any) => {
-  //   let key = value?.currentKey || "";
-  //   setSelectedDep(key);
-  //   const form: any = {
-  //     type: "admin",
-  //     useInttId: saveComCd,
-  //     appId: "1",
-  //     dvsn_NM: key,
-  //   };
-  //   let res = await fitlerUsers(form);
-  //   if (res && res.data && res.data.payload) {
-  //     setLUser(res.data.payload);
-  //   }
-  // };
-
-  const getAllUsers = async () => {
+  const fetchAssetUser = () => {
+    setIsLoading(true);
     try {
-      const token =
-        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJrb25ncmFkeSIsImV4cCI6MTcyMTA5MzY5NiwiaWF0IjoxNzIxMDA3Mjk2LCJ1c2VJbnR0SWQiOiJVVExaXzU5MCIsInVzZXJuYW1lIjoia29uZ3JhZHkifQ.2NlCn6YyRRr5cl905dABjdXEvT6JuosIqwQi376N6aosA9tUevUKGVv3P3gKmmWKUUrpMeoXKjjpvrWbInJPkA"; // Replace with your actual JWT token
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-
-      const res = await fetch("https://bizweb.kosign.dev/api/v1/auth", {
-        headers,
+      fetchAllEmplByComWithAssset("UTLZ_590").then((res) => {
+        if (res?.status == 200) {
+          setAllEmployeeAssets(res?.data?.payload);
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
+        }
       });
-      const data = await res.json();
-
-      // console.log("All Company", data.payload);
-    } catch (error) {
-      console.log("Data fetch error", error);
+    } catch (e) {
+      console.log("Error fetching asset user", e);
     }
   };
-  const fetchAssetUser = () => {
-    fetchAllEmployeeAssets().then((res) => {
-      console.log(res);
-      if (res?.status == 200) {
-        setAllEmployeeAssets(res?.data?.payload);
-      }
-    });
-  };
-  useEffect(() => {
-    // getAllUsers();
-
-    fetchAssetUser();
-  }, []);
 
   const toChild = () => {
     fetchAssetUser();
   };
 
   const handleDep = (value) => {
-    console.log(value);
-    setSelectedDep(value);
+    console.log(value.anchorKey);
+    setSelectedDep(value.anchorKey);
     const filteredAssets = asset_user.filter(
       (asset) => asset.dvsn_NM === value
     );
@@ -359,9 +292,10 @@ function ListUsers() {
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   console.log(filteredUser);
   console.log({ asset_user });
-  
+
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
@@ -553,11 +487,14 @@ function ListUsers() {
               </>
             ) : (
               <>
-                <div className="p-5">
+                <div className="pb-5 px-5 pt-3">
                   <ItemCards
                     toChild={toChild}
                     allEmployeeAssets={allEmployeeAssets}
                     asset_user={asset_user}
+                    isLoading={isLoading}
+                    searchQuery={searchQuery}
+                    selectedDep={selectedDep}
                   />
                 </div>
               </>
