@@ -1,25 +1,24 @@
 "use client";
 
-import { Buildings, Profile } from "iconsax-react";
+import { Buildings, Devices, Profile } from "iconsax-react";
 import ListUsers from "@/components/ListUsers";
 import PageContent from "@/components/Layout/PageContent";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getSession } from "@/api/interceptor";
 function Page() {
-  const [session, setSession] = useState({})
-  useEffect(()=>{
-    getSession().then((res)=>{
-      setSession(res)
+  const [session, setSession] = useState({});
+  useEffect(() => {
+    getSession().then((res) => {
+      setSession(res);
     });
-  }, [])
-  console.log({session})
+  }, []);
+  console.log({ session });
   return (
     <div className="text-gray-500 w-full px-5 ">
       {/* users table */}
-      <p className="text-lg mx-5 font-medium pt-5 text-black border-b-[0.5px] pb-5 mb-5 flex gap-3 items-end">
-        {" "}
-        {/* <Buildings size="32" color="#378CE7" /> Employee */}
+      {/* <p className="text-lg mx-5 font-medium pt-5 text-black border-b-[0.5px] pb-5 mb-5 flex gap-3 items-end">
+       
         <Image
             width={170}
             height={170}
@@ -27,7 +26,13 @@ function Page() {
           alt="logo"
           className="w-[170px] dark:block"
         />
-      </p>
+      </p> */}
+      <div>
+        <p className="text-3xl font-bold mb-4 text-primary px-5 pt-10 flex gap-3">
+          {/* <Devices size="32" color="#4a6cf7" />  */}
+          Item's user
+        </p>
+      </div>
       <ListUsers />
     </div>
   );

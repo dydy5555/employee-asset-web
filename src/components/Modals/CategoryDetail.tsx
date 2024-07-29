@@ -22,6 +22,7 @@ export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCat
   const [subCategoryValues, setSubCategoryValues] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [cateProperty, setCateProperty] = useState([]);
+  const [countItem, setCountItem] = useState(null);
   const [inputValues, setInputValues] = useState([]);
   const [categories, setCategories] = useState([]);
   const [inputList, setInputList] = useState([]);
@@ -38,6 +39,7 @@ export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCat
     setCategoryName(category?.categoryName);
     setCateProperty(category.subCategories);
     setInputValues(category.subCategories);
+    setCountItem(category.countItem);
   }, [category]);
 
 
@@ -73,7 +75,7 @@ export default function CategoryDetail({ setCategoriesFromParent, setTotalSubCat
 
     console.log(propertiesList);
 
-    const dataUpdate = { categoryName, subCategories: propertiesList };
+    const dataUpdate = { categoryName, subCategories: propertiesList, countItem };
     console.log(dataUpdate);
     if (categoryName !== "") {
        await func_EditCategory(category.id, dataUpdate);

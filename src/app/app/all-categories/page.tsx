@@ -12,6 +12,7 @@ import {
   ButtonGroup,
   Card,
   CardBody,
+  Chip,
   Input,
   Spinner,
   Table,
@@ -25,7 +26,10 @@ import { Edit2, Minus, SearchNormal1 } from "iconsax-react";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import NoImage from "../../../../public/images/no_app.jpg";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import Link from "next/link";
 
+const UI_URL = process.env.UI_URL;
 function Categoires() {
   const [categories, setCategories] = useState([]);
   const [data, setData] = useState([]);
@@ -36,7 +40,7 @@ function Categoires() {
   const [openDelete, setOpenDelete] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   useEffect(() => {
     fetch();
   }, []);
@@ -75,7 +79,6 @@ function Categoires() {
     largestArrayItem?.length
   );
 
-
   const handleCategoryDetailClick = (category) => {
     setSelectedCategory([]);
     setOpenEdit(true);
@@ -87,14 +90,11 @@ function Categoires() {
     setSelectedID(id);
   };
 
-
-  // const filteredCategories = categories.filter((category) =>
-  //   category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
   const filteredCategories = categories.filter((category) => {
-    const categoryNameMatch = category.categoryName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const subCategoriesMatch = category.subCategories.some(subCategory =>
+    const categoryNameMatch = category.categoryName
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const subCategoriesMatch = category.subCategories.some((subCategory) =>
       subCategory.toLowerCase().includes(searchQuery.toLowerCase())
     );
     return categoryNameMatch || subCategoriesMatch;
@@ -142,16 +142,18 @@ function Categoires() {
           </div>
         </div>
 
-        <Card className="w-full">
+        <Card className="w-full  p-5 h-full  min-h-[750px] overflow-auto max-h-[750px] overflow-y-auto custom-scroll">
           {isLoading ? (
             <CardBody className="flex items-center justify-center h-96">
               <Spinner size="lg" />
             </CardBody>
           ) : filteredCategories.length > 0 ? (
             <Table
+            isHeaderSticky
+            removeWrapper
               aria-label="Categories table"
               classNames={{
-                th: "bg-default-100 text-default-800 border-b border-divider",
+                th: "",
                 td: "border-b border-divider",
               }}
             >
@@ -161,9 +163,10 @@ function Categoires() {
                 {Array.from({ length: maxSubCategories }).map((_, key) => (
                   <TableColumn key={key}>Subcategory {key + 1}</TableColumn>
                 ))}
+                <TableColumn>Count Items</TableColumn>
                 <TableColumn>Actions</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody >
                 {filteredCategories.map((v, i) => (
                   <TableRow key={v.id}>
                     <TableCell>{i + 1}</TableCell>
@@ -175,6 +178,20 @@ function Categoires() {
                         {v.subCategories[key] || ""}
                       </TableCell>
                     ))}
+                    <TableCell className="font-medium capitalize">
+                      <Link href={`${UI_URL}/app/items`}>
+                        <Chip
+                          startContent={
+                            <CategoryOutlinedIcon fontSize="small" className="text-center" />
+                          }
+                          variant="flat"
+                          color={v.countItem == 0 ? "danger" : "success"}
+                          className="cursor-pointer px-2"
+                        >
+                          {v.countItem}
+                        </Chip>
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       <ButtonGroup>
                         <Button

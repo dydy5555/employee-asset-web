@@ -41,7 +41,7 @@ const AssetItemDetail = ({ itemId }) => {
 
   return (
     <>
-      <div className="flex justify-start items-start gap-5 w-full">
+      <div className="grid grid-cols-2 justify-start items-start gap-5 w-full">
         <Image
           isBlurred
           isZoomed
@@ -74,26 +74,24 @@ const AssetItemDetail = ({ itemId }) => {
             <hr />
             {data?.allAssets?.map((item, idx) => (
               <div key={idx} className="w-full space-y-3">
-                <div className="grid grid-cols-3 justify-between">
                   <div className="flex justify-start items-center gap-1">
                     <h1 className="font-semibold text-[14px]">Category: </h1>
                     <h1 className="font-normal text-gray-500 text-[14px]">
                       {item.name}
                     </h1>
                   </div>
-                  <div className="flex justify-start items-center gap-1">
+                  {/* <div className="flex justify-start items-center gap-1">
                     <h1 className="font-semibold  text-[14px]">Quantity:</h1>
                     <h1 className="font-normal text-gray-500 text-[14px]">
                       {data.quantity}
                     </h1>
-                  </div>
+                  </div> */}
                   <div className="flex justify-start items-center gap-1">
                     <h1 className="font-semibold  text-[14px]">Unit price:</h1>
                     <h1 className="font-normal text-gray-500 text-[14px]">
-                      {data.unit_price}
+                      $ {data.unit_price}
                     </h1>
                   </div>
-                </div>
                 <div className="flex justify-start items-center gap-1">
                   <CalendarMonthOutlinedIcon fontSize="small" className="" />
                   <h1 className="font-semibold  text-[14px]">Purchase date:</h1>
@@ -140,7 +138,7 @@ const AssetItemDetail = ({ itemId }) => {
                         variant="flat"
                         color={"primary"}
                       >
-                        remain: 1
+                        quantity: {data?.quantity}
                       </Chip>
                     </h1>
                   </div>

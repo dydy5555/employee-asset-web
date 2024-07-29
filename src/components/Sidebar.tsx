@@ -61,7 +61,17 @@ function Sidebar() {
             Assets Employee
           </div> */}
 
-          <div className="text-md font-semibold text-[#378CE7] w-full flex flex-col text-center items-center">
+          <p className="text-lg mx-5 font-medium pt-5 text-black  flex gap-3 items-end">
+            <Image
+              width={170}
+              height={170}
+              src="https://www.kosign.com.kh/images/Vectors-Wrapper.svg"
+              alt="logo"
+              className="w-[170px] dark:block"
+            />
+          </p>
+
+          {/* <div className="text-md font-semibold text-[#378CE7] w-full flex flex-col text-center items-center">
             <Image
               src={
                 session?.prfl_PHTG ||
@@ -73,10 +83,10 @@ function Sidebar() {
               className="rounded-full p-1 w-[50px] h-[50px]"
             />
             {session?.flnm}
-          </div>
+          </div> */}
         </div>
 
-        <div>
+        {/* <div>
           <div className=" text-gray-500 font-medium space-y-2 md:px-2 text-sm">
             <Link
               href="/app/user-assets"
@@ -88,7 +98,7 @@ function Sidebar() {
               Asset
             </Link>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex flex-col justify-between h-full ">
           <div className="flex flex-col gap-1 ">

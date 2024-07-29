@@ -47,6 +47,7 @@ import AddNewItem from "./Modals/AddNewItem";
 import ConfirmDelete from "./Modals/ConfirmDeleteUser";
 import AddNewAsset from "./Modals/AddNewAsset";
 import { getListDeparment, getListEmployee } from "@/services/employee.service";
+import { fetchAllItems } from "@/services/item.service";
 
 function ListUsers() {
   const [lUser, setLUser] = useState<any>([]);
@@ -68,6 +69,7 @@ function ListUsers() {
   const [company, setCompany] = useState([]);
   const [asset_user, setAssetUser] = useState([]);
   const [allCate, setAllCate] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [openMod, setOpenMod] = useState(false);
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [sortedAssets, setSortedAssets] = useState([]);
@@ -101,9 +103,12 @@ function ListUsers() {
     };
 
     const getAllCate = () => {
-      fetchAllCCategory().then((res) => {
-        // console.log(res);s
-        setAllCate(res.data.payload);
+      // fetchAllCCategory().then((res) => {
+      //   setAllCate(res.data.payload);
+      // });
+      fetchAllItems().then((res) => {
+        console.log("fetchAllItems", res);
+        setAllItems(res?.data?.payload?.allItem);
       });
     };
 
@@ -324,41 +329,42 @@ function ListUsers() {
       console.log("Data fetch error", error);
     }
   };
-    const fetchAssetUser = () => {
-      fetchAllEmployeeAssets().then((res) => {
-        console.log(res);
-        if (res?.status == 200) {
-          setAllEmployeeAssets(res?.data?.payload);
-        }
-      });
-    };
+  const fetchAssetUser = () => {
+    fetchAllEmployeeAssets().then((res) => {
+      console.log(res);
+      if (res?.status == 200) {
+        setAllEmployeeAssets(res?.data?.payload);
+      }
+    });
+  };
   useEffect(() => {
     // getAllUsers();
 
     fetchAssetUser();
   }, []);
 
-  const toChild = ()=>{
+  const toChild = () => {
     fetchAssetUser();
-  }
-
-  const handleDep = (value) => {
-    console.log(value)
-    setSelectedDep(value);
-    const filteredAssets = asset_user.filter(asset => asset.dvsn_NM === value);
-    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
   };
 
+  const handleDep = (value) => {
+    console.log(value);
+    setSelectedDep(value);
+    const filteredAssets = asset_user.filter(
+      (asset) => asset.dvsn_NM === value
+    );
+    setSortedAssets(filteredAssets.slice(0, 10)); // Display only 10 entries
+  };
 
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
   console.log(filteredUser);
-  console.log({asset_user});
+  console.log({ asset_user });
+  
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
-        {/* Side 1 */}
         <div className="flex   flex-col w-full">
           <div className="flex p-5 gap-5">
             <div className="w-full">
@@ -445,7 +451,7 @@ function ListUsers() {
                         </svg>
                       </div>
                       <div className="flex gap-2">
-                        <span> {asset_user.length} </span>
+                        <span> {asset_user?.length} </span>
                         <p className="">Total Employees </p>
                       </div>
                     </div>
@@ -459,7 +465,7 @@ function ListUsers() {
                         <Note size="28" color="#4A6CF7" />
                       </div>
                       <div className="flex gap-2 ">
-                        <span> {allCate.length} </span>
+                        <span> {allItems?.length} </span>
                         <p className=""> Total Assets </p>
                       </div>
                     </div>
@@ -468,7 +474,7 @@ function ListUsers() {
               </div>
             </>
           </div>
-  
+
           <div className=" overflow-hidden">
             {clickUser ? (
               <>
@@ -547,83 +553,17 @@ function ListUsers() {
               </>
             ) : (
               <>
-                {/* <div className="flex justify-between items-end">
-                    <div className="flex w-full gap-5 py-4 justify-end">
-                      <CreateCategory />
-
-                      <Button
-                        onClick={() => {
-                          setOpenMod(true);
-                        }}
-                        color="primary"
-                        variant="light"
-                        className="border-[0.5px] text-md text-semibold text-[#378CE7]"
-                        style={{ borderColor: "#378CE7" }}
-                      >
-                        <Devices size="22" color="#378CE7" /> Asset
-                      </Button>
-                    </div>
-                  </div> */}
-
                 <div className="p-5">
-                  <ItemCards toChild={toChild} allEmployeeAssets={allEmployeeAssets} asset_user={asset_user} />
+                  <ItemCards
+                    toChild={toChild}
+                    allEmployeeAssets={allEmployeeAssets}
+                    asset_user={asset_user}
+                  />
                 </div>
               </>
             )}
           </div>
-
-          {/* User Map */}
-          {/* <div className="border w-[100%] max-h-[700px] min-h-[700px] custom-scroll rounded-lg overflow-auto h-full">
-            <div className="p-2 h-full">
-              {filteredUser.length > 0 ? (
-                filteredUser?.map((user) => (
-                  <div
-                    key={user.userId}
-                    className={`cursor-pointer flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg ${
-                      activeUserId === user.userId
-                        ? "border-l-[6px] border-primary bg-gray-100 rounded-md"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setActiveUserId(user?.id), clickOnEachUser(user);
-                    }}
-                  >
-                    <div className="flex gap-2 items-center ">
-                      <Image
-                        src={
-                          user?.prfl_PHTG
-                            ? user?.prfl_PHTG
-                            : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
-                        }
-                        alt={user?.userId}
-                        width={35}
-                        height={35}
-                        className="w-[35px] h-[35px] rounded-full object-cover border-[0.5px] p-[1px] border-gray-400"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-sm">{user.flnm}</span>
-                        <span className="text-xs text-gray-400">
-                          {user.userId}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex justify-center h-full items-center">
-                  <Image
-                    src={NoImage}
-                    alt="No data"
-                    width={500}
-                    height={500}
-                    className="w-[300px] h-[250px] object-cover"
-                  />
-                </div>
-              )}
-            </div>
-          </div> */}
         </div>
-        {/* Side 2 */}
       </div>
     </div>
   );
