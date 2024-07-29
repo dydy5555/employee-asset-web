@@ -30,7 +30,7 @@ export default function ItemCards({
   asset_user,
   isLoading,
   searchQuery,
-  selectedDep
+  selectedDep,
 }) {
   const [openDelete, setOpenDelete] = useState(false);
   const [openMod, setOpenMod] = useState(false);
@@ -38,30 +38,29 @@ export default function ItemCards({
   const [sendId, setSendId] = useState({});
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [haveItems, setHaveItems] = useState(false);
-  const [sendUser, setSendUser] = useState({})
+  const [sendUser, setSendUser] = useState({});
+
   useEffect(() => {
-    // Filter the allEmployeeAssets based on searchQuery
+    let filtered = allEmployeeAssets;
+
     if (searchQuery) {
-      const filtered = allEmployeeAssets.filter((employee) =>
+      filtered = filtered.filter((employee) =>
         employee.userId.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredAssets(filtered);
-    } else {
-      setFilteredAssets(allEmployeeAssets);
     }
-    if(selectedDep){
-      const filtered = allEmployeeAssets.filter((employee) =>
+
+    if (selectedDep) {
+      filtered = filtered.filter((employee) =>
         employee.dvsn_NM.toLowerCase().includes(selectedDep.toLowerCase())
       );
-      setFilteredAssets(filtered);
-    }else{
-      setFilteredAssets(allEmployeeAssets);
     }
-  }, [selectedDep, searchQuery, allEmployeeAssets]);
 
+    setFilteredAssets(filtered);
+  }, [selectedDep, searchQuery, allEmployeeAssets]);
 
   const handleRowClick = (user, userId, use_INTT_ID) => {
     setSendUser(user);
+    console.log(userId, use_INTT_ID);
     getByUserAndCompany(userId, use_INTT_ID).then((res) => {
       if (res?.status == 200) {
         setItemsUser([]);
@@ -123,9 +122,9 @@ export default function ItemCards({
                   filteredAssets.map((user, index) => (
                     <TableRow
                       key={index}
-                      className=""
+                      className="hover:cursor-pointer hover:bg-gray-100"
                       onClick={() =>
-                        handleRowClick(user, user?.userId, user?.use_INNITID)
+                        handleRowClick(user, user?.userId, user?.use_INTT_ID)
                       }
                     >
                       <TableCell className="pl-4">{index + 1}</TableCell>
@@ -162,7 +161,11 @@ export default function ItemCards({
                           <DropdownMenu aria-label="Static Actions">
                             <DropdownItem
                               onClick={() => {
-                                handleRowClick(user?.userId, user?.use_INTT_ID);
+                                handleRowClick(
+                                  user,
+                                  user?.userId,
+                                  user?.use_INTT_ID
+                                );
                               }}
                             >
                               Detail

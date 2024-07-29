@@ -18,13 +18,14 @@ import {
   Chip,
 } from "@nextui-org/react";
 import Image from "next/image";
-import { fun_AddAsset } from "@/services/assets.service";
+import { fun_AddAsset, getByUserAndCompany } from "@/services/assets.service";
 import toast from "react-hot-toast";
 import { fetchAllItems, fun_UpdateItem } from "@/services/item.service";
 import RemoveItemFromUser from "./RemoveItemFromUser";
 import { func_CreateHistoryItem } from "@/services/itemhistory.service";
 import moment from "moment";
 import NoImage from "../../../public/images/no_app.jpg";
+import { showToastSuccess } from "@/services/commonfunc.service";
 
 export default function AssetDetail({
   setOpenMod,
@@ -47,12 +48,13 @@ export default function AssetDetail({
   const [openDel, setOpenDel] = useState(false);
   const [sendId, setSendId] = useState({});
   const [user, setUser] = useState({});
-  const [getUser, setGetUser] = useState({});
+  const [getUser, setGetUser] = useState([]);
   const [quantity, setQuantity] = useState("");
   const [tempUser, setTempUser] = useState({});
 
+  console.log({ itemsUser });
+  console.log(sendUser.userId, sendUser.use_INTT_ID);
   console.log({ sendUser });
-  console.log({ allItems });
 
   const handleItemChange = (value) => {
     console.log(value);
@@ -62,24 +64,32 @@ export default function AssetDetail({
     setSelectedItem(foundItem);
   };
 
-  const handleDeleteItem = async (id, userId, use_INNITID, itemId, qty) => {
-    const idDel = { id, userId, use_INNITID, itemId, qty };
+  const handleDeleteItem = async (id, userId, use_INNITID, qty) => {
+    const idDel = { id, userId, use_INNITID, qty };
     setSendId(idDel);
     setOpenDel(true);
   };
 
   useEffect(() => {
-    itemsUser?.map((res) => {
-      setTempUser(res);
+    // itemsUser?.map((res) => {
+    //   setTempUser([])
+    //   setTempUser(res);
+    // });
+
+    getByUserAndCompany(sendUser.userId, sendUser.use_INTT_ID).then((res) => {
+      console.log(res);
+      setTempUser([]);
+      setTempUser(res?.data?.payload);
     });
   }, [itemsUser]);
 
-  // console.log({ tempUser });
+  console.log({ tempUser });
   useEffect(() => {
     setGetUser(itemsUser);
     itemsUser.map((res) => {
       setUser(res);
       res.allAssetOfUser?.map((i) => {
+        setAllCates([]);
         setAllCates(i);
       });
     });
@@ -101,16 +111,25 @@ export default function AssetDetail({
   }, [itemsUser]);
 
   console.log(getUser);
+  console.log(allItems);
 
   const subCategoryKeys = Array.from(
+    // new Set(
+    //   allItems.flatMap((user) =>
+    //     user?.allAssets?.flatMap((j) => Object.keys(j.subCategories))
+    //     )
+
+    // )
     new Set(
-      itemsUser.flatMap((user) =>
+      getUser?.flatMap((user) =>
         user?.allAssetOfUser?.flatMap((i) =>
           i.item?.allAssets?.flatMap((j) => Object.keys(j.subCategories))
         )
       )
     )
   );
+  console.log(subCategoryKeys);
+  console.log(allCates);
   const startDate = moment().format("YYYYMMDD");
 
   const handleSave = () => {
@@ -259,9 +278,9 @@ export default function AssetDetail({
                       fullWidth="true"
                     >
                       <Tab key="view" title="VIEW" className="w-full">
-                        <Card className=" min-h-[300px] overflow-auto custom-scroll">
+                        <Card className=" min-h-[305px] overflow-auto custom-scroll">
                           <CardBody className="px-4 h-full">
-                            {itemsUser.length > 0 ? (
+                            {tempUser?.allAssetOfUser?.length > 0 ? (
                               <table className="w-full h-full text-md border-collapse text-[14px]">
                                 <thead>
                                   <tr className="bg-gray-100 py-2  hover:bg-gray-200 hover:cursor-pointer">
@@ -304,15 +323,12 @@ export default function AssetDetail({
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {itemsUser.map((user, userIndex) =>
-                                    user?.allAssetOfUser.map((i, assetIndex) =>
-                                      i.item?.allAssets?.map((asset) => (
-                                        <tr
-                                          key={`${userIndex}-${i.categoryId}`}
-                                          className="py-2 border-b"
-                                        >
+                                  {tempUser?.allAssetOfUser.map((items, k) =>
+                                    items.item.allAssets?.map(
+                                      (asset, index) => (
+                                        <tr key={k} className="py-2 border-b">
                                           <td className="py-2 pl-3 text-center">
-                                            {userIndex + 1}
+                                            {k + 1}
                                           </td>
                                           <td className="py-2 pl-6 capitalize">
                                             {asset.name}
@@ -333,10 +349,10 @@ export default function AssetDetail({
                                             className="p-2 text-center"
                                             style={{ borderColor: "red" }}
                                           >
-                                            {i.item.remark}
+                                            {allCates?.item?.remark}
                                           </td>
                                         </tr>
-                                      ))
+                                      )
                                     )
                                   )}
                                 </tbody>
@@ -368,37 +384,36 @@ export default function AssetDetail({
                                   Item{"'"}s user
                                 </p>
                                 <div className="w-full  flex flex-wrap gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
-                                  {itemsUser.length > 0 ? (
-                                    itemsUser.map((allAsset) =>
-                                      allAsset.allAssetOfUser?.map((items) =>
-                                        items.item?.allAssets?.map(
-                                          (asset, assetIndex) => (
-                                            <div key={assetIndex} className="">
-                                              <Chip
-                                                radius="md"
-                                                variant="flat"
-                                                size="lg"
-                                                key={asset.categoryId}
-                                                className="capitalize  "
-                                                onClose={() => {
-                                                  handleDeleteItem(
-                                                    items.id,
-                                                    allAsset.userId,
-                                                    allAsset.use_INNITID,
-                                                    items.item.id,
-                                                    items.quantity
-                                                  );
-                                                }}
-                                              >
-                                                {asset.name}
-                                              </Chip>
-                                            </div>
-                                          )
+                                  {tempUser?.allAssetOfUser?.length > 0 ? (
+                                    tempUser?.allAssetOfUser.map((items, k) =>
+                                      items.item.allAssets?.map(
+                                        (asset, assetIndex) => (
+                                          <div key={assetIndex} className="">
+                                            <Chip
+                                              radius="md"
+                                              variant="flat"
+                                              size="lg"
+                                              key={asset.categoryId}
+                                              className="capitalize  "
+                                              onClose={() => {
+                                                handleDeleteItem(
+                                                  items?.id,
+                                                  sendUser.userId,
+                                                  sendUser.use_INTT_ID,
+                                                  items?.quantity
+                                                );
+                                              }}
+                                            >
+                                              {asset.name}
+                                            </Chip>
+                                          </div>
                                         )
                                       )
                                     )
                                   ) : (
-                                    <div className="text-gray-400 flex justify-center items-center w-full -full">No item</div>
+                                    <div className="text-gray-400 flex justify-center items-center w-full -full">
+                                      No item
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -466,6 +481,7 @@ export default function AssetDetail({
                       setOpenMod(false);
                       setAllAssets([]);
                       setAllCates([]);
+                      setTempUser([]);
                       setIsSelected(true);
                       toChild();
                     }}
