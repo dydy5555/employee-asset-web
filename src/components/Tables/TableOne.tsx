@@ -50,8 +50,8 @@ export default function TableOne() {
         <TableBody>
           {allAssetUser.map((allAsset: any) =>
             allAsset.assetUsers.map((assetUser: any) =>
-              assetUser.allAssets.map((asset: any) =>
-                    <TableRow>
+              assetUser.allAssets.map((asset: any, idx: any) =>
+                    <TableRow key={idx}>
                       <TableCell>{asset.name}</TableCell>
                       <TableCell>{`${asset.subCategories.name?? ''} ${asset.subCategories.inch ?? ''}`}</TableCell>
                       <TableCell>{""}</TableCell>

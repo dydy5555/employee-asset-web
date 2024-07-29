@@ -105,7 +105,7 @@ const Dashboard: React.FC = () => {
         <ChartThree />
         {/* <MapOne /> */}
         <div className="col-span-12">
-          <TableOne />
+          {/* <TableOne /> */}
         </div>
         {/* <ChatCard /> */}
       </div>
