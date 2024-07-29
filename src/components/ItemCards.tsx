@@ -38,7 +38,7 @@ export default function ItemCards({
   const [sendId, setSendId] = useState({});
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [haveItems, setHaveItems] = useState(false);
-
+  const [sendUser, setSendUser] = useState({})
   useEffect(() => {
     // Filter the allEmployeeAssets based on searchQuery
     if (searchQuery) {
@@ -60,7 +60,8 @@ export default function ItemCards({
   }, [selectedDep, searchQuery, allEmployeeAssets]);
 
 
-  const handleRowClick = (userId, use_INTT_ID) => {
+  const handleRowClick = (user, userId, use_INTT_ID) => {
+    setSendUser(user);
     getByUserAndCompany(userId, use_INTT_ID).then((res) => {
       if (res?.status == 200) {
         setItemsUser([]);
@@ -124,7 +125,7 @@ export default function ItemCards({
                       key={index}
                       className=""
                       onClick={() =>
-                        handleRowClick(user?.userId, user?.use_INNITID)
+                        handleRowClick(user, user?.userId, user?.use_INNITID)
                       }
                     >
                       <TableCell className="pl-4">{index + 1}</TableCell>
@@ -222,6 +223,7 @@ export default function ItemCards({
         itemsUser={itemsUser}
         handleRowClick={handleRowClick}
         haveItems={haveItems}
+        sendUser={sendUser}
       />
 
       <ConfirmDeleteUser
