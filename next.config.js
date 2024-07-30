@@ -4,7 +4,6 @@ const imageDomains = process.env.NEXT_PUBLIC_IMAGE_DOMAINS.split(',');
 
 // export default nextConfig;
 const nextConfig = {
-    output: 'standalone',
     env: {
       apiUrl: process.env.API_URL,
       apiUrl1: process.env.API_URL1,
