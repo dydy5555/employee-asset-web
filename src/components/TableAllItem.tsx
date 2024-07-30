@@ -124,8 +124,8 @@ export default function TableAllItem({
             ))}
             <TableColumn>Purchase Date</TableColumn>
             {/* <TableColumn>Remain</TableColumn> */}
-            <TableColumn>Status</TableColumn>
-            <TableColumn>Actions</TableColumn>
+            <TableColumn className="text-center">Status</TableColumn>
+            <TableColumn className="text-center">Actions</TableColumn>
           </TableHeader>
           <TableBody>
             {currentItems.map((item, i) => (

@@ -10,82 +10,80 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-function RemoveItemFromUser({openDel, setOpenDel,sendId,allItems,handleRowClick}) {
+function RemoveItemFromUser({
+  openDel,
+  setOpenDel,
+  sendId,
+  allItems,
+  handleRowClick,
+}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [objItem, setObjItem] = useState({});
 
+  console.log(sendId);
+  console.log(allItems);
+
+  useEffect(() => {
+    allItems?.map((item) => {
+      console.log(item)
+      setObjItem(item);
+    });
+  }, [allItems]);
+
+  console.log(objItem);
   const handleDeleteItem = async () => {
-    const foundItem = allItems.find((item) => item.id === sendId.itemId);
-
-    const mainQty = foundItem.remain_quantity;
-    let newQty = mainQty + Number(sendId.qty);
-    let newStt = "";
-
-    if (foundItem.remain_quantity === sendId.qty) {
-      newStt = "unavailable";
-    } else {
-      newStt = foundItem.status;
-    }
-
     const dataForItem = {
-      allAssets: foundItem.allAssets,
-      status: newStt,
-      problem: foundItem.problem,
-      purchase_date: foundItem.purchase_date,
-      quantity: foundItem.quantity,
-      remain_quantity: newQty,
-      unit_price: foundItem.unit_price,
-      stock_date: foundItem.stock_date,
-      img_url: foundItem.img_url,
-      remark: foundItem.remark,
-      solution: foundItem.solution,
-      start_date_repair: foundItem.start_date_repair,
-      end_date_repair: foundItem.end_date_repair,
+      allAssets: objItem.allAssets,
+      status: "available",
+      problem: objItem.problem,
+      purchase_date: objItem.purchase_date,
+      quantity: objItem.quantity,
+      remain_quantity: objItem.remain_quantity,
+      unit_price: objItem.unit_price,
+      stock_date: objItem.stock_date,
+      img_url: objItem.img_url,
+      remark: objItem.remark,
+      solution: objItem.solution,
+      start_date_repair: objItem.start_date_repair,
+      end_date_repair: objItem.end_date_repair,
     };
 
+    console.log({dataForItem})
+
     try {
-      fun_UpdateItem(foundItem.id, dataForItem).then((res) => {
+      fun_UpdateItem(objItem.id, dataForItem).then((res) => {
         console.log("Update Item ::: ", res);
       });
     } catch (error) {
       console.log("Error ::: ", error);
     }
 
-
-    try{
-      deleteItem(sendId.id,sendId.userId,sendId.use_INNITID).then((res)=>{
-        console.log(res)
-        if(res.status === 200){
-          console.log("Deleted success : ",res)
-          toast.success("Deleted Successfullt!")
-          setOpenDel(false)
-          handleRowClick(sendId.userId,sendId.use_INNITID)
+    try {
+      deleteItem(sendId.id, sendId.userId, sendId.use_INNITID).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          console.log("Deleted success : ", res);
+          toast.success("Deleted Successfullt!");
+          setOpenDel(false);
+          handleRowClick(sendId.userId, sendId.use_INNITID);
         }
-      })
-    }catch(error){
-      console.log("Error ::: ", error)
+      });
+    } catch (error) {
+      console.log("Error ::: ", error);
     }
-    // console.log(userId);
-    // console.log(use_INNITID);
-    // (id, userId,use_INNITID)
-    // deleteItem()
-    // setOpenDel(false)
-
-  };
-
-  useEffect(()=>{
     
-  },[])
+  };
 
   return (
     <div>
       <Modal
         className="z-40 "
         isOpen={openDel}
-        onOpenChange={()=>{
-            setOpenDel(openDel)
+        onOpenChange={() => {
+          setOpenDel(openDel);
         }}
         isDismissable={false}
         isKeyboardDismissDisabled={true}
@@ -112,7 +110,11 @@ function RemoveItemFromUser({openDel, setOpenDel,sendId,allItems,handleRowClick}
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onClick={()=>setOpenDel(false)}>
+                <Button
+                  color="danger"
+                  variant="light"
+                  onClick={() => setOpenDel(false)}
+                >
                   Close
                 </Button>
                 <Button

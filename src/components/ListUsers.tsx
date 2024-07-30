@@ -107,8 +107,10 @@ function ListUsers() {
     };
 
     const getAllCate = () => {
+      // fetchAllCCategory().then((res) => {
+      //   setAllCate(res.data.payload);
+      // });
       fetchAllItems().then((res) => {
-        console.log("fetchAllItems", res);
         setAllItems(res?.data?.payload?.allItem);
       });
     };
@@ -145,7 +147,6 @@ function ListUsers() {
         "https://bizweb-adm.kosign.dev/api/v1/companies/allCompanies"
       );
       const data = await listCompanies.json();
-      console.log("All data ", data.payload);
       const filteredCompanies = data.payload;
       setCompanyData(filteredCompanies);
       setSaveComCd(
@@ -161,11 +162,9 @@ function ListUsers() {
 
   const listDepartment = async (com_cd: any) => {
     localStorage.setItem("com_id", com_cd);
-    console.log(com_cd);
     if (com_cd != "") {
       try {
         getListDeparment(com_cd).then(async (res) => {
-          console.log({ res });
           setDep(res.data.payload);
         });
       } catch (error) {
@@ -265,7 +264,6 @@ function ListUsers() {
     setIsLoading(true);
     try {
       fetchAllEmplByComWithAssset("UTLZ_590").then((res) => {
-        console.log(res);
         if (res?.status == 200) {
           setAllEmployeeAssets(res?.data?.payload);
           setIsLoading(false);
@@ -283,8 +281,8 @@ function ListUsers() {
   };
 
   const handleDep = (value) => {
-    console.log(value);
-    setSelectedDep(value);
+    console.log(value.anchorKey);
+    setSelectedDep(value.anchorKey);
     const filteredAssets = asset_user.filter(
       (asset) => asset.dvsn_NM === value
     );
@@ -294,12 +292,13 @@ function ListUsers() {
   const filteredUser = allEmployeeAssets.filter((user) =>
     user?.employee_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   console.log(filteredUser);
   console.log({ asset_user });
+
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
-        {/* Side 1 */}
         <div className="flex   flex-col w-full">
           <div className="flex p-5 gap-5">
             <div className="w-full">
@@ -386,7 +385,7 @@ function ListUsers() {
                         </svg>
                       </div>
                       <div className="flex gap-2">
-                        <span> {asset_user.length} </span>
+                        <span> {asset_user?.length} </span>
                         <p className="">Total Employees </p>
                       </div>
                     </div>
@@ -400,7 +399,7 @@ function ListUsers() {
                         <Note size="28" color="#4A6CF7" />
                       </div>
                       <div className="flex gap-2 ">
-                        <span> {allItems.length} </span>
+                        <span> {allItems?.length} </span>
                         <p className=""> Total Assets </p>
                       </div>
                     </div>
@@ -488,20 +487,20 @@ function ListUsers() {
               </>
             ) : (
               <>
-                <div className="p-5">
+                <div className="pb-5 px-5 pt-3">
                   <ItemCards
                     toChild={toChild}
                     allEmployeeAssets={allEmployeeAssets}
                     asset_user={asset_user}
                     isLoading={isLoading}
                     searchQuery={searchQuery}
+                    selectedDep={selectedDep}
                   />
                 </div>
               </>
             )}
           </div>
         </div>
-        {/* Side 2 */}
       </div>
     </div>
   );

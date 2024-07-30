@@ -142,16 +142,18 @@ function Categoires() {
           </div>
         </div>
 
-        <Card className="w-full">
+        <Card className="w-full  p-5 h-full  min-h-[750px] overflow-auto max-h-[750px] overflow-y-auto custom-scroll">
           {isLoading ? (
             <CardBody className="flex items-center justify-center h-96">
               <Spinner size="lg" />
             </CardBody>
           ) : filteredCategories.length > 0 ? (
             <Table
+            isHeaderSticky
+            removeWrapper
               aria-label="Categories table"
               classNames={{
-                th: "bg-default-100 text-default-800 border-b border-divider",
+                th: "",
                 td: "border-b border-divider",
               }}
             >
@@ -164,7 +166,7 @@ function Categoires() {
                 <TableColumn>Count Items</TableColumn>
                 <TableColumn>Actions</TableColumn>
               </TableHeader>
-              <TableBody>
+              <TableBody >
                 {filteredCategories.map((v, i) => (
                   <TableRow key={v.id}>
                     <TableCell>{i + 1}</TableCell>
@@ -184,7 +186,7 @@ function Categoires() {
                           }
                           variant="flat"
                           color={v.countItem == 0 ? "danger" : "success"}
-                          className="cursor-pointer"
+                          className="cursor-pointer px-2"
                         >
                           {v.countItem}
                         </Chip>

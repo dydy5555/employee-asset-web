@@ -464,7 +464,7 @@ function AddNewAsset({ allUser, toChild }) {
                   color="primary"
                   onClick={() => {
                     btn_save();
-                    // onClose();
+                    onClose();
                   }}
                 >
                   Save

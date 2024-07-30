@@ -113,16 +113,18 @@ export const func_DeleteAssetUser = async (userId, id) => {
 };
 
 //role user
-export const getByUserAndCompany = async (userId, use_INNITID) => {
+export const getByUserAndCompany = async (userId, use_INTT_ID) => {
+  console.log(userId, use_INTT_ID)
   try {
     const res = await ihttp1.get(
-      `/api/v1/assets/user/${userId}/${use_INNITID}`,
+      `/api/v1/assets/user/${userId}/${use_INTT_ID}`,
       {
         headers: {
           accept: "*/*",
         },
       }
     );
+    console.log({res})
     return res;
   } catch (error) {
     console.log("Error : ", error);
