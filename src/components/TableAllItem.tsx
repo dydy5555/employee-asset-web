@@ -127,7 +127,7 @@ export default function TableAllItem({
             <TableColumn className="text-center">Status</TableColumn>
             <TableColumn className="text-center">Actions</TableColumn>
           </TableHeader>
-          <TableBody>
+          <TableBody className="">
             {currentItems.map((item, i) => (
               <TableRow key={item.id}>
                 <TableCell className="border">
