@@ -28,7 +28,7 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [inputList, setInputList] = useState([]);
   const [categoryName, setCategoryName] = useState("");
-  const [properties, setProperties] = useState(["name", "label no"]);
+  const [properties, setProperties] = useState(["name", "label_no"]);
 
   const handleAddInput = () => {
     setInputList((prev) => [...prev, { id: prev.length, value: "" }]);
