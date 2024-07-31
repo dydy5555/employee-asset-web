@@ -82,7 +82,7 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories }) {
   const handleReset = () => {
     setCategoryName("");
     setInputList([]); 
-    setProperties(["name", "label no"]);
+    setProperties(["name", "label_no"]);
   }
   
   
@@ -134,7 +134,7 @@ function CreateCategory({ setCategoriesFromParent, setTotalSubCategories }) {
                       </div>
                       <div className="flex flex-col pr-5 gap-6 pb-2 min-h-[250px] max-h-[250px] overflow-auto custom-scroll">
                         <div className="flex items-center gap-6">
-                          <Input label="Default property" value="Label No" name="label_no" />
+                          <Input label="Default property" value="Label_No" name="label_no" />
                           <Input label="Default property" value="Name" name="name" />
                         </div>
                         <div className="grid grid-cols-2 text-sm gap-6">
