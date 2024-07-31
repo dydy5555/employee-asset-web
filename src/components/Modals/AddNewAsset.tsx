@@ -109,11 +109,11 @@ function AddNewAsset({ allUser, toChild }) {
     let newStt = "";
     const dataForItem = {
       allAssets: selectedItem.allAssets,
-      status: 'unavailable',
+      status: "unavailable",
       problem: selectedItem.problem,
       purchase_date: selectedItem.purchase_date,
       quantity: selectedItem.quantity - 1,
-      remain_quantity: selectedItem.remain_quantity -1,
+      remain_quantity: selectedItem.remain_quantity - 1,
       unit_price: selectedItem.unit_price,
       stock_date: selectedItem.stock_date,
       img_url: selectedItem.img_url,
@@ -167,7 +167,7 @@ function AddNewAsset({ allUser, toChild }) {
       givenBy: "sokhen",
       receivedBy: userSelected.flnm,
       condition: "Good",
-      status: "INUSE"
+      status: "INUSE",
     };
 
     func_CreateHistoryItem(dataItemHistory).then((res) => {
@@ -175,7 +175,7 @@ function AddNewAsset({ allUser, toChild }) {
       if (res.status === 200) {
         showToastSuccess("History have been saved!");
       }
-    })
+    });
 
     console.log({ data });
   };
@@ -223,150 +223,149 @@ function AddNewAsset({ allUser, toChild }) {
                   </>
                 ) : (
                   <>
-                    <div>
-                      <div className="flex gap-5 items-center justify-between">
-                        <div className="w-full">
-                          <div className="text-md py-1 pl-2 font-medium">
-                            Users
-                          </div>
-                          <Autocomplete
-                            items={allUser}
-                            label="Select a user"
-                            className="max-w-xs w-full "
-                            classNames={{
-                              label: "group-data-[filled=true]:-translate-y-5",
-                              trigger: "min-h-16",
-                              listboxWrapper: "max-h-[400px]",
-                            }}
-                            listboxProps={{
-                              itemClasses: {
-                                base: [
-                                  "rounded-md",
-                                  "text-default-500",
-                                  "transition-opacity",
-                                  "data-[hover=true]:text-foreground",
-                                  "data-[hover=true]:bg-default-100",
-                                  "dark:data-[hover=true]:bg-default-50",
-                                  "data-[selectable=true]:focus:bg-default-50",
-                                  "data-[pressed=true]:opacity-70",
-                                  "data-[focus-visible=true]:ring-default-500",
-                                ],
-                              },
-                            }}
-                            popoverProps={{
-                              classNames: {
-                                base: "before:bg-default-200",
-                                content:
-                                  "p-0 border-small border-divider bg-background",
-                              },
-                            }}
-                            renderValue={(items) => {
-                              setIsSelectedUser(true);
-                              return items.map((item) => (
-                                <div
-                                  key={item.key}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Avatar
-                                    alt={item.data.userId}
-                                    className="flex-shrink-0"
-                                    size="sm"
-                                    src={
-                                      item.data.prfl_PHTG
-                                        ? item.data.prfl_PHTG
-                                        : "https://i.pinimg.com/originals/1b/0a/46/1b0a46e65b98612baa606d0c9af5f715.jpg"
-                                    }
-                                  />
-                                  <div className="flex flex-col">
-                                    <span>{item.data.flnm}</span>
-                                  </div>
-                                </div>
-                              ));
-                            }}
-                            onSelectionChange={handleSelectUser}
-                            onClear={() => setIsSelectedUser(false)}
-                          >
-                            {(user) => (
-                              <AutocompleteItem
-                                key={user.id}
-                                textValue={user.flnm}
-                                className="capitalize"
+                    <div className="flex gap-5 items-center justify-between">
+                      <div className="w-full">
+                        <div className="text-md py-2 pl-2 font-medium">
+                          Users
+                        </div>
+                        <Autocomplete
+                          items={allUser}
+                          label="Select a user"
+                          className="max-w-xs w-full "
+                          scrollShadowProps={{
+                            isEnabled: false,
+                          }}
+                          classNames={{
+                            label: "group-data-[filled=true]:-translate-y-5",
+                            trigger: "min-h-16",
+                            listboxWrapper: "max-h-[400px]",
+                          }}
+                          listboxProps={{
+                            itemClasses: {
+                              base: [
+                                "rounded-md",
+                                "text-default-500",
+                                "transition-opacity",
+                                "data-[hover=true]:text-foreground",
+                                "data-[hover=true]:bg-default-100",
+                                "dark:data-[hover=true]:bg-default-50",
+                                "data-[selectable=true]:focus:bg-default-50",
+                                "data-[pressed=true]:opacity-70",
+                                "data-[focus-visible=true]:ring-default-500",
+                              ],
+                            },
+                          }}
+                          popoverProps={{
+                            classNames: {
+                              base: "before:bg-default-200",
+                              content:
+                                "p-0 border-small border-divider bg-background",
+                            },
+                          }}
+                          renderValue={(items) => {
+                            return items.map((item) => (
+                              <div
+                                key={item.key}
+                                className="flex items-center gap-2"
                               >
-                                <div className="flex gap-2 items-center">
-                                  <Image
-                                    alt={user.userId}
-                                    className=" w-[40px] h-[40px] object-cover rounded-full p-[0.5px] border border-gray-100"
-                                    width={40}
-                                    height={40}
-                                    src={
-                                      user.prfl_PHTG ||
-                                      "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
-                                    }
-                                  />
-                                  <div className="flex flex-col">
-                                    <span className="text-small">
-                                      {user.flnm}
-                                    </span>
-                                    <span className="text-tiny text-default-400">
-                                      {user.userId}
-                                    </span>
-                                  </div>
+                                <Avatar
+                                  alt={item.data.userId}
+                                  className="flex-shrink-0"
+                                  size="sm"
+                                  src={
+                                    item.data.prfl_PHTG
+                                      ? item.data.prfl_PHTG
+                                      : "https://i.pinimg.com/originals/1b/0a/46/1b0a46e65b98612baa606d0c9af5f715.jpg"
+                                  }
+                                />
+                                <div className="flex flex-col">
+                                  <span>{item.data.flnm}</span>
                                 </div>
-                              </AutocompleteItem>
-                            )}
-                          </Autocomplete>
+                              </div>
+                            ));
+                          }}
+                          onSelectionChange={handleSelectUser}
+                          onClear={() => setIsSelectedUser(false)}
+                        >
+                          {(user) => (
+                            <AutocompleteItem
+                              key={user.id}
+                              textValue={user.flnm}
+                              className="capitalize"
+                            >
+                              <div className="flex gap-2 items-center">
+                                <img
+                                  alt={user.userId}
+                                  className=" w-[40px] h-[40px] object-cover rounded-full p-[0.5px] border border-gray-100"
+                                  width={40}
+                                  height={40}
+                                  src={
+                                    user.prfl_PHTG ||
+                                    "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
+                                  }
+                                />
+                                <div className="flex flex-col">
+                                  <span className="text-small">
+                                    {user.flnm}
+                                  </span>
+                                  <span className="text-tiny text-default-400">
+                                    {user.userId}
+                                  </span>
+                                </div>
+                              </div>
+                            </AutocompleteItem>
+                          )}
+                        </Autocomplete>
+                      </div>
+
+                      <div className="w-full">
+                        <div className="">
+                          <div className="w-full">
+                            <div className="text-md py-2 pl-2 font-medium">
+                              Items
+                            </div>
+                            <Autocomplete
+                              label="Select an item"
+                              className="max-w-xs"
+                              scrollShadowProps={{
+                                isEnabled: false,
+                              }}
+                              onSelectionChange={handleItemChange}
+                            >
+                              {allItems?.map((item) => {
+                                return item.allAssets?.map((asset) => (
+                                  <AutocompleteItem
+                                    key={item.id}
+                                    value={item.id}
+                                    className={
+                                      item.status === "unavailable" 
+                                        ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
+                                        : ""
+                                    }
+                                  >
+                                    {asset.subCategories?.name || "N/A"}
+                                  </AutocompleteItem>
+                                ));
+                              })}
+                            </Autocomplete>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {isSelectedUser ? (
-                      <div className=" h-[340px] border-t border-gray-100 pt-3  mt-3">
-                        <div className="w-full">
-                          <div className="text-md py-1 pl-2 font-medium">
-                            Items
-                          </div>
-                          <Autocomplete
-                            label="Select an item"
-                            className="max-w-xs"
-                            scrollShadowProps={{
-                              isEnabled: false,
-                            }}
-                            onSelectionChange={handleItemChange}
-                          >
-                            {allItems?.map((item) => {
-                              return item.allAssets?.map((asset) => (
-                                <AutocompleteItem
-                                  key={item.id}
-                                  value={item.id}
-                                  className={
-                                    item.status === "unavailable" ||
-                                    item.remain_quantity <= 0
-                                      ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
-                                      : ""
-                                  }
-                                  // endContent={<div>{item.remain_quantity}</div>}
-                                >
-                                  {asset.subCategories?.name || "N/A"}
-                                </AutocompleteItem>
-                              ));
-                            })}
-                          </Autocomplete>
-                        </div>
-                        <div className="mt-3 w-full h-full">
-                          <p className="text-md py-1 pl-2 font-medium">
-                            Remark
-                          </p>
-                          <Textarea
-                            value={itemRemark}
-                            placeholder="Enter your description"
-                            className="h-full"
-                            style={{ width: "500px", height: "160px" }}
-                            onValueChange={onChangeRemark}
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <>
+                    <div className=" w-full h-full">
+                      <p className="text-md py-2 pl-2 font-medium">Remark</p>
+                      <Textarea
+                        value={itemRemark}
+                        size="sm"
+                        placeholder="Enter your description"
+                        className="h-full max-h-[200px]"
+                        onValueChange={onChangeRemark}
+                        
+                      />
+                    </div>
+
+                    {/* <>
                         <div className="w-full h-full ">
                           <div className="w-full h-full flex flex-col justify-center items-center">
                             <Image
@@ -381,8 +380,7 @@ function AddNewAsset({ allUser, toChild }) {
                             </div>
                           </div>
                         </div>
-                      </>
-                    )}
+                      </> */}
 
                     {/* {isSelected ? (
                       <>
@@ -444,7 +442,7 @@ function AddNewAsset({ allUser, toChild }) {
                 )}
               </ModalBody>
 
-              <ModalFooter>
+              <ModalFooter className="pb-6 px-8">
                 <Button
                   variant="flat"
                   //   onClick={() => {

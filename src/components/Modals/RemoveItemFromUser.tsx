@@ -24,16 +24,14 @@ function RemoveItemFromUser({
   const [objItem, setObjItem] = useState({});
 
   console.log(sendId);
-  console.log(allItems);
+  // console.log(allItems);
 
   useEffect(() => {
     allItems?.map((item) => {
-      console.log(item)
       setObjItem(item);
     });
   }, [allItems]);
 
-  console.log(objItem);
   const handleDeleteItem = async () => {
     const dataForItem = {
       allAssets: objItem.allAssets,
@@ -54,7 +52,7 @@ function RemoveItemFromUser({
     console.log({dataForItem})
 
     try {
-      fun_UpdateItem(objItem.id, dataForItem).then((res) => {
+      fun_UpdateItem(sendId.assetId, dataForItem).then((res) => {
         console.log("Update Item ::: ", res);
       });
     } catch (error) {
@@ -68,7 +66,7 @@ function RemoveItemFromUser({
           console.log("Deleted success : ", res);
           toast.success("Deleted Successfullt!");
           setOpenDel(false);
-          handleRowClick(sendId.userId, sendId.use_INNITID);
+          handleRowClick(sendId.id,sendId.userId, sendId.use_INNITID, sendId.assetId);
         }
       });
     } catch (error) {

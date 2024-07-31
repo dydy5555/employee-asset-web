@@ -52,9 +52,9 @@ export default function AssetDetail({
   const [quantity, setQuantity] = useState("");
   const [tempUser, setTempUser] = useState({});
 
-  console.log({ itemsUser });
-  console.log(sendUser.userId, sendUser.use_INTT_ID);
-  console.log({ sendUser });
+  // console.log({ itemsUser });
+  // console.log(sendUser.userId, sendUser.use_INTT_ID);
+  console.log({ user });
 
   const handleItemChange = (value) => {
     console.log(value);
@@ -64,18 +64,14 @@ export default function AssetDetail({
     setSelectedItem(foundItem);
   };
 
-  const handleDeleteItem = async (id, userId, use_INNITID, qty) => {
-    const idDel = { id, userId, use_INNITID, qty };
+  const handleDeleteItem = async (id, userId, use_INNITID, assetId) => {
+    console.log(id, userId, use_INNITID, assetId)
+    const idDel = { id, userId, use_INNITID, assetId };
     setSendId(idDel);
     setOpenDel(true);
   };
 
   useEffect(() => {
-    // itemsUser?.map((res) => {
-    //   setTempUser([])
-    //   setTempUser(res);
-    // });
-
     getByUserAndCompany(sendUser.userId, sendUser.use_INTT_ID).then((res) => {
       console.log(res);
       setTempUser([]);
@@ -83,7 +79,6 @@ export default function AssetDetail({
     });
   }, [itemsUser]);
 
-  console.log({ tempUser });
   useEffect(() => {
     setGetUser(itemsUser);
     itemsUser.map((res) => {
@@ -110,16 +105,8 @@ export default function AssetDetail({
     fetchItems();
   }, [itemsUser]);
 
-  console.log(getUser);
-  console.log(allItems);
 
   const subCategoryKeys = Array.from(
-    // new Set(
-    //   allItems.flatMap((user) =>
-    //     user?.allAssets?.flatMap((j) => Object.keys(j.subCategories))
-    //     )
-
-    // )
     new Set(
       getUser?.flatMap((user) =>
         user?.allAssetOfUser?.flatMap((i) =>
@@ -128,8 +115,7 @@ export default function AssetDetail({
       )
     )
   );
-  console.log(subCategoryKeys);
-  console.log(allCates);
+ 
   const startDate = moment().format("YYYYMMDD");
 
   const handleSave = () => {
@@ -152,16 +138,16 @@ export default function AssetDetail({
     console.log({ dataForItem });
 
     const dataSave = {
-      userId: tempUser.userId,
-      employee_name: tempUser.employee_name,
-      team: tempUser.team,
-      remark: selectedItem.remark,
-      department: tempUser.team,
-      company: tempUser.company,
-      img_url: tempUser.img_url,
-      use_INNITID: tempUser.use_INNITID,
-      start_date: allCates.start_date,
-      end_date: allCates.end_date,
+      userId: sendUser.userId,
+      employee_name: sendUser.flnm,
+      team: sendUser.dvsn_NM,
+      remark: "",
+      department: sendUser.dvsn_NM,
+      company: sendUser.use_INTT_ID,
+      img_url: sendUser.prfl_PHTG,
+      use_INNITID: sendUser.use_INTT_ID,
+      start_date: startDate,
+      end_date:"",
       item_Id: selectedItem.id,
       quantity: 1,
     };
@@ -176,19 +162,19 @@ export default function AssetDetail({
           toast.success("Updated successfully!");
           // console.log("ksksksks ", selectedUserId, selectedItem)
           // addNewAsset("selok", selectedItem)
-          handleRowClick(user.userId, user.use_INNITID);
-          toChild();
+          // handleRowClick(user.userId, user.use_INNITID);
+          // toChild();
           const dataItemHistory = {
             itemId: selectedItem.id,
-            employeeId: tempUser.flnm,
-            userProfile: tempUser.dvsn_NM,
-            useInttId: tempUser.use_INTT_ID,
+            employeeId: sendUser.flnm,
+            userProfile: sendUser.dvsn_NM,
+            useInttId: sendUser.use_INTT_ID,
             description: selectedItem.remark,
             givenQuantity: 1,
             givenDate: startDate,
             returnedDate: null,
             givenBy: "sokhen",
-            receivedBy: tempUser.flnm,
+            receivedBy: sendUser.flnm,
             condition: "Good",
             status: "INUSE",
           };
@@ -259,7 +245,7 @@ export default function AssetDetail({
                           src={
                             sendUser.prfl_PHTG
                               ? sendUser.prfl_PHTG
-                              : "https://i.pinimg.com/originals/b5/85/5b/b5855b9c2b4dd756c997882ecfbd58e9.jpg"
+                              : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
                           }
                           alt={sendUser?.flnm}
                           className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"
@@ -300,7 +286,7 @@ export default function AssetDetail({
                                         borderColor: "red",
                                       }}
                                     >
-                                      Category Name
+                                      Item
                                     </th>
                                     {subCategoryKeys?.map((key, index) => (
                                       <th
@@ -324,7 +310,7 @@ export default function AssetDetail({
                                 </thead>
                                 <tbody>
                                   {tempUser?.allAssetOfUser.map((items, k) =>
-                                    items.item.allAssets?.map(
+                                    items?.item?.allAssets?.map(
                                       (asset, index) => (
                                         <tr key={k} className="py-2 border-b">
                                           <td className="py-2 pl-3 text-center">
@@ -386,7 +372,7 @@ export default function AssetDetail({
                                 <div className="w-full  flex flex-wrap gap-3 min-h-[100px] border p-2 rounded-lg border-gray-100">
                                   {tempUser?.allAssetOfUser?.length > 0 ? (
                                     tempUser?.allAssetOfUser.map((items, k) =>
-                                      items.item.allAssets?.map(
+                                      items?.item?.allAssets?.map(
                                         (asset, assetIndex) => (
                                           <div key={assetIndex} className="">
                                             <Chip
@@ -400,11 +386,11 @@ export default function AssetDetail({
                                                   items?.id,
                                                   sendUser.userId,
                                                   sendUser.use_INTT_ID,
-                                                  items?.quantity
+                                                  items.item?.id
                                                 );
                                               }}
                                             >
-                                              {asset.name}
+                                              {asset.subCategories?.name}
                                             </Chip>
                                           </div>
                                         )
@@ -443,7 +429,7 @@ export default function AssetDetail({
                                           }
                                           endContent={<div>{}</div>}
                                         >
-                                          {asset.name}
+                                          {asset.subCategories?.name}
                                         </AutocompleteItem>
                                       ));
                                     })}
