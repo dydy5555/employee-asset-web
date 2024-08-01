@@ -18,7 +18,7 @@ import {
 } from "@nextui-org/react";
 
 import AssetDetail from "./Modals/AssetDetail";
-import { More } from "iconsax-react";
+import { ArrowSwapVertical, More } from "iconsax-react";
 import ConfirmDeleteUser from "./Modals/ConfirmDeleteUser";
 import { getByUserAndCompany } from "@/services/assets.service";
 import NoApp from "../../public/images/no_app.jpg";
@@ -39,24 +39,67 @@ export default function ItemCards({
   const [filteredAssets, setFilteredAssets] = useState([]);
   const [haveItems, setHaveItems] = useState(false);
   const [sendUser, setSendUser] = useState({});
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [page, setPage] = React.useState(1);
+  const [sortCriteria, setSortCriteria] = useState({
+    key: "userId",
+    order: "asc",
+  });
+
 
   useEffect(() => {
     let filtered = allEmployeeAssets;
 
+    // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter((employee) =>
         employee.userId.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
+    // Apply department filter
     if (selectedDep) {
       filtered = filtered.filter((employee) =>
         employee.dvsn_NM.toLowerCase().includes(selectedDep.toLowerCase())
       );
     }
 
-    setFilteredAssets(filtered);
-  }, [selectedDep, searchQuery, allEmployeeAssets]);
+    // Apply sorting
+    const { key, order } = sortCriteria;
+    filtered = filtered.sort((a, b) => {
+      if (a[key] < b[key]) return order === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return order === "asc" ? 1 : -1;
+      return 0;
+    });
+
+     // Sort by total_asset in descending order
+  filtered.sort((a, b) => b.total_asset - a.total_asset);
+
+    // Apply pagination
+    const startIndex = (page - 1) * rowsPerPage;
+    const paginated = filtered.slice(startIndex, startIndex + rowsPerPage);
+
+    setFilteredAssets(paginated);
+  }, [
+    selectedDep,
+    searchQuery,
+    allEmployeeAssets,
+    sortCriteria,
+    page,
+    rowsPerPage,
+  ]);
+
+  const onRowsPerPageChange = React.useCallback((e) => {
+    setRowsPerPage(Number(e.target.value));
+    setPage(1);
+  }, []);
+
+  const handleSortChange = (key) => {
+    setSortCriteria((prevCriteria) => ({
+      key,
+      order: prevCriteria.order === "asc" ? "desc" : "asc",
+    }));
+  };
 
   const handleRowClick = (user, userId, use_INTT_ID) => {
     setSendUser(user);
@@ -95,102 +138,133 @@ export default function ItemCards({
 
   return (
     <>
-      <div className="">
-        <Card className="min-h-[670px] max-h-[670px] overflow-auto p-5">
-          {!isLoading ? (
-            <Table
-              topContentPlacement="outside"
-              isStriped
-              isHeaderSticky
-              removeWrapper
-              className="h-full"
+      <div className="h-full w-full mt-4">
+        <div className="flex justify-between items-center py-2 px-2">
+          <span className="text-default-400 text-small">
+            Total sort : {filteredAssets?.length} users
+          </span>
+          <label className="flex items-center text-default-400 text-small">
+            Rows per page:
+            <select
+              className="bg-transparent outline-none text-default-400 text-small"
+              onChange={onRowsPerPageChange}
             >
-              <TableHeader>
-                <TableColumn>NO</TableColumn>
-                <TableColumn>EMPLOYEE</TableColumn>
-                <TableColumn>POSITION</TableColumn>
-                <TableColumn>DEPARTMENT</TableColumn>
-                <TableColumn>COMPANY</TableColumn>
-                <TableColumn className="text-center">ASSETS</TableColumn>
-                <TableColumn className="">
-                  <p></p>
-                </TableColumn>
-              </TableHeader>
+              <option value="10">10</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
 
-              <TableBody>
-                {filteredAssets.map((user, index) => (
-                  <TableRow
-                    key={index}
-                    className="hover:cursor-pointer hover:bg-gray-100"
-                    onClick={() =>
-                      handleRowClick(user, user?.userId, user?.use_INTT_ID)
-                    }
+        <Card className="p-5 mt-1 shadow-small">
+          <div className="min-h-[620px] max-h-[460px] overflow-auto rounded-lg pr-2">
+            {!isLoading ? (
+              <Table
+                topContentPlacement="outside"
+                isStriped
+                isHeaderSticky
+                removeWrapper
+                className="h-full "
+              >
+                <TableHeader className="rounded-xl shadow-none">
+                  <TableColumn>NO</TableColumn>
+                  <TableColumn
+                    className="hover:cursor-pointer flex items-center gap-1"
+                    // onClick={() => handleSortChange("flnm")}
                   >
-                    <TableCell className="pl-4">{index + 1}</TableCell>
-                    <TableCell className="flex items-center ">
-                      <User
-                        className="h-full "
-                        avatarProps={{
-                          radius: "full",
-                          src: user.prfl_PHTG
-                            ? user.prfl_PHTG
-                            : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png",
-                        }}
-                        description={user.userId}
-                        name={user.flnm}
-                      >
-                        {user.flnm}
-                      </User>
-                    </TableCell>
-                    <TableCell className="">{user.jbcl_NM}</TableCell>
-                    <TableCell className="">{user.dvsn_NM}</TableCell>
-                    <TableCell className="">
-                      {user.use_INTT_ID ? user.use_INTT_ID : "KOSIGN"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {user?.total_asset}
-                    </TableCell>
-                    <TableCell className="items-end flex justify-end">
-                      <Dropdown className="min-w-[100px]">
-                        <DropdownTrigger>
-                          <Button variant="flat" isIconOnly>
-                            <More size="24" color="#FF8A65" />
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="Static Actions">
-                          <DropdownItem
-                            onClick={() => {
-                              handleRowClick(
-                                user,
-                                user?.userId,
-                                user?.use_INTT_ID
-                              );
+                    EMPLOYEE 
+                    {/* <ArrowSwapVertical size="16" color="#6b7280" /> */}
+                  </TableColumn>
+                  <TableColumn>POSITION</TableColumn>
+                  <TableColumn>DEPARTMENT</TableColumn>
+                  <TableColumn>COMPANY</TableColumn>
+                  <TableColumn className="text-center">ASSETS</TableColumn>
+                  <TableColumn className="">
+                    <p></p>
+                  </TableColumn>
+                </TableHeader>
+
+                <TableBody className="">
+                  {filteredAssets?.map((user, index) => (
+                    <TableRow
+                      key={index}
+                      className="hover:cursor-pointer hover:bg-gray-100 rounded-lg"
+                      onClick={() =>
+                        handleRowClick(user, user?.userId, user?.use_INTT_ID)
+                      }
+                    >
+                      <TableCell className="pl-4">
+                        {(page - 1) * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell className=" ">
+                        <div className="flex items-center ">
+                          <User
+                            className="h-full "
+                            avatarProps={{
+                              radius: "full",
+                              src: user.prfl_PHTG
+                                ? user.prfl_PHTG
+                                : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png",
                             }}
+                            description={user.userId}
+                            name={user.flnm}
                           >
-                            Detail
-                          </DropdownItem>
-                          <DropdownItem
-                            onClick={() => {
-                              handleClickDelete(
-                                user?.userId,
-                                user?.use_INTT_ID
-                              );
-                            }}
-                          >
-                            Delete
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="w-full justify-center items-center h-full">
-              <div className="custom-loader"></div>
-            </div>
-          )}
+                            {user.flnm}
+                          </User>
+                        </div>
+                      </TableCell>
+                      <TableCell className="">{user.jbcl_NM}</TableCell>
+                      <TableCell className="">{user.dvsn_NM}</TableCell>
+                      <TableCell className="">
+                        {user.use_INTT_ID ? user.use_INTT_ID : "KOSIGN"}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {user?.total_asset}
+                      </TableCell>
+                      <TableCell>
+                        <div className="items-end flex justify-end">
+                          <Dropdown className="min-w-[100px]">
+                            <DropdownTrigger>
+                              <Button variant="flat" isIconOnly>
+                                <More size="24" color="#4a6cf7" />
+                              </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Static Actions">
+                              <DropdownItem
+                                onClick={() => {
+                                  handleRowClick(
+                                    user,
+                                    user?.userId,
+                                    user?.use_INTT_ID
+                                  );
+                                }}
+                              >
+                                Detail
+                              </DropdownItem>
+                              <DropdownItem
+                                onClick={() => {
+                                  handleClickDelete(
+                                    user?.userId,
+                                    user?.use_INTT_ID
+                                  );
+                                }}
+                              >
+                                Delete
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="w-full flex min-h-[630px] max-h-[630px] justify-center items-center h-full">
+                <div className="custom-loader"></div>
+              </div>
+            )}
+          </div>
         </Card>
       </div>
 

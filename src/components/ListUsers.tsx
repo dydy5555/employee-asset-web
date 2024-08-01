@@ -299,8 +299,8 @@ function ListUsers() {
   return (
     <div className="w-full  overflow-x-auto">
       <div className="flex w-full gap-4">
-        <div className="flex   flex-col w-full">
-          <div className="flex p-5 gap-5">
+        <div className="flex flex-col w-full">
+          <div className="flex px-5 pt-2 gap-5">
             <div className="w-full">
               {/* Search */}
               <Input
@@ -359,7 +359,7 @@ function ListUsers() {
             <>
               <div className="flex w-full justify-end gap-5">
                 <div className="">
-                  <Card className=" h-full min-w-[200px] max-h-[80px] min-h-[80px] flex items-start justify-end px-2">
+                  <Card className="shadow-small h-full min-w-[200px] max-h-[80px] min-h-[80px] flex items-start justify-end px-2">
                     <div className="flex gap-3 items-center font-medium p-3">
                       <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <svg
@@ -393,7 +393,7 @@ function ListUsers() {
                 </div>
 
                 <div className="">
-                  <Card className="flex h-full min-w-[200px] max-h-[80px] min-h-[80px] items-start justify-end px-2">
+                  <Card className="flex shadow-small h-full min-w-[200px] max-h-[80px] min-h-[80px] items-start justify-end px-2">
                     <div className="flex gap-3 items-center font-medium p-3">
                       <div className="bg-gray-100 rounded-full w-[50px] p-2 h-[50px] flex items-center justify-center ">
                         <Note size="28" color="#4A6CF7" />
@@ -487,7 +487,7 @@ function ListUsers() {
               </>
             ) : (
               <>
-                <div className="pb-5 px-5 pt-3">
+                <div className="pb-5 px-5">
                   <ItemCards
                     toChild={toChild}
                     allEmployeeAssets={allEmployeeAssets}

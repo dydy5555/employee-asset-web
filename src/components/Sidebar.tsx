@@ -117,7 +117,7 @@ function Sidebar() {
               <Link
                 href="/app/employee-assets"
                 className={`flex ${
-                  pathname === "/app/employee-assets" ? "text-[#378CE7]" : ""
+                  pathname === "/app/employee-assets" ? "text-primary" : ""
                 } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
               >
                 <Buildings variant="Outline" size={20} />
@@ -128,7 +128,7 @@ function Sidebar() {
               <Link
                 href={"/app/items"}
                 className={`flex ${
-                  pathname === "/app/items" ? "text-[#378CE7]" : ""
+                  pathname === "/app/items" ? "text-primary" : ""
                 } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
               >
                 <MonitorMobbile size={20} />
@@ -139,7 +139,7 @@ function Sidebar() {
               <Link
                 href={"/app/all-categories"}
                 className={`flex ${
-                  pathname === "/app/all-categories" ? "text-[#378CE7]" : ""
+                  pathname === "/app/all-categories" ? "text-primary" : ""
                 } hover:px-8 duration-200 px-6 py-2 items-center gap-2`}
               >
                 <Category size={20} />

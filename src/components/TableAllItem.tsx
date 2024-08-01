@@ -130,7 +130,7 @@ export default function TableAllItem({
             <TableColumn>Image</TableColumn>
             <TableColumn>Category name</TableColumn>
             {subCategoryKeys.map((key) => (
-              <TableColumn key={key}>{key}</TableColumn>
+              <TableColumn className="capitalize" key={key}>{key}</TableColumn>
             ))}
             <TableColumn>Purchase Date</TableColumn>
             {/* <TableColumn>Remain</TableColumn> */}

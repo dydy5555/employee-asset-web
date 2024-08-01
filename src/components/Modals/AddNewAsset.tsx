@@ -15,7 +15,7 @@ import {
   Textarea,
   useDisclosure,
 } from "@nextui-org/react";
-import { Devices } from "iconsax-react";
+import { Devices, NoteText, User } from "iconsax-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import think from "../../../public/images/icon/Thinkin.svg";
@@ -173,7 +173,7 @@ function AddNewAsset({ allUser, toChild }) {
     func_CreateHistoryItem(dataItemHistory).then((res) => {
       console.log({ res });
       if (res.status === 200) {
-        showToastSuccess("History have been saved!");
+        // showToastSuccess("History have been saved!");
       }
     });
 
@@ -205,7 +205,7 @@ function AddNewAsset({ allUser, toChild }) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col w-full h-full gap-1 mt-2">
-                <h1 className="text-center text-[#378CE7]">Add new asset</h1>
+                <h1 className="text-center text-[#378CE7]">Add Asset</h1>
                 <div className=" border-b-[1px] border-gray-100 mt-2"></div>
               </ModalHeader>
               <ModalBody className="px-8 w-full h-full py-0 ">
@@ -286,6 +286,7 @@ function AddNewAsset({ allUser, toChild }) {
                           }}
                           onSelectionChange={handleSelectUser}
                           onClear={() => setIsSelectedUser(false)}
+                          // startContent={<User size="18" color="#9ca3af"/>}
                         >
                           {(user) => (
                             <AutocompleteItem
@@ -338,7 +339,7 @@ function AddNewAsset({ allUser, toChild }) {
                                     key={item.id}
                                     value={item.id}
                                     className={
-                                      item.status === "unavailable" 
+                                      item.status === "unavailable"
                                         ? "text-[#FF0000] cursor-not-allowed disabled pointer-events-none"
                                         : ""
                                     }
@@ -354,14 +355,16 @@ function AddNewAsset({ allUser, toChild }) {
                     </div>
 
                     <div className=" w-full h-full">
-                      <p className="text-md py-2 pl-2 font-medium">Remark</p>
+                      <p className="text-sm py-2 pl-2 font-medium flex items-end gap-2">
+                        Remark
+                      </p>
                       <Textarea
                         value={itemRemark}
                         size="sm"
                         placeholder="Enter your description"
                         className="h-full max-h-[200px]"
                         onValueChange={onChangeRemark}
-                        
+                        startContent={<NoteText size="18" color="#9ca3af" />}
                       />
                     </div>
 
@@ -465,7 +468,7 @@ function AddNewAsset({ allUser, toChild }) {
                     onClose();
                   }}
                 >
-                  Save
+                  Add
                 </Button>
               </ModalFooter>
             </>

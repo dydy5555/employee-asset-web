@@ -43,7 +43,10 @@ import PurchaseAndStockDate from "../PurchaseAndStockDate";
 import QuantityInput from "../QuantityInput";
 import PriceInput from "../PriceInput";
 import RemarkInput from "../RemarkInput";
-import { showErrorToast, showToastSuccess } from "@/services/commonfunc.service";
+import {
+  showErrorToast,
+  showToastSuccess,
+} from "@/services/commonfunc.service";
 import AskToSaveItem from "./AskToSaveItem";
 export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
   let { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -125,6 +128,8 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
     return inputs;
   };
 
+  console.log(subCategories);
+
   const fetchByID = async (id) => {
     console.log(id);
     if (id === null) {
@@ -190,29 +195,29 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
         start_date_repair: "",
         end_date_repair: "",
       };
-      console.log("textNote: " , textNote)
+      console.log("textNote: ", textNote);
       console.log("data before add ", data);
-      
+
       const updateCountItem = {
         categoryName: cateName,
         subCategories: subCate,
         countItem: countItems + 1,
-      }
+      };
       console.log("data before update ", updateCountItem);
       const rescate = await func_EditCategory(id, updateCountItem);
-      console.log("rescate: ", rescate)
+      console.log("rescate: ", rescate);
       const res = await func_CreateNewitem(data);
       console.log({ res });
 
       if (res.status === 200) {
         setLoading(false);
         setOpenMod(false);
-        showToastSuccess("Item created successfully!")
+        showToastSuccess("Item created successfully!");
         onItemCreated();
         handleCloseModal();
       } else {
         setLoading(false);
-        showErrorToast("Failed to create item, Please try again!")
+        showErrorToast("Failed to create item, Please try again!");
         handleCloseModal();
       }
     } catch (error) {
@@ -261,13 +266,13 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
 
     setOpenMod(false);
   };
-  
+
   return (
     <div>
       <Modal
         isOpen={openMod}
         onOpenChange={() => {
-          handleCloseModal()
+          handleCloseModal();
         }}
         placement="top-center"
         size="5xl"
@@ -392,28 +397,31 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
                             <div className="grid grid-cols-2 gap-6 max-h-[400px]  overflow-auto custom-scroll w-full h-full">
                               {/* More detail */}
                               <div className="space-y-3">
-                                <div className="grid grid-cols-2 justify-center items-start">
+                                {/* purchase date and stock date */}
+                                <PurchaseAndStockDate
+                                  setPurchaseDate={setPurchaseDate}
+                                  setStockDate={setStockDate}
+                                />
+
+                                <div className="grid grid-cols-2 justify-center items-start ">
                                   {/* Quatity */}
-                                  <QuantityInput
+                                  {/* <QuantityInput
                                     quantity={quantity}
                                     setQuantity={setQuantity}
-                                  />
+                                  /> */}
                                   {/* Price per unit */}
                                   <PriceInput
                                     price={price}
                                     setPrice={setPrice}
                                   />
                                 </div>
-                                {/* purchase date and stock date */}
-                                <PurchaseAndStockDate
-                                  setPurchaseDate={setPurchaseDate}
-                                  setStockDate={setStockDate}
-                                />
-                                {/* remark */}
+                                <div className="mt-2">
+                                  {/* remark */}
                                 <RemarkInput
                                   textNote={textNote}
                                   setTextNote={setTextNote}
                                 />
+                                </div>
                               </div>
                               <div className="mb-8">
                                 <label className="block text-[14.4px] font-medium text-gray-500 dark:text-white">
@@ -505,7 +513,7 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
                 <Button
                   variant="flat"
                   onClick={() => {
-                    handleCloseModal()
+                    handleCloseModal();
                   }}
                 >
                   Cancel
@@ -525,7 +533,11 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
           )}
         </ModalContent>
       </Modal>
-      <AskToSaveItem openAskToSave={openAskToSave} setOpenAskToSave={setOpenAskToSave} handleSave={handleSave} />
+      <AskToSaveItem
+        openAskToSave={openAskToSave}
+        setOpenAskToSave={setOpenAskToSave}
+        handleSave={handleSave}
+      />
     </div>
   );
 }

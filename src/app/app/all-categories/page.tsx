@@ -94,11 +94,13 @@ function Categoires() {
     const categoryNameMatch = category.categoryName
       ?.toLowerCase()
       .includes(searchQuery.toLowerCase());
-    const subCategoriesMatch = category.subCategories.some((subCategory) =>
+    const subCategoriesMatch = category.subCategories?.some((subCategory) =>
       subCategory.toLowerCase().includes(searchQuery.toLowerCase())
     );
     return categoryNameMatch || subCategoriesMatch;
   });
+
+  console.log({filteredCategories})
 
   return (
     <>

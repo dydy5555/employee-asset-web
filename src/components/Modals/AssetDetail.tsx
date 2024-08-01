@@ -115,6 +115,8 @@ export default function AssetDetail({
       )
     )
   );
+
+  console.log(subCategoryKeys)
  
   const startDate = moment().format("YYYYMMDD");
 
@@ -320,13 +322,13 @@ export default function AssetDetail({
                                             {asset.name}
                                           </td>
                                           {subCategoryKeys.map(
-                                            (key, subIndex) => (
+                                            (key) => (
                                               <td
-                                                key={subIndex}
+                                                key={index}
                                                 className="p-2 text-center"
                                                 style={{ borderColor: "red" }}
                                               >
-                                                {asset?.subCategories[key] ||
+                                                {asset.subCategories[key] ||
                                                   ""}
                                               </td>
                                             )
@@ -335,7 +337,7 @@ export default function AssetDetail({
                                             className="p-2 text-center"
                                             style={{ borderColor: "red" }}
                                           >
-                                            {allCates?.item?.remark}
+                                            {items?.item?.remark}
                                           </td>
                                         </tr>
                                       )
@@ -390,7 +392,7 @@ export default function AssetDetail({
                                                 );
                                               }}
                                             >
-                                              {asset.subCategories?.name}
+                                              {asset.name}
                                             </Chip>
                                           </div>
                                         )

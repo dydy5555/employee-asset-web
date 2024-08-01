@@ -1,4 +1,4 @@
-import ihttp from "@/api/interceptor";
+import ihttp, { ihttp1 } from "@/api/interceptor";
 
 export const getListEmployee = async (formData) => {
   try {
@@ -17,8 +17,8 @@ export const getListEmployee = async (formData) => {
 
 export const getListDeparment = async (com_cd) => {
   try {
-    const response = await ihttp.get(
-      `https://bizweb.kosign.dev/api/v1/auth/departments/${com_cd}`
+    const response = await ihttp1.get(
+      `api/v1/employeess/${com_cd}/department`
     );
     console.log({ response });
 

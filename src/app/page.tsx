@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 
 function Home() { 
-  redirect('app')
+  redirect('app/employee-assets')
 }
 
 export default Home

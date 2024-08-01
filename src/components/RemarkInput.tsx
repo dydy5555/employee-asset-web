@@ -8,7 +8,7 @@ export default function RemarkInput({ textNote, setTextNote }) {
     setTextNote(e.target.value);
   };
   return (
-    <div>
+    <div className="">
       <Textarea
         onChange={onchangeNote}
         value={textNote}
