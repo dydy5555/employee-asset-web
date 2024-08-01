@@ -260,7 +260,7 @@ export default function ItemCards({
                 </TableBody>
               </Table>
             ) : (
-              <div className="w-full flex min-h-[630px] max-h-[630px] justify-center items-center h-full">
+              <div className="w-full flex min-h-[620px] max-h-[630px] justify-center items-center h-full">
                 <div className="custom-loader"></div>
               </div>
             )}
