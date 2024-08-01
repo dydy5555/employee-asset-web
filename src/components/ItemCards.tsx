@@ -46,7 +46,6 @@ export default function ItemCards({
     order: "asc",
   });
 
-
   useEffect(() => {
     let filtered = allEmployeeAssets;
 
@@ -72,8 +71,8 @@ export default function ItemCards({
       return 0;
     });
 
-     // Sort by total_asset in descending order
-  filtered.sort((a, b) => b.total_asset - a.total_asset);
+    // Sort by total_asset in descending order
+    filtered.sort((a, b) => b.total_asset - a.total_asset);
 
     // Apply pagination
     const startIndex = (page - 1) * rowsPerPage;
@@ -172,7 +171,7 @@ export default function ItemCards({
                     className="hover:cursor-pointer flex items-center gap-1"
                     // onClick={() => handleSortChange("flnm")}
                   >
-                    EMPLOYEE 
+                    EMPLOYEE
                     {/* <ArrowSwapVertical size="16" color="#6b7280" /> */}
                   </TableColumn>
                   <TableColumn>POSITION</TableColumn>
@@ -216,7 +215,9 @@ export default function ItemCards({
                       <TableCell className="">{user.jbcl_NM}</TableCell>
                       <TableCell className="">{user.dvsn_NM}</TableCell>
                       <TableCell className="">
-                        {user.use_INTT_ID ? user.use_INTT_ID : "KOSIGN"}
+                        {user.use_INTT_ID == "UTLZ_590"
+                          ? "KOSIGN"
+                          : ""}
                       </TableCell>
                       <TableCell className="text-center">
                         {user?.total_asset}
