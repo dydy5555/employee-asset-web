@@ -1,17 +1,24 @@
 "use client";
-
 import { Buildings, Devices, Profile } from "iconsax-react";
 import ListUsers from "@/components/ListUsers";
 import PageContent from "@/components/Layout/PageContent";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getSession } from "@/api/interceptor";
+import { useRouter } from "next/navigation";
+
+
 function Page() {
   const [session, setSession] = useState({});
+  const router = useRouter();
   useEffect(() => {
     getSession().then((res) => {
       setSession(res);
+      if(res === 401) {
+        router.push('error')
+      }
     });
+
   }, []);
   console.log({ session });
   return (
@@ -33,7 +40,7 @@ function Page() {
           Item{"'"}s user
         </p>
       </div>
-      <ListUsers />
+      <ListUsers comID={session?.use_intt_id} />
     </div>
   );
 }

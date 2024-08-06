@@ -29,7 +29,7 @@ import { PlusIcon } from "../../../../public/icons/PlusIcon";
 import { ChevronDownIcon } from "../../../../public/icons/ChevronDownIcon";
 import { SearchIcon } from "../../../../public/icons/SearchIcon";
 import { capitalize } from "@/utils/util";
-import { Back } from "iconsax-react";
+import { Back, Edit } from "iconsax-react";
 import AssetItemDetail from "@/components/AssetItemDetail";
 import ManageHistoryRoundedIcon from "@mui/icons-material/ManageHistoryRounded";
 import DetailsRoundedIcon from "@mui/icons-material/DetailsRounded";
@@ -37,6 +37,7 @@ import { func_GetItemHistoryByItemId } from "@/services/itemhistory.service";
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined';
 import DoNotDisturbOnTotalSilenceOutlinedIcon from '@mui/icons-material/DoNotDisturbOnTotalSilenceOutlined';
 import { formatDateForUi } from "@/services/commonfunc.service";
+import UpdateItem from "@/components/UpdateItem";
 const statusColorMap = {
   RETURNED: "success",
   INUSE: "warning",
@@ -385,7 +386,7 @@ export default function TableItemHistory({ selectItem }) {
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex w-full  flex-col">
       <Tabs
         aria-label="Options"
         color="primary"
@@ -409,6 +410,7 @@ export default function TableItemHistory({ selectItem }) {
         >
           <AssetItemDetail itemId={selectItem} />
         </Tab>
+
         <Tab
           key="history"
           title={
@@ -456,6 +458,15 @@ export default function TableItemHistory({ selectItem }) {
               )}
             </TableBody>
           </Table>
+        </Tab>
+        <Tab key="edit"
+          title={
+            <div className="flex items-center space-x-2">
+              <Edit size="20"/>
+              <span>Edit</span>
+            </div>
+          }>
+            <UpdateItem itemId={selectItem} />
         </Tab>
       </Tabs>
     </div>

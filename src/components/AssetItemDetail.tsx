@@ -22,9 +22,12 @@ import { PlusIcon } from "../../public/icons/PlusIcon";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import MoreOutlinedIcon from "@mui/icons-material/MoreOutlined";
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+
 const AssetItemDetail = ({ itemId }) => {
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
+
+  console.log(itemId)
   useEffect(() => {
     const fetchData = () => {
       setLoading(true);
@@ -34,10 +37,10 @@ const AssetItemDetail = ({ itemId }) => {
         setLoading(false);
       });
     };
-
     fetchData();
   }, []);
-
+  
+ 
 
   return (
     <>
@@ -45,16 +48,17 @@ const AssetItemDetail = ({ itemId }) => {
         <Image
           isBlurred
           isZoomed
-          width={800}
+          width={500}
+          className="max-w-[450px] max-h-[435px]"
           alt="item photo"
           src={data?.img_url}
         />
         {loading ? (
-          <div className="w-full rounded-md customShadow h-[44vh] flex justify-center items-center">
+          <div className="w-full rounded-md custom Shadow h-[44vh] flex justify-center items-center">
             <div className="custom-loader"></div>
           </div>
         ) : (
-          <div className="w-full h-[44vh] space-y-3 customShadow p-3 rounded-md">
+          <div className="w-full  max-h-[435px] h-full space-y-3 customShadow p-3 rounded-md">
             {data?.allAssets?.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center">
                 {/* <h1 className="font-bold text-[14px]">Name</h1> */}
@@ -143,7 +147,7 @@ const AssetItemDetail = ({ itemId }) => {
                     </h1>
                   </div>
                 </div>
-                <div className="w-full border h-[22vh] mt-3 p-3 rounded-md space-y-3 overflow-y-auto custom-scroll">
+                <div className="w-full border max-h-[185px] mt-3 p-3 rounded-md space-y-3 overflow-y-auto custom-scroll">
                   <div className="flex justify-start items-start gap-2">
                     <MoreOutlinedIcon
                       fontSize="small"

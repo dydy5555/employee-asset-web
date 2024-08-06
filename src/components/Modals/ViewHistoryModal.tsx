@@ -76,7 +76,7 @@ export default function ViewHistoryModal({ selectItem, openHistory, setOpenHisto
         size="5xl"
         // className="w-[100vw]"
       >
-        <ModalContent  className="h-[70vh]">
+        <ModalContent  className="h-[650px]">
           {(onClose) => (
             <>                                                                        
               <ModalHeader className="flex flex-col gap-1">
@@ -84,7 +84,7 @@ export default function ViewHistoryModal({ selectItem, openHistory, setOpenHisto
                   Item Detail
                 </p>
               </ModalHeader>
-              <ModalBody className="overflow-y-auto custom-scroll">
+              <ModalBody className="overflow-y-auto py-0 gap-0 ">
                 <div className="py-0 px-5">
                   <TableItemHistory selectItem={selectItem} />
                 </div>

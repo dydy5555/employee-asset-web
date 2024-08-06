@@ -9,38 +9,26 @@ import {
   Button,
   useDisclosure,
   Input,
-  Select,
-  SelectItem,
-  Avatar,
   Autocomplete,
   AutocompleteItem,
   Card,
   Tabs,
   Tab,
-  DateRangePicker,
-  DatePicker,
 } from "@nextui-org/react";
 import { useDropzone } from "react-dropzone";
-import { parseAbsoluteToLocal } from "@internationalized/date";
 import {
-  fetchAllCCategory,
   func_EditCategory,
   func_GetCategoryByID,
 } from "@/services/category.service";
-import { getListEmployee } from "@/services/employee.service";
-import { func_CreateAsset } from "@/services/assets.service";
-import toast from "react-hot-toast";
-import NoImage from "../../../public/images/no_app.jpg";
+
 import Image from "next/image";
 import think from "../../../public/images/icon/Thinkin.svg";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import InsertPhotoOutlinedIcon from "@mui/icons-material/InsertPhotoOutlined";
 import { API_URL1, ihttpFormData } from "@/api/interceptor";
-import axios from "axios";
 import { func_CreateNewitem } from "@/services/item.service";
 import PurchaseAndStockDate from "../PurchaseAndStockDate";
-import QuantityInput from "../QuantityInput";
 import PriceInput from "../PriceInput";
 import RemarkInput from "../RemarkInput";
 import {
@@ -248,13 +236,10 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
     setIsSelected(false);
     setIsSelectedUser(false);
     setUserSeleted([]); // Note the typo, should be setUserSelected
-    // setAllCate([]);
     setSubCate([]);
     setAllUser([]);
     setInputValues({});
     setCateName("");
-    // setSubCategories(undefined); // or setSubCategories([]);
-    // setAllAssets([]);
     setIsDisabledBtn(false);
     setItemImage(null);
     setLoading(false);
@@ -263,7 +248,6 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
     setStockDate("");
     setPrice("");
     setTextNote("");
-
     setOpenMod(false);
   };
 
@@ -417,10 +401,10 @@ export default function AddNewItem({ onItemCreated, setOpenMod, openMod }) {
                                 </div>
                                 <div className="mt-2">
                                   {/* remark */}
-                                <RemarkInput
-                                  textNote={textNote}
-                                  setTextNote={setTextNote}
-                                />
+                                  <RemarkInput
+                                    textNote={textNote}
+                                    setTextNote={setTextNote}
+                                  />
                                 </div>
                               </div>
                               <div className="mb-8">

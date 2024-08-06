@@ -23,6 +23,7 @@ import ConfirmDeleteUser from "./Modals/ConfirmDeleteUser";
 import { getByUserAndCompany } from "@/services/assets.service";
 import NoApp from "../../public/images/no_app.jpg";
 import Image from "next/image";
+import userProfile from "../../public/images/user/user_profile.png";
 
 export default function ItemCards({
   allEmployeeAssets,
@@ -137,7 +138,7 @@ export default function ItemCards({
 
   return (
     <>
-      <div className="h-full w-full mt-4">
+      <div className="h-full w-full ">
         <div className="flex justify-between items-center py-2 px-2">
           <span className="text-default-400 text-small">
             Total sort : {filteredAssets?.length} users
@@ -156,7 +157,7 @@ export default function ItemCards({
         </div>
 
         <Card className="p-5 mt-1 shadow-small">
-          <div className="min-h-[620px] max-h-[460px] overflow-auto rounded-lg pr-2">
+          <div className="min-h-[640px] max-h-[460px] overflow-auto rounded-lg pr-2">
             {!isLoading ? (
               <Table
                 topContentPlacement="outside"
@@ -196,28 +197,25 @@ export default function ItemCards({
                         {(page - 1) * rowsPerPage + index + 1}
                       </TableCell>
                       <TableCell className=" ">
-                        <div className="flex items-center ">
-                          <User
-                            className="h-full "
-                            avatarProps={{
-                              radius: "full",
-                              src: user.prfl_PHTG
-                                ? user.prfl_PHTG
-                                : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png",
-                            }}
-                            description={user.userId}
-                            name={user.flnm}
-                          >
-                            {user.flnm}
-                          </User>
+                        <div className="flex items-center gap-2">
+                          <Image
+                            width={100}
+                            height={100}
+                            alt={user.flnm}
+                            src={user.prfl_PHTG ? user.prfl_PHTG : userProfile}
+                            className="w-[45px] h-[45px] object-cover rounded-full dark:block border-[1px] border-gray-100"
+                          />
+                          <div className="">
+                            <p> {user.flnm}</p>
+                            <p className="text-[12px] text-gray-400"> {user.userId}</p>
+                          </div>
+                         
                         </div>
                       </TableCell>
                       <TableCell className="">{user.jbcl_NM}</TableCell>
                       <TableCell className="">{user.dvsn_NM}</TableCell>
                       <TableCell className="">
-                        {user.use_INTT_ID == "UTLZ_590"
-                          ? "KOSIGN"
-                          : ""}
+                        {user.use_INTT_ID == "UTLZ_590" ? "KOSIGN" : ""}
                       </TableCell>
                       <TableCell className="text-center">
                         {user?.total_asset}

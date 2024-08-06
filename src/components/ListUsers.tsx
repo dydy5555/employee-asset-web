@@ -33,7 +33,7 @@ import { users } from "../data/users";
 import ItemCards from "./ItemCards";
 import AssestByUserList from "./AssestByUserList";
 import { log } from "console";
-import { fetchSessionAndPermission } from "@/api/interceptor";
+import { fetchSessionAndPermission, getSession } from "@/api/interceptor";
 import {
   fetchAllEmplByCom,
   fetchAllEmplByComWithAssset,
@@ -51,7 +51,7 @@ import AddNewAsset from "./Modals/AddNewAsset";
 import { getListDeparment, getListEmployee } from "@/services/employee.service";
 import { fetchAllItems } from "@/services/item.service";
 
-function ListUsers() {
+function ListUsers({comID}) {
   const [lUser, setLUser] = useState<any>([]);
   const [cachedData, setCachedData] = useState(null);
   const [activeUserId, setActiveUserId] = useState("");
@@ -76,10 +76,7 @@ function ListUsers() {
   const [allEmployeeAssets, setAllEmployeeAssets] = useState([]);
   const [sortedAssets, setSortedAssets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    fetchAssetUser();
-  }, []);
+  const [session, setSession] = useState({});
 
   useEffect(() => {
     setLoading(true);
@@ -117,20 +114,24 @@ function ListUsers() {
 
     fetchData();
     getAllCate();
-  }, [cachedData]);
+  }, [cachedData,comID]);
 
-  // console.log(allCate)
+  useEffect(() => {
+    fetchAssetUser();
+  }, [comID]);
 
+  
+  console.log({comID})
   const fitlerUsers = async (form: any) => {
+    const formTemp = {
+      comId: comID,
+      appId: "string",
+      status: "ALL",
+    };
+console.log(formTemp)
     try {
-      const formTemp = {
-        comId: "UTLZ_590",
-        appId: "string",
-        status: "ALL",
-      };
-
       getListEmployee(formTemp).then((res) => {
-        setAssetUser(res.data?.payload?.user);
+        setAssetUser(res?.data?.payload?.user);
       });
     } catch (error) {
       console.error("Error fetching filtered users", error.message);
@@ -139,6 +140,7 @@ function ListUsers() {
       }
     }
   };
+
 
   // const companyList = async (permissionData: any) => {
   const companyList = async () => {
@@ -161,11 +163,14 @@ function ListUsers() {
   };
 
   const listDepartment = async (com_cd: any) => {
-    localStorage.setItem("com_id", com_cd);
+    // localStorage.setItem("com_id", com_cd);
     if (com_cd != "") {
       try {
         getListDeparment(com_cd).then(async (res) => {
-          setDep(res.data.payload);
+          if(res?.status == 200) {
+            setDep(res?.data?.payload);
+          }
+          
         });
       } catch (error) {
         console.log("error");
@@ -260,10 +265,11 @@ function ListUsers() {
       setLUser(res.data.payload);
     }
   };
+
   const fetchAssetUser = () => {
     setIsLoading(true);
     try {
-      fetchAllEmplByComWithAssset("UTLZ_590").then((res) => {
+      fetchAllEmplByComWithAssset(comID).then((res) => {
         if (res?.status == 200) {
           setAllEmployeeAssets(res?.data?.payload);
           setIsLoading(false);

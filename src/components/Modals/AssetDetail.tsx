@@ -26,6 +26,7 @@ import { func_CreateHistoryItem } from "@/services/itemhistory.service";
 import moment from "moment";
 import NoImage from "../../../public/images/no_app.jpg";
 import { showToastSuccess } from "@/services/commonfunc.service";
+import userProfile from "../../../public/images/user/user_profile.png"
 
 export default function AssetDetail({
   setOpenMod,
@@ -247,7 +248,7 @@ export default function AssetDetail({
                           src={
                             sendUser.prfl_PHTG
                               ? sendUser.prfl_PHTG
-                              : "https://d2u8k2ocievbld.cloudfront.net/memojis/female/3.png"
+                              : userProfile
                           }
                           alt={sendUser?.flnm}
                           className="w-[150px] h-[150px] object-cover p-1 rounded-full dark:block border-[1px] border-gray-100"

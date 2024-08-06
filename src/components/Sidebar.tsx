@@ -34,9 +34,9 @@ function Sidebar() {
     }
   }, [isAdmin]);
 
-  console.log(session.dvsn_NM);
-  console.log({ session });
-  console.log({ isAdmin });
+  // console.log(session.dvsn_NM);
+  // console.log({ session });
+  // console.log({ isAdmin });
   // console.log({ allUsers });
   // dvsn_NM: "HR"
   return (
