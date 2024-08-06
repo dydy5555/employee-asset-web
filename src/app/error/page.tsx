@@ -3,19 +3,19 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import ErrorImage from "../../..//public/images/icon/404.svg";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { getSession } from "@/api/interceptor";
 
-function page() {
-  const pathname = usePathname();
+function ErrorPage() {
   const [session, setSession] = useState({});
-  const router = useRouter();
+  const Router = useRouter();
+
   useEffect(() => {
     getSession().then((res) => {
       setSession(res);
       if(res !== 401) {
-        router.push('app/employee-assets')
+        Router.push('app/employee-assets')
       }
     });
 
@@ -49,4 +49,4 @@ function page() {
   );
 }
 
-export default page;
+export default ErrorPage;
