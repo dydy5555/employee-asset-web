@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import ErrorImage from "../../../../public/images/icon/404.svg";
+import ErrorImage from "../../..//public/images/icon/404.svg";
 import { usePathname, useRouter } from "next/navigation";
 
 import { getSession } from "@/api/interceptor";
